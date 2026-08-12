@@ -1,0 +1,19 @@
+## Grounding the Aesthetic: Acid Design for Streamforge
+
+**Where it comes from.** Acid design borrows its DNA from three sources: late-80s/early-90s acid house rave flyers, Y2K-era web and software interfaces, and contemporary digital brutalism. The rave lineage gives it the smiley-face iconography, warped and liquid typography, and clashing fluorescent color. The Y2K lineage gives it chrome, scanlines, terminal aesthetics, and UI chrome treated as decoration rather than invisible framing. Brutalism gives it the confidence to let structure show — raw grids, exposed borders, no soft shadows pretending to be physical materials.
+
+**Palette.** The foundation is near-black — not pure black, but a deep, slightly cool void (#0a0a0f territory) that makes fluorescence possible. Against that: acid green (chartreuse/lime, #ccff00), electric magenta, and a hot orange or cyan as a third voice. The key discipline is that neons are *accents on darkness*, never fills for large areas. White is used for body text but often tinted slightly toward the accent. Gradients appear, but they're harsh and synthetic — hard-stopped or banded, never soft airbrushed blends. The overall effect should feel like a screen in a dark room, not a printed page.
+
+**Typography.** Two typefaces, maximum contrast. Display type is either a warped, liquid, or stretched grotesque — think letters that look melted, inflated, or glitching — or a heavy condensed sans pushed to aggressive sizes with tight tracking. Body and functional text is monospaced, always: the terminal font is both an aesthetic marker and, for this product, a literal one — developers read code in mono, so mono *is* the brand voice. Hierarchy comes from scale violence: 100px headlines next to 11px mono labels. Text gets treated as texture — repeating ticker lines, vertical text, outlined (stroked, hollow) letters.
+
+**Texture and surface.** Noise, dithering, scanlines, and pixelation are the grain of the material. Nothing is clean vector-smooth if it can carry a bitmap artifact instead. Glows exist but are tight and chromatic — a lime glow on a hover state, not a soft ambient bloom. Chrome/metallic gradients appear sparingly on buttons or badges. Cursors, crosshairs, and plus-sign registration marks scatter across the layout like a design file left open. ASCII characters and box-drawing glyphs function as ornament.
+
+**Layout logic.** Anti-grid within a grid. The underlying structure is a strict, visible column system — borders drawn, cells outlined, sections separated by hard 1px rules — but elements break out of it: rotated stickers, overlapping type, marquee tickers that slice horizontally across sections. Dense, information-rich, almost crowded — it rejects the startup-default of vast white space and one polite sentence per viewport. Content competes for attention like a flyer wall. Motion is constant but mechanical: tickers scroll, numbers flicker, cursors blink, elements snap rather than ease gently.
+
+**What it rejects.** Softness, roundness as a personality, pastel gradients, drop shadows that imitate paper, friendly illustration, centered-hero-with-two-buttons minimalism, and anything "approachable." It also rejects irony-free corporate polish — there's a deliberate lo-fi, slightly unhinged energy, like the software was made by people who love it too much.
+
+**Translation to Streamforge.** The concept maps unusually well: live code, terminals, and model output are already mono-font, dark-background, high-density material. The product's UI (stream player, prompt log, diff view, fork button) can *be* the landing page's visual content — a real interface screenshot is more on-brand than any illustration. "Fork the repo" becomes a rave-flyer sticker. Live viewer counts become flickering tickers. The acid direction isn't decoration pasted onto the product; the product already looks like this.
+
+---
+
+Want me to build the landing page on this foundation next?

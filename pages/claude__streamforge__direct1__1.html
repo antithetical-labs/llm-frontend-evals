@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAMFORGE // build software live with AI</title>
+<style>
+  :root{
+    --acid:#ccff00;
+    --acid-2:#a3ff12;
+    --cyan:#00f0ff;
+    --magenta:#ff00a8;
+    --violet:#7b2bff;
+    --ink:#07070a;
+    --ink-2:#0d0d12;
+    --grey:#8c8c99;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, "Inter", system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  html{scroll-behavior:smooth}
+
+  body{
+    background:var(--ink);
+    color:#fff;
+    font-family:var(--mono);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- global textures ---------- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background-image:
+      linear-gradient(to right, rgba(204,255,0,.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(204,255,0,.045) 1px, transparent 1px);
+    background-size:64px 64px;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:-50%;
+    z-index:2;
+    pointer-events:none;
+    opacity:.05;
+    background-image:
+      repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+
+  .wrap{position:relative;z-index:5;max-width:1280px;margin:0 auto;padding:0 24px}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(14px);
+    background:rgba(7,7,10,.72);
+    border-bottom:1px solid rgba(204,255,0,.22);
+  }
+  .nav-in{
+    max-width:1280px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;gap:24px;
+  }
+  .logo{
+    font-family:var(--sans);
+    font-weight:800;letter-spacing:-.04em;
+    font-size:20px;text-transform:uppercase;
+    display:flex;align-items:center;gap:9px;
+  }
+  .logo .blob{
+    width:14px;height:14px;border-radius:50%;
+    background:conic-gradient(from 0deg,var(--acid),var(--cyan),var(--magenta),var(--acid));
+    box-shadow:0 0 18px var(--acid);
+    animation:spin 3s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .nav-links{display:flex;gap:22px;margin-left:auto;font-size:11px;text-transform:uppercase;letter-spacing:.16em}
+  .nav-links a{color:var(--grey);text-decoration:none;transition:.2s}
+  .nav-links a:hover{color:var(--acid)}
+  .nav-cta{
+    font-size:11px;text-transform:uppercase;letter-spacing:.16em;
+    background:var(--acid);color:#000;text-decoration:none;
+    padding:10px 16px;font-weight:700;
+    clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  }
+  .nav-cta:hover{background:#fff}
+  @media(max-width:860px){.nav-links{display:none}}
+
+  /* ---------- live ticker ---------- */
+  .ticker{
+    background:var(--acid);color:#000;
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.22em;
+    padding:8px 0;overflow:hidden;white-space:nowrap;position:relative;z-index:40;
+  }
+  .ticker div{display:inline-block;animation:slide 26s linear infinite;padding-left:100%}
+  .ticker span{margin:0 26px}
+  @keyframes slide{to{transform:translateX(-100%)}}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    position:relative;
+    padding:88px 0 96px;
+    overflow:hidden;
+    border-bottom:1px solid rgba(255,255,255,.09);
+  }
+  .glow{
+    position:absolute;border-radius:50%;filter:blur(110px);z-index:0;pointer-events:none;
+  }
+  .g1{width:620px;height:620px;background:rgba(123,43,255,.5);top:-220px;left:-140px}
+  .g2{width:520px;height:520px;background:rgba(204,255,0,.26);bottom:-260px;right:-100px}
+  .g3{width:380px;height:380px;background:rgba(255,0,168,.30);top:40%;right:26%}
+
+  .tag{
+    display:inline-flex;align-items:center;gap:9px;
+    border:1px solid rgba(204,255,0,.5);
+    color:var(--acid);
+    font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    padding:7px 13px;margin-bottom:30px;
+    background:rgba(204,255,0,.06);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--magenta);box-shadow:0 0 10px var(--magenta);animation:pulse 1.2s infinite}
+  @keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+
+  h1{
+    font-family:var(--sans);
+    font-weight:800;
+    font-size:clamp(46px,9.2vw,140px);
+    line-height:.86;
+    letter-spacing:-.05em;
+    text-transform:uppercase;
+    max-width:14ch;
+  }
+  h1 .chrome{
+    background:linear-gradient(175deg,#fff 0%,#c9c9d6 28%,#5b5b6b 48%,#fff 60%,#9a9aa8 82%,#e9e9f2 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  h1 .acid{
+    color:var(--acid);
+    text-shadow:0 0 34px rgba(204,255,0,.5);
+  }
+  h1 em{
+    font-style:normal;
+    -webkit-text-stroke:2px var(--cyan);
+    color:transparent;
+  }
+  .lede{
+    margin-top:28px;max-width:56ch;
+    color:#b9b9c6;font-size:15px;line-height:1.65;
+  }
+  .lede b{color:#fff;font-weight:500}
+
+  .btns{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px;align-items:center}
+  .btn{
+    text-decoration:none;font-size:12px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.16em;
+    padding:17px 30px;display:inline-block;transition:.18s;
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+  }
+  .btn-primary{background:var(--acid);color:#000;box-shadow:0 0 0 rgba(204,255,0,.6)}
+  .btn-primary:hover{box-shadow:0 0 40px rgba(204,255,0,.55);transform:translate(-2px,-2px)}
+  .btn-ghost{border:1px solid rgba(255,255,255,.28);color:#fff}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative;z-index:5}
+  @media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:44px}}
+
+  /* ---------- fake stream window ---------- */
+  .screen{
+    border:1px solid rgba(204,255,0,.28);
+    background:linear-gradient(160deg,#101018,#08080c);
+    box-shadow:0 40px 90px -30px rgba(123,43,255,.6), inset 0 0 60px rgba(0,240,255,.05);
+    overflow:hidden;
+  }
+  .screen-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.03);
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--grey)
+  }
+  .live{
+    background:var(--magenta);color:#fff;font-weight:700;
+    padding:3px 7px;letter-spacing:.14em;font-size:9px;
+  }
+  .screen-bar .who{color:#fff}
+  .screen-bar .cnt{margin-left:auto;color:var(--acid)}
+  .panes{display:grid;grid-template-columns:1fr 1fr;min-height:320px}
+  .pane{padding:16px;font-size:11.5px;line-height:1.75}
+  .pane+.pane{border-left:1px solid rgba(255,255,255,.09)}
+  .plabel{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--grey);margin-bottom:12px;display:block}
+  .prompt{color:var(--cyan)}
+  .prompt .caret{background:var(--cyan);display:inline-block;width:7px;height:13px;vertical-align:-2px;animation:pulse .9s steps(1) infinite}
+  .code{color:#d7d7e2;white-space:pre-wrap}
+  .code .k{color:var(--magenta)}
+  .code .f{color:var(--acid)}
+  .code .s{color:#7de3ff}
+  .code .c{color:#5a5a68}
+  .diffbar{
+    display:flex;gap:1px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.09);
+    font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey);align-items:center
+  }
+  .diffbar .plus{color:var(--acid);margin-right:12px}
+  .diffbar .minus{color:var(--magenta)}
+  .diffbar .fork{margin-left:auto;color:#000;background:var(--acid);padding:5px 9px;font-weight:700}
+  @media(max-width:560px){.panes{grid-template-columns:1fr}.pane+.pane{border-left:0;border-top:1px solid rgba(255,255,255,.09)}}
+
+  /* ---------- marquee strip ---------- */
+  .strip{
+    border-top:1px solid rgba(255,255,255,.09);
+    border-bottom:1px solid rgba(255,255,255,.09);
+    background:var(--ink-2);
+    padding:18px 0;overflow:hidden;white-space:nowrap;
+  }
+  .strip div{display:inline-block;animation:slide 22s linear infinite;padding-left:100%}
+  .strip span{
+    font-family:var(--sans);font-weight:800;text-transform:uppercase;
+    font-size:26px;letter-spacing:-.02em;margin:0 20px;color:transparent;
+    -webkit-text-stroke:1px rgba(255,255,255,.3);
+  }
+  .strip span.hot{-webkit-text-stroke:1px var(--acid);color:var(--acid)}
+
+  /* ---------- section chrome ---------- */
+  section{padding:104px 0;position:relative}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:56px;flex-wrap:wrap}
+  .num{
+    font-family:var(--sans);font-weight:800;font-size:13px;color:var(--acid);
+    border:1px solid rgba(204,255,0,.4);padding:5px 9px;letter-spacing:.1em
+  }
+  h2{
+    font-family:var(--sans);font-weight:800;text-transform:uppercase;
+    font-size:clamp(32px,5.4vw,66px);line-height:.92;letter-spacing:-.045em;
+  }
+  h2 .out{-webkit-text-stroke:1.5px var(--acid);color:transparent}
+  .sec-sub{color:var(--grey);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-left:auto}
+
+  /* ---------- how it works ---------- */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12)}
+  .step{background:var(--ink);padding:30px 24px 34px;position:relative;transition:.2s}
+  .step:hover{background:#0f1108}
+  .step .idx{
+    font-family:var(--sans);font-weight:800;font-size:52px;line-height:1;
+    letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.22);
+  }
+  .step:hover .idx{-webkit-text-stroke:1.5px var(--acid)}
+  .step h3{font-family:var(--sans);font-size:16px;text-transform:uppercase;letter-spacing:-.01em;margin:16px 0 10px}
+  .step p{color:var(--grey);font-size:12px;line-height:1.7}
+  .step::after{
+    content:"→";position:absolute;top:32px;right:-11px;color:var(--acid);font-size:14px;
+    background:var(--ink);padding:0 4px;z-index:4
+  }
+  .step:last-child::after{content:""}
+  @media(max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}.step::after{display:none}}
+  @media(max-width:520px){.steps{grid-template-columns:1fr}}
+
+  /* ---------- features ---------- */
+  .features{display:grid;gap:20px}
+  .feat{
+    border:1px solid rgba(255,255,255,.13);
+    padding:38px;display:grid;grid-template-columns:120px 1fr 300px;gap:34px;align-items:start;
+    background:linear-gradient(120deg,rgba(255,255,255,.03),transparent 60%);
+    position:relative;overflow:hidden;transition:.22s;
+  }
+  .feat:hover{border-color:var(--acid);transform:translateY(-3px)}
+  .feat .badge{
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:#000;background:var(--acid);padding:6px 8px;display:inline-block;font-weight:700
+  }
+  .feat:nth-child(2) .badge{background:var(--cyan)}
+  .feat:nth-child(3) .badge{background:var(--magenta);color:#fff}
+  .feat h3{font-family:var(--sans);font-weight:800;text-transform:uppercase;font-size:clamp(22px,2.8vw,34px);letter-spacing:-.04em;line-height:.98}
+  .feat p{color:#a9a9b8;font-size:13px;line-height:1.75;margin-top:14px;max-width:52ch}
+  .feat .visual{
+    border:1px dashed rgba(255,255,255,.2);padding:14px;font-size:10.5px;line-height:1.8;color:var(--grey);
+    background:rgba(0,0,0,.35)
+  }
+  .feat .visual b{color:var(--acid);font-weight:400}
+  .feat .visual i{color:var(--cyan);font-style:normal}
+  @media(max-width:920px){.feat{grid-template-columns:1fr;gap:20px;padding:28px}}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(204,255,0,.2);margin-top:80px}
+  .stat{background:var(--ink);padding:26px}
+  .stat b{font-family:var(--sans);font-weight:800;font-size:38px;letter-spacing:-.05em;color:var(--acid);display:block;line-height:1}
+  .stat span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-top:8px;display:block}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- CTA ---------- */
+  .cta{
+    position:relative;overflow:hidden;
+    background:var(--acid);color:#000;
+    padding:96px 0;
+  }
+  .cta::before{
+    content:"";position:absolute;inset:0;
+    background-image:linear-gradient(to right,rgba(0,0,0,.09) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.09) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  .cta .wrap{position:relative;z-index:3}
+  .cta h2{color:#000;max-width:18ch}
+  .cta h2 .out{-webkit-text-stroke:1.5px #000;color:transparent}
+  .cta p{font-size:13px;line-height:1.7;max-width:48ch;margin-top:20px;color:#1c1c1c}
+  form{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap;max-width:620px}
+  input[type=email]{
+    flex:1 1 260px;background:#000;border:1px solid #000;color:var(--acid);
+    font-family:var(--mono);font-size:13px;padding:17px 18px;outline:none;
+  }
+  input[type=email]::placeholder{color:#5f6b30}
+  input[type=email]:focus{box-shadow:0 0 0 3px rgba(0,0,0,.25)}
+  form button{
+    background:#000;color:var(--acid);border:1px solid #000;cursor:pointer;
+    font-family:var(--mono);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;
+    padding:17px 30px;transition:.18s;
+  }
+  form button:hover{background:#fff;color:#000;border-color:#000}
+  .fine{margin-top:16px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#2c2c2c}
+  .cta-side{
+    border:1px solid #000;padding:20px;font-size:11px;line-height:1.9;background:rgba(0,0,0,.06)
+  }
+  .cta-side b{display:block;font-family:var(--sans);font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:.06em;margin-bottom:10px}
+  .cta-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:48px;align-items:end}
+  @media(max-width:880px){.cta-grid{grid-template-columns:1fr;gap:32px;align-items:start}}
+
+  /* ---------- footer ---------- */
+  footer{padding:44px 0;border-top:1px solid rgba(255,255,255,.1);position:relative;z-index:5}
+  .foot-in{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#5f5f6d}
+  .foot-in a{color:#8c8c99;text-decoration:none}
+  .foot-in a:hover{color:var(--acid)}
+  .foot-in .r{margin-left:auto}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <div class="logo"><span class="blob"></span>Streamforge</div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#live">Live now</a>
+      <a href="#signup">Pricing</a>
+    </div>
+    <a href="#signup" class="nav-cta">Start streaming</a>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div>
+    <span>◆ 1,284 devs building live right now</span>
+    <span>◆ 41,902 repos forked mid-stream this week</span>
+    <span>◆ prompt → diff → deploy, in public</span>
+    <span>◆ no editing. no cuts. no fake demos.</span>
+    <span>◆ 1,284 devs building live right now</span>
+    <span>◆ 41,902 repos forked mid-stream this week</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="glow g3"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="tag"><span class="dot"></span>Live coding × AI assistants</span>
+      <h1><span class="chrome">Watch</span> <span class="acid">software</span> <em>get</em> <span class="chrome">built.</span></h1>
+      <p class="lede">Streamforge broadcasts the whole loop: the <b>prompt</b>, the <b>model's output</b>, the <b>diff</b>, and the code as it mutates — frame by frame. No polished tutorials. Real builds, real dead-ends, real refactors at 2AM.</p>
+      <p class="lede" style="margin-top:14px">Like what you see? <b>Fork the repo at any timestamp</b> and keep going from exactly where the streamer was.</p>
+      <div class="btns">
+        <a href="#live" class="btn btn-primary">Watch a live build</a>
+        <a href="#signup" class="btn btn-ghost">Claim your channel</a>
+      </div>
+    </div>
+
+    <div class="screen" id="live">
+      <div class="screen-bar">
+        <span class="live">● LIVE</span>
+        <span class="who">@nullpointer_ivy</span>
+        <span>rust · vector db from scratch</span>
+        <span class="cnt">2,431 watching</span>
+      </div>
+      <div class="panes">
+        <div class="pane">
+          <span class="plabel">Prompt stream</span>
+          <p class="prompt">&gt; the HNSW insert is O(n) on layer 0.<br>
+          rewrite it with a bounded<br>
+          candidate heap. keep the<br>
+          existing trait signature.<span class="caret"></span></p>
+          <p style="color:#5a5a68;margin-top:18px;font-size:10.5px">— claude-sonnet · 1,904 tok · 2.1s —</p>
+          <p style="color:#8c8c99;margin-top:12px;font-size:11px">chat: <span style="color:var(--acid)">@dmitri</span> heap needs a max-cap or you'll blow memory on 1M vecs</p>
+        </div>
+        <div class="pane">
+          <span class="plabel">index.rs · streaming diff</span>
+<pre class="code"><span class="c">// layer 0 insertion</span>
+<span class="k">fn</span> <span class="f">insert</span>(&<span class="k">mut self</span>, v: Vector) {
+  <span class="k">let mut</span> heap = <span class="f">BinaryHeap</span>::new();
+  heap.<span class="f">push</span>(Candidate {
+    id: <span class="s">self.entry</span>,
+    d: <span class="f">dist</span>(&v, <span class="s">&self.entry_v</span>),
+  });
+  <span class="k">while let</span> Some(c) = heap.<span class="f">pop</span>() {
+    <span class="k">if</span> heap.<span class="f">len</span>() &gt; EF_MAX {
+      <span class="k">break</span>;
+    }
+    <span class="c">// ...expand neighbors</span>
+  }
+}</pre>
+        </div>
+      </div>
+      <div class="diffbar">
+        <span class="plus">+41</span><span class="minus">−17</span>
+        <span style="margin-left:14px">commit a7f3c9 · 4s ago</span>
+        <span class="fork">⑂ Fork at 01:12:44</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div>
+    <span>Prompt</span><span class="hot">Output</span><span>Diff</span><span class="hot">Fork</span>
+    <span>Prompt</span><span class="hot">Output</span><span>Diff</span><span class="hot">Fork</span>
+    <span>Prompt</span><span class="hot">Output</span><span>Diff</span><span class="hot">Fork</span>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>How it <span class="out">works</span></h2>
+      <span class="sec-sub">four steps · zero setup</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="idx">01</div>
+        <h3>Plug in your editor</h3>
+        <p>Install the Streamforge extension for VS Code, Zed, or Neovim. It taps your AI assistant's request/response channel and your git working tree.</p>
+      </div>
+      <div class="step">
+        <div class="idx">02</div>
+        <h3>Go live</h3>
+        <p>One command. We broadcast three synced tracks: your prompts, the model's raw output, and a live diff of every file that changes.</p>
+      </div>
+      <div class="step">
+        <div class="idx">03</div>
+        <h3>Viewers watch &amp; heckle</h3>
+        <p>Chat is scoped to code. Viewers drop line comments, suggest prompts, and flag the bug you're about to ship — before you ship it.</p>
+      </div>
+      <div class="step">
+        <div class="idx">04</div>
+        <h3>Anyone forks it</h3>
+        <p>Every stream is a repo with a timeline. Fork at any second, get the exact tree state plus the full prompt history that produced it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Built for people who <span class="out">ship</span></h2>
+      <span class="sec-sub">three core systems</span>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <div><span class="badge">Triple track</span></div>
+        <div>
+          <h3>Prompt, output, and diff — locked to one clock</h3>
+          <p>Screen recordings hide the interesting part. Streamforge captures the assistant transcript as structured data and syncs it to git events, so you can see exactly which prompt produced which line. Scrub back, read the prompt, read the reasoning, read the diff.</p>
+        </div>
+        <div class="visual">
+          00:41:02 <b>prompt</b> "extract the retry logic"<br>
+          00:41:06 <i>output</i> 62 lines · 1 file<br>
+          00:41:09 <b>diff</b> src/http.ts +48 −22<br>
+          00:41:33 <i>test</i> ✓ 34 passed<br>
+          00:42:10 <b>prompt</b> "now make it cancelable"
+        </div>
+      </div>
+
+      <div class="feat">
+        <div><span class="badge">Fork anywhere</span></div>
+        <div>
+          <h3>Every stream is a forkable repository</h3>
+          <p>Hit fork at 01:12:44 and you get a branch with that exact tree, plus a <code>.forge/</code> log of every prompt used to get there. Take the stream's architecture and diverge — or fork the moment before the streamer made the wrong call and prove them wrong in public.</p>
+        </div>
+        <div class="visual">
+          $ forge clone ivy/hnsw@01:12:44<br>
+          → 214 files · 9,802 LOC<br>
+          → 148 prompts replayable<br>
+          <i>$ forge replay --from 00:00</i><br>
+          <b>ready.</b> your branch: fork/ivy-hnsw
+        </div>
+      </div>
+
+      <div class="feat">
+        <div><span class="badge">Secrets safe</span></div>
+        <div>
+          <h3>Redaction that runs before the packet leaves</h3>
+          <p>Env files, tokens, customer data and any path you blacklist are stripped client-side, at capture time — never buffered on our edge. Pause the broadcast with a hotkey, drop private scratch buffers into a hidden pane, and stream with your real credentials on screen without the cold sweat.</p>
+        </div>
+        <div class="visual">
+          .env ················ <b>BLOCKED</b><br>
+          sk-live-•••••••• ···· <b>MASKED</b><br>
+          /internal/** ········ <b>HIDDEN</b><br>
+          <i>hotkey ⌥⇧P → private mode</i><br>
+          latency cost: 0ms
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b>1.2K</b><span>Streams live daily</span></div>
+      <div class="stat"><b>41K</b><span>Mid-stream forks / week</span></div>
+      <div class="stat"><b>870ms</b><span>Diff-to-viewer latency</span></div>
+      <div class="stat"><b>93%</b><span>Streams end with a merge</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="signup" style="padding:96px 0">
+  <div class="wrap cta-grid">
+    <div>
+      <span class="num" style="color:#000;border-color:#000">03</span>
+      <h2 style="margin-top:22px">Go live on your <span class="out">next commit</span></h2>
+      <p>Free while in beta. Unlimited public streams, unlimited forks, 30-day timeline retention. Bring your own assistant — Claude, GPT, Gemini, local models, all supported.</p>
+      <form onsubmit="this.querySelector('button').textContent='✓ You&#39;re on the list';return false;">
+        <input type="email" placeholder="dev@yourdomain.com" required aria-label="Email address">
+        <button type="submit">Get my channel</button>
+      </form>
+      <p class="fine">No credit card · Invite lands within 24h · Cancel with one command</p>
+    </div>
+    <div class="cta-side">
+      <b>What you get on day one</b>
+      → Editor extension + CLI<br>
+      → Channel at forge.sh/@you<br>
+      → Auto-clipped highlights<br>
+      → Fork analytics per stream<br>
+      → Private team streams (5 seats)
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div class="logo" style="font-size:15px"><span class="blob"></span>Streamforge</div>
+    <a href="#how">Docs</a>
+    <a href="#live">Live</a>
+    <a href="#features">Changelog</a>
+    <a href="#signup">Status</a>
+    <span class="r">© 2025 Streamforge Labs — built in public, obviously</span>
+  </div>
+</footer>
+
+</body>
+</html>

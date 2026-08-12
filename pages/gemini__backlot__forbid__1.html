@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | Operations for Content Creators</title>
+    <style>
+        /* Base & Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #faf9f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Typography */
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            color: #000;
+        }
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            letter-spacing: -0.03em;
+        }
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            letter-spacing: -0.02em;
+        }
+        h3 {
+            font-size: 1.5rem;
+        }
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: #4a4a4a;
+        }
+
+        /* Layout & Utilities */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .section {
+            padding: 6rem 0;
+        }
+        
+        /* Buttons - NO Pill shapes (using 4px radius), NO Gradients */
+        .btn {
+            display: inline-block;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            border: 2px solid #000;
+        }
+        .btn-primary {
+            background-color: #4361ee;
+            color: #fff;
+            box-shadow: 4px 4px 0px #000;
+        }
+        .btn-primary:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+        .btn-secondary {
+            background-color: #fff;
+            color: #000;
+        }
+        .btn-secondary:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Header */
+        header {
+            padding: 1.5rem 0;
+            border-bottom: 2px solid #000;
+            background-color: #fff;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-decoration: none;
+            color: #000;
+            letter-spacing: -0.05em;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0;
+            text-align: center;
+            background-color: #ffe66d;
+            border-bottom: 2px solid #000;
+        }
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            color: #1a1a1a;
+            font-size: 1.25rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            background-color: #faf9f5;
+            text-align: center;
+            border-bottom: 2px solid #000;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        .step {
+            padding: 2rem;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 4px;
+            text-align: left;
+            box-shadow: 4px 4px 0px #000;
+        }
+        .step-number {
+            display: inline-block;
+            background-color: #000;
+            color: #fff;
+            width: 2rem;
+            height: 2rem;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        /* Features Section */
+        .features {
+            background-color: #fff;
+            border-bottom: 2px solid #000;
+        }
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+        .feature-block:last-child {
+            margin-bottom: 0;
+        }
+        .feature-block:nth-child(even) .feature-text {
+            order: 2;
+        }
+        .feature-block:nth-child(even) .feature-visual {
+            order: 1;
+        }
+        .feature-visual {
+            aspect-ratio: 4/3;
+            border: 2px solid #000;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            box-shadow: 6px 6px 0px #000;
+        }
+        .visual-1 { background-color: #4cc9f0; }
+        .visual-2 { background-color: #f72585; color: #fff; }
+        .visual-3 { background-color: #4ade80; }
+
+        /* CTA Section */
+        .cta {
+            background-color: #4361ee;
+            color: #fff;
+            text-align: center;
+            padding: 8rem 0;
+        }
+        .cta h2, .cta p {
+            color: #fff;
+        }
+        .cta .btn-primary {
+            background-color: #ffe66d;
+            color: #000;
+            border-color: #000;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000;
+            color: #fff;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .feature-block {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .feature-block:nth-child(even) .feature-text {
+                order: 1;
+            }
+            .feature-block:nth-child(even) .feature-visual {
+                order: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">Backlot</a>
+            <nav>
+                <a href="#" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 1rem;">Log In</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero section">
+        <div class="container">
+            <h1>You make the videos.<br>We track the business.</h1>
+            <p>Backlot is the all-in-one operations hub for full-time creators. Stop digging through spreadsheets to find out when your next sponsor is paying you.</p>
+            <a href="#" class="btn btn-primary">Start Your Free Trial</a>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works section">
+        <div class="container">
+            <h2>How Backlot Works</h2>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto;">We designed Backlot for people who edit timelines, not spreadsheets. Get your back-office running in three simple steps.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h3>Forward your emails</h3>
+                    <p>Just forward your signed brand-deal contracts to your unique Backlot email address. We automatically parse the deliverables and payout terms.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h3>Generate the invoice</h3>
+                    <p>When a video goes live, click one button to generate a professional invoice and send it to your sponsor.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h3>Track the cash</h3>
+                    <p>See exactly who owes you money, which invoices are overdue, and your incoming revenue from platforms like AdSense and Patreon.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features section">
+        <div class="container">
+            
+            <!-- Feature 1 -->
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>Brand Deals & Deadlines</h2>
+                    <p>Never miss a draft approval date again. Backlot extracts the key dates from your sponsor contracts and puts them into a simple, visual calendar.</p>
+                    <p>See what needs to be filmed, what needs to be edited, and what needs approval—all at a glance.</p>
+                </div>
+                <div class="feature-visual visual-1">
+                    [ Contract Tracker Dashboard ]
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>One-Click Invoicing</h2>
+                    <p>Don't spend hours formatting Word documents. Backlot stores your banking details and the sponsor's billing info, letting you spin up an invoice in seconds.</p>
+                    <p>We'll even send automated, polite follow-up emails when a sponsor is late on a Net-30 payment.</p>
+                </div>
+                <div class="feature-visual visual-2">
+                    [ Invoice Generator ]
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>Per-Platform Payouts</h2>
+                    <p>YouTube AdSense, TikTok Creator Fund, Patreon, and Twitch subs—your income comes from everywhere.</p>
+                    <p>Log your platform payouts in Backlot to see your true monthly income alongside your brand deals, giving you total peace of mind.</p>
+                </div>
+                <div class="feature-visual visual-3">
+                    [ Revenue Breakdown ]
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta section">
+        <div class="container">
+            <h2>Ready to get organized?</h2>
+            <p style="max-width: 600px; margin: 0 auto 2rem auto;">Join hundreds of solo creators who have ditched the messy spreadsheets and taken control of their creator business.</p>
+            <a href="#" class="btn btn-primary">Create Your Account</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p style="margin: 0; color: #999; font-size: 0.875rem;">&copy; 2023 Backlot App. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

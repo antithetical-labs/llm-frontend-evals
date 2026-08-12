@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | Creator Operations OS</title>
+    <style>
+        /* BASE & RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #050505;
+            --acid: #CCFF00;
+            --blue: #0044FF;
+            --magenta: #FF00FF;
+            --white: #F0F0F0;
+            --font-display: "Arial Black", Impact, "Arial Bold", sans-serif;
+            --font-mono: "Courier New", Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: var(--font-mono);
+            line-height: 1.5;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* GRID BACKGROUND TEXTURE */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(204, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(204, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        a {
+            color: var(--acid);
+            text-decoration: none;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            background: var(--acid);
+            color: var(--bg);
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            text-transform: uppercase;
+            border: 2px solid var(--acid);
+            box-shadow: 4px 4px 0px var(--white);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .btn:hover {
+            background: var(--magenta);
+            border-color: var(--magenta);
+            color: var(--white);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--white);
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            border-bottom: 1px solid rgba(204, 255, 0, 0.3);
+            background: rgba(5, 5, 5, 0.9);
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--white);
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 0px var(--magenta);
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 5%;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 7rem);
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            max-width: 1200px;
+        }
+
+        .hero h1 span {
+            color: var(--acid);
+            display: block;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--blue);
+            padding-left: 15px;
+            background: rgba(0, 68, 255, 0.1);
+        }
+
+        /* MARQUEE */
+        .marquee-container {
+            width: 100%;
+            background: var(--acid);
+            color: var(--bg);
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            border-top: 2px solid var(--white);
+            border-bottom: 2px solid var(--white);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* HOW IT WORKS (MODULAR) */
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            color: var(--white);
+            text-shadow: 3px 3px 0px var(--blue);
+        }
+
+        .how-it-works {
+            padding: 100px 5%;
+            border-bottom: 1px dashed var(--acid);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .module {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(5, 5, 5, 0.8);
+            padding: 30px;
+            position: relative;
+        }
+
+        .module::before {
+            content: "SYS_OP";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--bg);
+            padding: 0 10px;
+            color: var(--acid);
+            font-size: 0.8rem;
+        }
+
+        .module h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--acid);
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 100px 5%;
+        }
+
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .feature-block:nth-child(even) {
+            direction: rtl;
+        }
+        .feature-block:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-text h2 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            line-height: 0.9;
+        }
+
+        .feature-text p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        /* Terminal Window UI */
+        .ui-window {
+            background: #111;
+            border: 2px solid var(--white);
+            box-shadow: 10px 10px 0px var(--acid);
+        }
+
+        .ui-header {
+            background: var(--white);
+            color: var(--bg);
+            padding: 5px 10px;
+            font-family: var(--font-display);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ui-body {
+            padding: 20px;
+        }
+        
+        .ui-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            padding: 10px 0;
+        }
+
+        .f-magenta .ui-window { border-color: var(--magenta); box-shadow: 10px 10px 0px var(--magenta); }
+        .f-magenta .ui-header { background: var(--magenta); }
+        .f-magenta h2 { color: var(--magenta); }
+
+        .f-blue .ui-window { border-color: var(--blue); box-shadow: 10px 10px 0px var(--blue); }
+        .f-blue .ui-header { background: var(--blue); color: var(--white); }
+        .f-blue h2 { color: var(--blue); }
+
+        .f-acid .ui-window { border-color: var(--acid); box-shadow: 10px 10px 0px var(--acid); }
+        .f-acid .ui-header { background: var(--acid); }
+        .f-acid h2 { color: var(--acid); }
+
+        /* CTA SECTION */
+        .cta-section {
+            padding: 100px 5%;
+            text-align: center;
+            background: #111;
+            border-top: 5px solid var(--magenta);
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            margin-bottom: 30px;
+        }
+
+        .signup-form {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .signup-form input {
+            flex: 1;
+            background: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+            padding: 15px;
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            outline: none;
+        }
+
+        .signup-form input:focus {
+            border-color: var(--acid);
+            background: rgba(204, 255, 0, 0.1);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .feature-block {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .feature-block:nth-child(even) {
+                direction: ltr;
+            }
+            .signup-form {
+                flex-direction: column;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">BACKLOT.OS</div>
+        <a href="#signup" class="btn">INITIALIZE</a>
+    </nav>
+
+    <header class="hero">
+        <h1>STOP PLAYING ACCOUNTANT. <br><span>BUILD YOUR EMPIRE.</span></h1>
+        <p>
+            > RUNNING DIAGNOSTICS...<br>
+            > ERROR: TOO MANY SPREADSHEETS DETECTED.<br>
+            > FIX: Consolidate brand deals, track platform payouts, and kill missed sponsor deadlines in one brutal interface. Not for finance nerds. Built for creators.
+        </p>
+        <div>
+            <a href="#signup" class="btn">BOOT UP BACKLOT_</a>
+        </div>
+    </header>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            // INCOMING WIRE: YOUTUBE ADSENSE $4,250.00 // DEADLINE ALERT: NORDVPN READ DUE IN 24H // INVOICE PAID: SEATGEEK $8,000.00 // PENDING: TIKTOK CREATOR FUND $840.00 // INCOMING WIRE: YOUTUBE ADSENSE $4,250.00 // DEADLINE ALERT: NORDVPN READ DUE IN 24H // INVOICE PAID: SEATGEEK $8,000.00 // PENDING: TIKTOK CREATOR FUND $840.00 //
+        </div>
+    </div>
+
+    <section class="how-it-works">
+        <h2 class="section-title">SYSTEM_LOGIC</h2>
+        <div class="grid-3">
+            <div class="module">
+                <h3>01. AGGREGATE</h3>
+                <p>Dump your raw data here. Sync your YouTube, TikTok, and Twitch revenues alongside manual brand deal contracts. One master ledger.</p>
+            </div>
+            <div class="module">
+                <h3>02. ENFORCE</h3>
+                <p>Never miss a deliverable. Backlot extracts deadlines from contracts and screams at you before you drop the ball on a sponsor.</p>
+            </div>
+            <div class="module">
+                <h3>03. LIQUIDATE</h3>
+                <p>Track what's owed, what's processing, and what's hit the bank. Auto-generate invoices that look like they came from the year 2099.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <!-- Feature 1 -->
+        <div class="feature-block f-magenta">
+            <div class="feature-text">
+                <h2>DEALS &<br>INVOICES</h2>
+                <p>Upload the PDF. We parse the legal garbage. See your total pipeline value, pending payments, and historical brand value without opening Excel.</p>
+            </div>
+            <div class="ui-window">
+                <div class="ui-header">
+                    <span>INVOICE_TRACKER.EXE</span>
+                    <span>[X]</span>
+                </div>
+                <div class="ui-body">
+                    <div class="ui-row"><span>BRAND: RAID SHADOW LEGENDS</span><span style="color:var(--acid);">PAID</span></div>
+                    <div class="ui-row"><span>BRAND: GYMSHARK</span><span style="color:var(--magenta);">NET-30 PENDING</span></div>
+                    <div class="ui-row"><span>BRAND: SQUARESPACE</span><span style="color:var(--acid);">PAID</span></div>
+                    <div class="ui-row" style="margin-top: 20px; font-weight: bold;"><span>AWAITING DEPOSIT:</span><span>$12,500.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-block f-blue">
+            <div class="ui-window">
+                <div class="ui-header">
+                    <span>DEADLINE_CRON.SH</span>
+                    <span>[X]</span>
+                </div>
+                <div class="ui-body">
+                    <div class="ui-row"><span style="color:red;">[!] DRAFT DUE</span><span>BETTERHELP - 12:00PM</span></div>
+                    <div class="ui-row"><span>[-] GO LIVE</span><span>RAYCON - TOMORROW</span></div>
+                    <div class="ui-row"><span>[-] ANALYTICS PULL</span><span>MANSCAPED - IN 3 DAYS</span></div>
+                </div>
+            </div>
+            <div class="feature-text">
+                <h2>SPONSOR<br>DEADLINES</h2>
+                <p>A unified chronological HUD for your obligations. Draft reviews, go-live dates, and 30-day analytic reports are tracked aggressively.</p>
+            </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-block f-acid">
+            <div class="feature-text">
+                <h2>PLATFORM<br>PAYOUTS</h2>
+                <p>Stop logging into 5 different creator dashboards. See your aggregated AdSense, Creator Fund, and subscription revenues flowing into a single command center.</p>
+            </div>
+            <div class="ui-window">
+                <div class="ui-header">
+                    <span>REVENUE_STREAM.DAT</span>
+                    <span>[X]</span>
+                </div>
+                <div class="ui-body">
+                    <div class="ui-row"><span>YOUTUBE (MAIN)</span><span>$5,204.11</span></div>
+                    <div class="ui-row"><span>YOUTUBE (VODS)</span><span>$892.40</span></div>
+                    <div class="ui-row"><span>TWITCH SUBS</span><span>$1,104.00</span></div>
+                    <div class="ui-row"><span>TIKTOK</span><span>$42.10</span></div>
+                    <div class="ui-row" style="margin-top: 20px; font-weight: bold; color: var(--acid);"><span>TOTAL MRR:</span><span>$7,242.61</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+        <h2>ENTER THE MAINFRAME</h2>
+        <p style="margin-bottom: 30px; font-size: 1.2rem;">Beta access is strictly limited. Input your comms channel to get in line.</p>
+        <form class="signup-form" onsubmit="event.preventDefault();">
+            <input type="email" placeholder="ENTER_EMAIL_ADDRESS..." required>
+            <button type="submit" class="btn">REQUEST ACCESS</button>
+        </form>
+    </section>
+
+</body>
+</html>

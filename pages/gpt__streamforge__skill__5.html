@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is where developers live-stream software builds with AI assistants. Watch every prompt, inspect every diff, and fork the repository.">
+  <title>Streamforge | Watch software get built</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink-950: #0b0d0c;
+      --ink-900: #111412;
+      --ink-850: #171b18;
+      --ink-800: #1d221f;
+      --ink-700: #2d342f;
+      --ink-500: #69736c;
+      --ink-300: #a9b2ac;
+      --ink-100: #e7ebe8;
+      --paper: #f3f1e8;
+      --paper-muted: #c4c3bb;
+      --ember: #ff6a2a;
+      --ember-bright: #ff8552;
+      --ember-dark: #a7350d;
+      --mint: #75e6b1;
+      --red: #ff7878;
+      --yellow: #efc968;
+      --info: #79aefc;
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --shadow-panel: 0 1.5rem 4rem rgba(0, 0, 0, 0.32);
+      --shadow-button: 0 0.5rem 1.5rem rgba(255, 106, 42, 0.2);
+      --sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", "Liberation Mono", Menlo, Consolas, monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --content: 74rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--ink-950);
+      color: var(--ink-100);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--ember);
+      color: var(--ink-950);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      width: min(calc(100% - 3rem), var(--content));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--ink-700);
+      background: rgba(11, 13, 12, 0.94);
+    }
+
+    .nav {
+      min-height: 4.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-height: 2.75rem;
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 1.4rem;
+      height: 1.4rem;
+      border: 2px solid var(--ember);
+      transform: rotate(45deg);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 0.42rem;
+      height: 0.42rem;
+      top: 0.28rem;
+      left: 0.28rem;
+      background: var(--ember);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-link {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 0.85rem;
+      color: var(--ink-300);
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      transition: color 120ms ease-out, background 120ms ease-out;
+    }
+
+    .nav-link:hover {
+      color: var(--paper);
+      background: var(--ink-800);
+    }
+
+    .nav-link:focus-visible,
+    .brand:focus-visible,
+    .text-link:focus-visible {
+      outline: 2px solid var(--ember);
+      outline-offset: 3px;
+    }
+
+    .button {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 0.68rem 1rem;
+      background: var(--ember);
+      color: var(--ink-950);
+      font-weight: 800;
+      line-height: 1;
+      transition: transform 120ms ease-out, background 120ms ease-out, box-shadow 120ms ease-out;
+    }
+
+    .button:hover {
+      background: var(--ember-bright);
+      box-shadow: var(--shadow-button);
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      background: var(--ember);
+      box-shadow: none;
+      transform: translateY(1px);
+    }
+
+    .button:focus-visible {
+      outline: 2px solid var(--paper);
+      outline-offset: 3px;
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .button-secondary {
+      background: transparent;
+      color: var(--paper);
+      border-color: var(--ink-500);
+      box-shadow: none;
+    }
+
+    .button-secondary:hover {
+      color: var(--paper);
+      background: var(--ink-800);
+      border-color: var(--ink-300);
+      box-shadow: none;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 6rem 0 7rem;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(var(--ink-500) 1px, transparent 1px),
+        linear-gradient(90deg, var(--ink-500) 1px, transparent 1px);
+      background-size: 4rem 4rem;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    .hero-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(34rem, 1.15fr);
+      align-items: center;
+      gap: 5rem;
+    }
+
+    .kicker {
+      margin: 0 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      color: var(--mint);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--ember);
+      box-shadow: 0 0 0 0.3rem rgba(255, 106, 42, 0.15);
+      animation: pulse 2s infinite;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin-bottom: 1.5rem;
+      color: var(--paper);
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      font-weight: 750;
+      line-height: 0.96;
+      letter-spacing: -0.065em;
+    }
+
+    h1 .code-word {
+      color: var(--ember);
+      font-family: var(--mono);
+      font-size: 0.82em;
+      font-weight: 700;
+      letter-spacing: -0.08em;
+    }
+
+    .hero-copy {
+      max-width: 35rem;
+      margin-bottom: 2rem;
+      color: var(--ink-300);
+      font-size: 1.12rem;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-note {
+      margin: 0;
+      color: var(--ink-500);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    .stream-window {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      border-radius: var(--radius-lg);
+      background: var(--ink-900);
+      box-shadow: var(--shadow-panel);
+      outline: 1px solid var(--ink-700);
+    }
+
+    .stream-window::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, transparent 45%, rgba(255, 106, 42, 0.055) 50%, transparent 55%);
+      transform: translateX(-80%);
+      animation: scan 7s var(--ease) infinite;
+    }
+
+    .window-bar {
+      min-height: 3.4rem;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid var(--ink-700);
+      background: var(--ink-850);
+    }
+
+    .window-title {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+    }
+
+    .window-title strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .live-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.24rem 0.45rem;
+      border-radius: var(--radius-sm);
+      background: var(--ember);
+      color: var(--ink-950);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+    }
+
+    .viewer-count {
+      color: var(--ink-300);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .stream-body {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      min-height: 29rem;
+    }
+
+    .prompt-pane {
+      padding: 1.15rem;
+      border-right: 1px solid var(--ink-700);
+      background: #101310;
+    }
+
+    .pane-label {
+      margin-bottom: 1rem;
+      color: var(--ink-500);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .message {
+      margin-bottom: 1rem;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      background: var(--ink-800);
+      font-family: var(--mono);
+      font-size: 0.71rem;
+      line-height: 1.55;
+    }
+
+    .message-model {
+      background: transparent;
+      color: var(--ink-300);
+      outline: 1px solid var(--ink-700);
+    }
+
+    .message-author {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--ember-bright);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+    }
+
+    .message-model .message-author {
+      color: var(--mint);
+    }
+
+    .tool-call {
+      padding: 0.6rem 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--ink-300);
+      border-top: 1px solid var(--ink-700);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+    }
+
+    .check {
+      color: var(--mint);
+    }
+
+    .code-pane {
+      min-width: 0;
+      overflow: hidden;
+      background: #0d100e;
+    }
+
+    .tabs {
+      height: 2.65rem;
+      display: flex;
+      align-items: end;
+      border-bottom: 1px solid var(--ink-700);
+    }
+
+    .tab {
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 0.9rem;
+      color: var(--ink-500);
+      border-right: 1px solid var(--ink-700);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+    }
+
+    .tab-active {
+      color: var(--paper);
+      background: var(--ink-850);
+      box-shadow: inset 0 -2px var(--ember);
+    }
+
+    .code {
+      margin: 0;
+      padding: 1.2rem 0;
+      overflow: hidden;
+      color: #ced5d0;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      line-height: 1.72;
+      counter-reset: line;
+    }
+
+    .code span {
+      display: block;
+      min-height: 1.2rem;
+      padding: 0 1rem 0 3.7rem;
+      position: relative;
+      white-space: pre;
+    }
+
+    .code span::before {
+      position: absolute;
+      left: 0;
+      width: 2.8rem;
+      color: #505852;
+      text-align: right;
+      counter-increment: line;
+      content: counter(line);
+    }
+
+    .code .added {
+      background: rgba(117, 230, 177, 0.08);
+      box-shadow: inset 2px 0 var(--mint);
+    }
+
+    .kw { color: #ff9a71; }
+    .fn { color: #8fc4ff; }
+    .str { color: #a7df91; }
+    .dim { color: #707a73; }
+
+    .stream-footer {
+      min-height: 3.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0 1rem;
+      border-top: 1px solid var(--ink-700);
+      color: var(--ink-300);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+    }
+
+    .build-pass {
+      color: var(--mint);
+    }
+
+    .fork-mini {
+      color: var(--paper);
+      font-weight: 700;
+    }
+
+    .section {
+      padding: 7rem 0;
+    }
+
+    .section-light {
+      background: var(--paper);
+      color: var(--ink-950);
+    }
+
+    .section-header {
+      display: grid;
+      grid-template-columns: 0.55fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+      align-items: end;
+    }
+
+    .section-index {
+      margin: 0;
+      color: var(--ember-dark);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      max-width: 15ch;
+      margin-bottom: 0;
+      font-size: clamp(2.25rem, 4vw, 4rem);
+      line-height: 1.04;
+      letter-spacing: -0.055em;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 2px solid var(--ink-950);
+    }
+
+    .step {
+      padding: 2rem 2rem 0 0;
+    }
+
+    .step + .step {
+      padding-left: 2rem;
+      border-left: 1px solid #c9c8c0;
+    }
+
+    .step-number {
+      display: block;
+      margin-bottom: 3rem;
+      color: var(--ember-dark);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .step h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+
+    .step p {
+      max-width: 30ch;
+      margin-bottom: 0;
+      color: #4b514c;
+    }
+
+    .features {
+      background: var(--ink-950);
+    }
+
+    .features-heading {
+      margin-bottom: 5rem;
+    }
+
+    .features-heading h2 {
+      max-width: 13ch;
+    }
+
+    .feature-list {
+      border-top: 1px solid var(--ink-700);
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 4rem minmax(0, 0.8fr) minmax(18rem, 1.2fr);
+      gap: 2.5rem;
+      align-items: center;
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--ink-700);
+    }
+
+    .feature-id {
+      align-self: start;
+      color: var(--ember);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    .feature h3 {
+      margin-bottom: 0;
+      color: var(--paper);
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+      line-height: 1.1;
+      letter-spacing: -0.045em;
+    }
+
+    .feature-copy {
+      max-width: 37rem;
+      margin-bottom: 0;
+      color: var(--ink-300);
+      font-size: 1.05rem;
+    }
+
+    .feature-copy code {
+      padding: 0.12rem 0.32rem;
+      color: var(--mint);
+      background: var(--ink-800);
+      border-radius: var(--radius-sm);
+      font-family: var(--mono);
+      font-size: 0.9em;
+    }
+
+    .cta-section {
+      padding: 7rem 0;
+      background: var(--ember);
+      color: var(--ink-950);
+    }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(24rem, 1fr);
+      gap: 6rem;
+      align-items: end;
+    }
+
+    .cta-section h2 {
+      max-width: 10ch;
+      margin-bottom: 1.2rem;
+    }
+
+    .cta-copy {
+      max-width: 35rem;
+      margin-bottom: 0;
+      color: #471706;
+      font-size: 1.08rem;
+    }
+
+    .signup-form {
+      display: flex;
+      align-items: end;
+      gap: 0.75rem;
+    }
+
+    .field {
+      flex: 1;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 3.25rem;
+      border: 2px solid var(--ink-950);
+      border-radius: var(--radius-sm);
+      padding: 0 0.9rem;
+      background: var(--paper);
+      color: var(--ink-950);
+      outline: none;
+    }
+
+    .field input::placeholder {
+      color: #71736d;
+    }
+
+    .field input:hover {
+      background: #fffef8;
+    }
+
+    .field input:focus-visible {
+      border-color: var(--paper);
+      box-shadow: 0 0 0 3px var(--ink-950);
+    }
+
+    .field input:invalid:not(:placeholder-shown) {
+      border-color: #7b1515;
+      background: #fff0ed;
+    }
+
+    .signup-form .button {
+      min-height: 3.25rem;
+      background: var(--ink-950);
+      color: var(--paper);
+      border-color: var(--ink-950);
+      white-space: nowrap;
+    }
+
+    .signup-form .button:hover {
+      background: var(--ink-800);
+      box-shadow: none;
+    }
+
+    .form-note {
+      margin: 0.75rem 0 0;
+      color: #5c210b;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .site-footer {
+      padding: 2rem 0;
+      background: var(--ink-950);
+      color: var(--ink-500);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--paper);
+    }
+
+    .footer-links a:focus-visible {
+      outline: 2px solid var(--ember);
+      outline-offset: 3px;
+    }
+
+    @keyframes pulse {
+      50% {
+        box-shadow: 0 0 0 0.5rem rgba(255, 106, 42, 0);
+      }
+    }
+
+    @keyframes scan {
+      0%, 70% { transform: translateX(-80%); }
+      100% { transform: translateX(80%); }
+    }
+
+    @media (max-width: 62rem) {
+      .hero {
+        padding-top: 4.5rem;
+      }
+
+      .hero-grid,
+      .cta-grid {
+        grid-template-columns: 1fr;
+        gap: 3.5rem;
+      }
+
+      h1 {
+        max-width: 12ch;
+      }
+
+      .stream-window {
+        max-width: 48rem;
+      }
+
+      .feature {
+        grid-template-columns: 3rem 0.8fr 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    @media (max-width: 45rem) {
+      .shell {
+        width: min(calc(100% - 2rem), var(--content));
+      }
+
+      .nav-links .nav-link {
+        display: none;
+      }
+
+      .hero,
+      .section,
+      .cta-section {
+        padding: 4.5rem 0;
+      }
+
+      .hero-grid {
+        gap: 3rem;
+      }
+
+      .stream-body {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--ink-700);
+      }
+
+      .message-model,
+      .tool-call {
+        display: none;
+      }
+
+      .stream-body {
+        min-height: 0;
+      }
+
+      .section-header {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 3rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        padding: 1.7rem 0;
+      }
+
+      .step + .step {
+        padding-left: 0;
+        border-left: 0;
+        border-top: 1px solid #c9c8c0;
+      }
+
+      .step-number {
+        margin-bottom: 1.2rem;
+      }
+
+      .feature {
+        grid-template-columns: 2rem 1fr;
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .feature-copy {
+        grid-column: 2;
+      }
+
+      .signup-form {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 30rem) {
+      h1 {
+        font-size: 2.75rem;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .window-title strong,
+      .viewer-count {
+        display: none;
+      }
+
+      .code {
+        font-size: 0.62rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>streamforge</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" href="#how">How it works</a>
+        <a class="nav-link" href="#features">Features</a>
+        <a class="button" href="#signup">Get early access</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid shell">
+        <div>
+          <p class="kicker"><span class="live-dot" aria-hidden="true"></span> Developers are building live</p>
+          <h1>Watch software <span class="code-word">compile</span> into reality.</h1>
+          <p class="hero-copy">
+            Streamforge broadcasts the whole AI-assisted build: every prompt, model response, code change, and wrong turn. Watch closely, then fork the repository and keep going.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#signup">Start watching <span aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="#how">See how it works</a>
+          </div>
+          <p class="hero-note">Free for viewers · GitHub-connected · No setup required</p>
+        </div>
+
+        <div class="stream-window" aria-label="Example live coding stream">
+          <div class="window-bar">
+            <div class="window-title">
+              <span class="live-label"><span aria-hidden="true">●</span> LIVE</span>
+              <strong>@maya builds a local-first issue tracker</strong>
+            </div>
+            <span class="viewer-count">842 watching</span>
+          </div>
+
+          <div class="stream-body">
+            <div class="prompt-pane">
+              <div class="pane-label">AI session · 00:37:12</div>
+              <div class="message">
+                <span class="message-author">Maya · Prompt</span>
+                Add optimistic issue creation. Keep the write local, queue the sync, and roll back if the server rejects it.
+              </div>
+              <div class="message message-model">
+                <span class="message-author">Assistant</span>
+                I will update the store first, add a pending operation to the sync queue, then reconcile using the server response.
+              </div>
+              <div class="tool-call"><span class="check">✓</span> Read src/store/issues.ts</div>
+              <div class="tool-call"><span class="check">✓</span> Edited 3 files, +42 −8</div>
+              <div class="tool-call"><span class="check">✓</span> Tests passed in 1.8s</div>
+            </div>
+
+            <div class="code-pane">
+              <div class="tabs" aria-hidden="true">
+                <span class="tab tab-active">issues.ts</span>
+                <span class="tab">sync.ts</span>
+              </div>
+              <pre class="code" aria-label="TypeScript code diff"><span><span class="kw">export async function</span> <span class="fn">createIssue</span>(</span><span>  draft: IssueDraft</span><span>) {</span><span class="added">  <span class="kw">const</span> tempId = crypto.randomUUID()</span><span class="added">  store.add({ ...draft, id: tempId,</span><span class="added">    status: <span class="str">"syncing"</span> })</span><span> </span><span class="added">  <span class="kw">try</span> {</span><span class="added">    <span class="kw">const</span> issue = <span class="kw">await</span> queue.push(</span><span class="added">      <span class="str">"issue:create"</span>, draft</span><span class="added">    )</span><span class="added">    store.replace(tempId, issue)</span><span class="added">  } <span class="kw">catch</span> (error) {</span><span class="added">    store.remove(tempId)</span><span class="added">    notify.rollback(error)</span><span class="added">  }</span><span>}</span></pre>
+            </div>
+          </div>
+
+          <div class="stream-footer">
+            <span class="build-pass">● build passing</span>
+            <span><span class="fork-mini">⑂ Fork repo</span> · 126 forks</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light" id="how">
+      <div class="shell">
+        <div class="section-header">
+          <p class="section-index">From stream to starting point</p>
+          <h2>See the decisions behind the diff.</h2>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01 / Watch</span>
+            <h3>Follow the build live</h3>
+            <p>See the editor, terminal, prompts, and model output in one synchronized stream.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">02 / Inspect</span>
+            <h3>Trace every change</h3>
+            <p>Jump from a prompt to its code diff and understand why the implementation changed.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">03 / Fork</span>
+            <h3>Take the work further</h3>
+            <p>Fork the repository at any point in the stream with its full build history attached.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" id="features">
+      <div class="shell">
+        <div class="features-heading">
+          <p class="kicker">Built for technical depth</p>
+          <h2>Not a demo. The actual work.</h2>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature">
+            <span class="feature-id">F.01</span>
+            <h3>Prompts and code, synchronized</h3>
+            <p class="feature-copy">
+              Each model response is linked to the files, terminal output, and diffs it produced. Scrub the timeline without losing context.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature-id">F.02</span>
+            <h3>Fork from any moment</h3>
+            <p class="feature-copy">
+              Found the point where you would take a different path? Fork that exact commit and open it in your own environment with <code>git clone</code>.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature-id">F.03</span>
+            <h3>Signal from working developers</h3>
+            <p class="feature-copy">
+              Browse streams by language, framework, model, and build status. Follow people shipping real tools, not polished highlight reels.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+      <div class="cta-grid shell">
+        <div>
+          <h2>Your next repo starts here.</h2>
+          <p class="cta-copy">
+            Join the early access list to watch builders live, save streams, and fork projects as they take shape.
+          </p>
+        </div>
+
+        <div>
+          <form class="signup-form" action="#" method="post">
+            <div class="field">
+              <label for="email">Work email</label>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.dev" required aria-describedby="signup-note">
+            </div>
+            <button class="button" type="submit">Request access <span aria-hidden="true">→</span></button>
+          </form>
+          <p class="form-note" id="signup-note">One useful launch email. No marketing sequence.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner shell">
+      <span>© 2025 Streamforge, Inc.</span>
+      <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">Community guidelines</a>
+        <a href="#">Privacy</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Backlot brings creator contracts, invoices, sponsor deadlines, and platform payouts into one clear workspace.">
+  <title>Backlot — The business side of creating, under control.</title>
+  <style>
+    :root {
+      --ink: #101010;
+      --paper: #f3f0e8;
+      --acid: #c8ff00;
+      --pink: #ff3bd4;
+      --blue: #553cff;
+      --cyan: #42e8ff;
+      --orange: #ff6b1a;
+      --white: #ffffff;
+      --muted: #696969;
+      --border: 2px solid var(--ink);
+      --shadow: 7px 7px 0 var(--ink);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(16, 16, 16, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 16, 16, 0.055) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: Inter, "Arial Narrow", Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 1.35rem;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 33px;
+      height: 33px;
+      border: 2px solid var(--ink);
+      background: var(--acid);
+      box-shadow: 3px 3px 0 var(--ink);
+      transform: rotate(-5deg);
+      overflow: hidden;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      background: var(--ink);
+    }
+
+    .brand-mark::before {
+      width: 9px;
+      height: 100%;
+      left: 6px;
+      top: 0;
+    }
+
+    .brand-mark::after {
+      width: 100%;
+      height: 7px;
+      left: 0;
+      top: 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .nav-links a:not(.nav-button):hover {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 5px;
+    }
+
+    .button,
+    .nav-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 22px;
+      border: var(--border);
+      border-radius: 999px;
+      background: var(--acid);
+      box-shadow: 4px 4px 0 var(--ink);
+      font-weight: 950;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .button:hover,
+    .nav-button:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.03fr 0.97fr;
+      align-items: center;
+      min-height: 680px;
+      gap: 62px;
+      padding: 66px 0 105px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 330px;
+      height: 330px;
+      top: 60px;
+      right: -180px;
+      border-radius: 50%;
+      background: var(--pink);
+      filter: blur(2px);
+      opacity: 0.72;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 13px;
+      border: var(--border);
+      border-radius: 999px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-family: "Courier New", monospace;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 3px rgba(255, 59, 212, 0.18);
+    }
+
+    h1 {
+      max-width: 700px;
+      margin: 25px 0 22px;
+      font-size: clamp(4rem, 7.1vw, 7rem);
+      line-height: 0.83;
+      letter-spacing: -0.085em;
+      font-weight: 950;
+    }
+
+    .marker {
+      position: relative;
+      display: inline-block;
+      z-index: 0;
+    }
+
+    .marker::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      left: -2%;
+      right: -4%;
+      bottom: -2%;
+      height: 35%;
+      border: 2px solid var(--ink);
+      background: var(--acid);
+      transform: rotate(-1.5deg);
+    }
+
+    .hero-copy > p {
+      max-width: 575px;
+      margin: 0;
+      color: #343434;
+      font-size: 1.08rem;
+      line-height: 1.65;
+      font-weight: 650;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      margin-top: 32px;
+    }
+
+    .button.primary {
+      min-height: 58px;
+      padding-inline: 28px;
+      background: var(--ink);
+      color: var(--white);
+      box-shadow: 6px 6px 0 var(--pink);
+    }
+
+    .button.primary:hover {
+      box-shadow: 2px 2px 0 var(--pink);
+    }
+
+    .button.secondary {
+      min-height: 58px;
+      background: var(--white);
+    }
+
+    .microcopy {
+      margin-top: 20px;
+      font-family: "Courier New", monospace;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .dashboard-wrap {
+      position: relative;
+      padding: 28px 0 0 16px;
+    }
+
+    .orbit-label {
+      position: absolute;
+      z-index: 3;
+      top: -10px;
+      right: -25px;
+      width: 114px;
+      height: 114px;
+      display: grid;
+      place-items: center;
+      border: var(--border);
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: var(--shadow);
+      text-align: center;
+      font-family: "Courier New", monospace;
+      font-size: 0.7rem;
+      font-weight: 950;
+      line-height: 1.25;
+      transform: rotate(10deg);
+    }
+
+    .dashboard {
+      position: relative;
+      border: 3px solid var(--ink);
+      border-radius: 26px;
+      background: #171717;
+      box-shadow: 14px 14px 0 var(--blue), 18px 18px 0 var(--ink);
+      color: var(--white);
+      overflow: hidden;
+      transform: rotate(1.3deg);
+    }
+
+    .dash-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 17px;
+      border-bottom: 2px solid #343434;
+      background: #222;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots i {
+      display: block;
+      width: 10px;
+      height: 10px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+    }
+
+    .window-dots i:nth-child(2) { background: var(--acid); }
+    .window-dots i:nth-child(3) { background: var(--cyan); }
+
+    .dash-title {
+      font-family: "Courier New", monospace;
+      color: #a7a7a7;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .dash-body {
+      padding: 18px;
+    }
+
+    .dash-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .dash-head small,
+    .stat small,
+    .deal small {
+      display: block;
+      color: #a6a6a6;
+      font-family: "Courier New", monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .dash-head strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1.7rem;
+      letter-spacing: -0.05em;
+    }
+
+    .status {
+      padding: 6px 9px;
+      border: 1px solid var(--acid);
+      border-radius: 99px;
+      color: var(--acid);
+      font-family: "Courier New", monospace;
+      font-size: 0.59rem;
+      font-weight: 900;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .stat {
+      padding: 12px;
+      border: 1px solid #454545;
+      border-radius: 12px;
+      background: #222;
+    }
+
+    .stat b {
+      display: block;
+      margin-top: 7px;
+      font-size: 1rem;
+    }
+
+    .stat:nth-child(1) b { color: var(--acid); }
+    .stat:nth-child(2) b { color: var(--pink); }
+    .stat:nth-child(3) b { color: var(--cyan); }
+
+    .chart {
+      position: relative;
+      height: 128px;
+      margin-top: 11px;
+      border: 1px solid #454545;
+      border-radius: 13px;
+      background:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+        #222;
+      background-size: 28px 28px;
+      overflow: hidden;
+    }
+
+    .chart svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-tag {
+      position: absolute;
+      top: 15px;
+      right: 14px;
+      padding: 5px 8px;
+      border: 1px solid var(--ink);
+      background: var(--acid);
+      color: var(--ink);
+      font-family: "Courier New", monospace;
+      font-size: 0.58rem;
+      font-weight: 950;
+      transform: rotate(2deg);
+    }
+
+    .deals {
+      display: grid;
+      gap: 8px;
+      margin-top: 11px;
+    }
+
+    .deal {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 13px;
+      border: 1px solid #454545;
+      border-radius: 11px;
+      background: #222;
+    }
+
+    .deal b {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.82rem;
+    }
+
+    .deal-amount {
+      color: var(--acid);
+      font-family: "Courier New", monospace;
+      font-size: 0.77rem;
+      font-weight: 900;
+    }
+
+    .ticker {
+      border-block: 2px solid var(--ink);
+      background: var(--acid);
+      overflow: hidden;
+      transform: rotate(-1deg) scale(1.02);
+    }
+
+    .ticker-inner {
+      display: flex;
+      width: max-content;
+      padding: 12px 0;
+      font-family: "Courier New", monospace;
+      font-size: 0.8rem;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      animation: scroll 22s linear infinite;
+    }
+
+    .ticker-inner span {
+      padding-right: 35px;
+    }
+
+    @keyframes scroll {
+      to { transform: translateX(-50%); }
+    }
+
+    section {
+      padding: 112px 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-family: "Courier New", monospace;
+      font-size: 0.76rem;
+      font-weight: 950;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      max-width: 820px;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.07em;
+      font-weight: 950;
+    }
+
+    .how {
+      position: relative;
+    }
+
+    .how::after {
+      content: "+";
+      position: absolute;
+      right: 5%;
+      top: 65px;
+      color: var(--pink);
+      font-size: 8rem;
+      font-weight: 200;
+      transform: rotate(10deg);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 58px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 230px;
+      padding: 25px;
+      border: var(--border);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .step:nth-child(2) {
+      background: var(--acid);
+      transform: translateY(20px) rotate(-1deg);
+    }
+
+    .step:nth-child(3) {
+      background: var(--pink);
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 35px;
+      border: var(--border);
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--white);
+      font-family: "Courier New", monospace;
+      font-weight: 900;
+    }
+
+    .step h3 {
+      margin: 40px 0 10px;
+      font-size: 1.5rem;
+      letter-spacing: -0.04em;
+    }
+
+    .step p {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .features {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .features .section-kicker {
+      color: var(--acid);
+    }
+
+    .features-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 64px;
+    }
+
+    .features-heading p {
+      max-width: 390px;
+      margin: 0;
+      color: #b8b8b8;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 25px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      min-height: 370px;
+      border: 2px solid var(--white);
+      border-radius: 25px;
+      overflow: hidden;
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 45px;
+    }
+
+    .feature-index {
+      width: fit-content;
+      padding: 6px 9px;
+      border: 1px solid currentColor;
+      font-family: "Courier New", monospace;
+      font-size: 0.7rem;
+      font-weight: 900;
+    }
+
+    .feature h3 {
+      margin: 25px 0 14px;
+      font-size: clamp(2rem, 3.7vw, 3.7rem);
+      line-height: 0.95;
+      letter-spacing: -0.065em;
+    }
+
+    .feature-copy p {
+      max-width: 440px;
+      margin: 0;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .feature-visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 365px;
+      padding: 35px;
+      border-left: 2px solid var(--white);
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    .feature:nth-child(1) .feature-visual { background: var(--acid); }
+    .feature:nth-child(2) .feature-visual { background: var(--pink); }
+    .feature:nth-child(3) .feature-visual { background: var(--cyan); }
+
+    .mini-stack {
+      width: min(440px, 95%);
+      display: grid;
+      gap: 12px;
+      transform: rotate(-2deg);
+    }
+
+    .contract-card,
+    .payout-card,
+    .calendar-card {
+      border: 2px solid var(--ink);
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .contract-card {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .file-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--ink);
+      background: var(--blue);
+      color: var(--white);
+      font-weight: 950;
+    }
+
+    .contract-card b,
+    .payout-card b {
+      display: block;
+      font-size: 0.84rem;
+    }
+
+    .contract-card small,
+    .payout-card small {
+      font-family: "Courier New", monospace;
+      font-size: 0.6rem;
+      font-weight: 800;
+    }
+
+    .pill {
+      padding: 6px 8px;
+      border: 1px solid var(--ink);
+      border-radius: 99px;
+      background: var(--acid);
+      font-family: "Courier New", monospace;
+      font-size: 0.56rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .calendar-card {
+      width: min(460px, 96%);
+      padding: 18px;
+      transform: rotate(1.5deg);
+    }
+
+    .calendar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--ink);
+      font-weight: 950;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .day {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid #777;
+      font-family: "Courier New", monospace;
+      font-size: 0.67rem;
+      font-weight: 900;
+    }
+
+    .day.hot {
+      border: 2px solid var(--ink);
+      background: var(--acid);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .deadline {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 13px;
+      padding: 10px;
+      border: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--white);
+      font-family: "Courier New", monospace;
+      font-size: 0.65rem;
+      font-weight: 900;
+    }
+
+    .payout-board {
+      width: min(450px, 96%);
+      display: grid;
+      gap: 11px;
+      transform: rotate(-1.5deg);
+    }
+
+    .payout-card {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 13px;
+    }
+
+    .platform {
+      display: grid;
+      place-items: center;
+      width: 39px;
+      height: 39px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+      font-weight: 950;
+    }
+
+    .payout-card:nth-child(2) .platform { background: var(--acid); }
+    .payout-card:nth-child(3) .platform { background: var(--orange); }
+
+    .money {
+      font-family: "Courier New", monospace;
+      font-size: 0.82rem;
+      font-weight: 950;
+    }
+
+    .total-strip {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      border: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--acid);
+      font-family: "Courier New", monospace;
+      font-size: 0.78rem;
+      font-weight: 950;
+    }
+
+    .cta-section {
+      padding: 115px 0;
+    }
+
+    .cta {
+      position: relative;
+      padding: 75px 50px;
+      border: 3px solid var(--ink);
+      border-radius: 32px;
+      background: var(--blue);
+      box-shadow: 14px 14px 0 var(--ink);
+      color: var(--white);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cta::before,
+    .cta::after {
+      content: "";
+      position: absolute;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+    }
+
+    .cta::before {
+      width: 170px;
+      height: 170px;
+      left: -70px;
+      top: -70px;
+      background: var(--acid);
+    }
+
+    .cta::after {
+      width: 130px;
+      height: 130px;
+      right: -45px;
+      bottom: -50px;
+      background: var(--pink);
+    }
+
+    .cta .section-kicker {
+      position: relative;
+      z-index: 1;
+      color: var(--acid);
+    }
+
+    .cta h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .cta p {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 20px auto 30px;
+      color: #e2e0ff;
+      line-height: 1.6;
+      font-weight: 650;
+    }
+
+    .signup-form {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      max-width: 590px;
+      margin: 0 auto;
+      padding: 6px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--white);
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 0 18px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .signup-form input::placeholder {
+      color: #777;
+    }
+
+    .signup-form button {
+      min-height: 49px;
+      padding: 0 23px;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: var(--acid);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 950;
+    }
+
+    .cta-note {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      font-family: "Courier New", monospace;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+      padding: 28px 0 40px;
+      border-top: 2px solid var(--ink);
+      font-family: "Courier New", monospace;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 920px) {
+      .nav-links a:not(.nav-button) {
+        display: none;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 52px;
+        padding-top: 55px;
+      }
+
+      .hero-copy {
+        max-width: 760px;
+      }
+
+      .dashboard-wrap {
+        width: min(660px, 95%);
+        margin: 0 auto;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step:nth-child(2) {
+        transform: none;
+      }
+
+      .features-heading {
+        display: block;
+      }
+
+      .features-heading p {
+        margin-top: 22px;
+      }
+
+      .feature {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-visual {
+        border-top: 2px solid var(--white);
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav {
+        padding: 15px 0;
+      }
+
+      .nav-button {
+        min-height: 42px;
+        padding-inline: 15px;
+        font-size: 0.78rem;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 45px 0 84px;
+      }
+
+      h1 {
+        font-size: clamp(3.5rem, 18vw, 5.3rem);
+      }
+
+      .hero-copy > p {
+        font-size: 0.98rem;
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .dashboard-wrap {
+        width: 100%;
+        padding-left: 0;
+      }
+
+      .dashboard {
+        box-shadow: 8px 8px 0 var(--blue), 11px 11px 0 var(--ink);
+      }
+
+      .orbit-label {
+        width: 84px;
+        height: 84px;
+        right: -4px;
+        top: -22px;
+        font-size: 0.55rem;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .stat b {
+        margin: 0;
+      }
+
+      section {
+        padding: 82px 0;
+      }
+
+      .how::after {
+        display: none;
+      }
+
+      .feature-copy {
+        padding: 33px 25px;
+      }
+
+      .feature-visual {
+        min-height: 315px;
+        padding: 22px 14px;
+      }
+
+      .contract-card {
+        grid-template-columns: 38px 1fr;
+      }
+
+      .contract-card .pill {
+        grid-column: 2;
+        width: fit-content;
+      }
+
+      .calendar-grid {
+        gap: 4px;
+      }
+
+      .cta-section {
+        padding: 85px 0;
+      }
+
+      .cta {
+        padding: 65px 20px;
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+
+      .signup-form {
+        flex-direction: column;
+        border-radius: 18px;
+      }
+
+      .signup-form input {
+        min-height: 49px;
+      }
+
+      footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .ticker-inner {
+        animation: none;
+      }
+
+      .button,
+      .nav-button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Backlot home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        BACKLOT
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-button" href="#signup">Get early access →</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> Creator ops, finally organized</div>
+        <h1>Your content is art. Your admin <span class="marker">isn't.</span></h1>
+        <p>Backlot puts every brand deal, invoice, sponsor deadline, and platform payout in one sharp, simple workspace—so you can run the business without becoming a finance person.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#signup">Join the waitlist ↗</a>
+          <a class="button secondary" href="#how">See how it works ↓</a>
+        </div>
+        <div class="microcopy">NO SPREADSHEETS. NO TAB CHAOS. NO “DID THEY PAY ME?”</div>
+      </div>
+
+      <div class="dashboard-wrap" aria-label="Backlot dashboard preview">
+        <div class="orbit-label">YOUR MONEY<br>IN FOCUS<br>✦</div>
+        <div class="dashboard">
+          <div class="dash-top">
+            <div class="window-dots"><i></i><i></i><i></i></div>
+            <div class="dash-title">backlot / overview</div>
+            <div class="status">● ALL SYNCED</div>
+          </div>
+          <div class="dash-body">
+            <div class="dash-head">
+              <div>
+                <small>Expected this month</small>
+                <strong>$18,640.00</strong>
+              </div>
+              <div class="status">↑ 24.8%</div>
+            </div>
+
+            <div class="stats">
+              <div class="stat">
+                <small>Paid</small>
+                <b>$11.2K</b>
+              </div>
+              <div class="stat">
+                <small>Pending</small>
+                <b>$5.4K</b>
+              </div>
+              <div class="stat">
+                <small>Upcoming</small>
+                <b>$2.0K</b>
+              </div>
+            </div>
+
+            <div class="chart">
+              <div class="chart-tag">PAYOUT VIEW</div>
+              <svg viewBox="0 0 500 130" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#c8ff00" stop-opacity=".52"/>
+                    <stop offset="100%" stop-color="#c8ff00" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 112 C50 105, 70 76, 110 85 S170 97, 205 66 S265 88, 298 57 S350 75, 386 36 S443 54, 500 18 L500 130 L0 130 Z" fill="url(#fill)"/>
+                <path d="M0 112 C50 105, 70 76, 110 85 S170 97, 205 66 S265 88, 298 57 S350 75, 386 36 S443 54, 500 18" fill="none" stroke="#c8ff00" stroke-width="4"/>
+              </svg>
+            </div>
+
+            <div class="deals">
+              <div class="deal">
+                <div><small>Due Friday · 1 deliverable</small><b>NOVA Audio Campaign</b></div>
+                <div class="deal-amount">$4,500</div>
+              </div>
+              <div class="deal">
+                <div><small>Invoice sent · Net 30</small><b>Evergreen Studio</b></div>
+                <div class="deal-amount">$2,800</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-inner">
+        <span>CONTRACTS ✦ INVOICES ✦ DEADLINES ✦ PAYOUTS ✦ BRAND DEALS ✦ LESS ADMIN ✦ MORE CREATING ✦</span>
+        <span>CONTRACTS ✦ INVOICES ✦ DEADLINES ✦ PAYOUTS ✦ BRAND DEALS ✦ LESS ADMIN ✦ MORE CREATING ✦</span>
+      </div>
+    </div>
+
+    <section class="how shell" id="how">
+      <p class="section-kicker">/ How it works</p>
+      <h2>From scattered to sorted in three moves.</h2>
+
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">01</div>
+          <h3>Connect the chaos</h3>
+          <p>Bring in your creator accounts, contracts, invoices, and active partnerships. Backlot gives everything one home.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">02</div>
+          <h3>See what matters</h3>
+          <p>Know what's due, what's signed, what's been paid, and what needs a follow-up—without decoding a spreadsheet.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">03</div>
+          <h3>Get back on set</h3>
+          <p>Spend less time chasing paperwork and more time shooting, editing, publishing, and building your audience.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="shell">
+        <div class="features-heading">
+          <div>
+            <p class="section-kicker">/ Your new back office</p>
+            <h2>Business tools that speak creator.</h2>
+          </div>
+          <p>No accounting jargon. No bloated enterprise software. Just the information you need, served up clearly.</p>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_01</span>
+              <h3>Every deal has a paper trail.</h3>
+              <p>Store contracts, campaign notes, rates, usage terms, and invoice status together. Stop digging through email when a brand asks a question.</p>
+            </div>
+            <div class="feature-visual" aria-label="Contract tracking preview">
+              <div class="mini-stack">
+                <div class="contract-card">
+                  <div class="file-icon">B</div>
+                  <div><small>Signed · Usage 90 days</small><b>Brightside Launch</b></div>
+                  <span class="pill">INVOICE SENT</span>
+                </div>
+                <div class="contract-card">
+                  <div class="file-icon">N</div>
+                  <div><small>Review requested</small><b>NOVA Audio</b></div>
+                  <span class="pill">ACTION NEEDED</span>
+                </div>
+                <div class="contract-card">
+                  <div class="file-icon">E</div>
+                  <div><small>Draft · 2 deliverables</small><b>Evergreen Studio</b></div>
+                  <span class="pill">NEGOTIATING</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_02</span>
+              <h3>Deadlines that don't sneak up.</h3>
+              <p>See sponsor reviews, shoot dates, post dates, and invoice reminders in one creator-friendly calendar. Backlot keeps the deal moving.</p>
+            </div>
+            <div class="feature-visual" aria-label="Sponsor deadline calendar preview">
+              <div class="calendar-card">
+                <div class="calendar-top">
+                  <span>JUNE / CAMPAIGNS</span>
+                  <span>→</span>
+                </div>
+                <div class="calendar-grid">
+                  <div class="day">10</div><div class="day">11</div><div class="day hot">12</div><div class="day">13</div><div class="day">14</div>
+                  <div class="day">17</div><div class="day hot">18</div><div class="day">19</div><div class="day hot">20</div><div class="day">21</div>
+                </div>
+                <div class="deadline"><span>JUN 18 · NOVA ROUGH CUT</span><span>2 DAYS</span></div>
+                <div class="deadline"><span>JUN 20 · BRIGHTSIDE POST</span><span>4 DAYS</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_03</span>
+              <h3>Know what every view pays.</h3>
+              <p>Track expected and received payouts across your platforms. See the whole income picture without logging into five different dashboards.</p>
+            </div>
+            <div class="feature-visual" aria-label="Platform payout tracking preview">
+              <div class="payout-board">
+                <div class="payout-card">
+                  <div class="platform">▶</div>
+                  <div><small>Video platform · Received</small><b>May creator payout</b></div>
+                  <div class="money">$3,840</div>
+                </div>
+                <div class="payout-card">
+                  <div class="platform">♪</div>
+                  <div><small>Short-form · Pending</small><b>Creator rewards</b></div>
+                  <div class="money">$1,260</div>
+                </div>
+                <div class="payout-card">
+                  <div class="platform">◎</div>
+                  <div><small>Social platform · Estimated</small><b>Reels bonus</b></div>
+                  <div class="money">$740</div>
+                </div>
+                <div class="total-strip"><span>TOTAL PLATFORM REVENUE</span><span>$5,840</span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section shell" id="signup">
+      <div class="cta">
+        <p class="section-kicker">/ Doors opening soon</p>
+        <h2>Make content. Let Backlot handle the paperwork energy.</h2>
+        <p>Join the early-access list and be first to run your creator business from one clean, electric command center.</p>
+        <form class="signup-form" action="#" method="post">
+          <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Email address</label>
+          <input id="email" type="email" name="email" placeholder="you@yourchannel.com" required>
+          <button type="submit">Get early access ↗</button>
+        </form>
+        <div class="cta-note">FREE TO JOIN · NO SPAM · BUILT FOR FULL-TIME CREATORS</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <a class="brand" href="#" aria-label="Backlot home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      BACKLOT
+    </a>
+    <span>© 2025 BACKLOT. CREATOR OPS, SORTED.</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="mailto:hello@backlot.example">Contact</a>
+    </div>
+  </footer>
+</body>
+</html>

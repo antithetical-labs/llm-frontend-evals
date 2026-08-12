@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAMFORGE — WATCH PEOPLE BUILD. FORK THE RESULT.</title>
+<style>
+    :root{
+        --ink:#0A0C0B;
+        --ink-2:#0F1211;
+        --ink-3:#141817;
+        --line:#242927;
+        --line-2:#323836;
+        --grey:#7C8582;
+        --grey-2:#A8B0AD;
+        --white:#F4F7F5;
+        --acid:#C6FF00;
+        --cyan:#00E5FF;
+        --magenta:#FF2D9B;
+        --violet:#8B5CF6;
+        --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,"Liberation Mono","Courier New",monospace;
+        --sans:"Inter Tight","Helvetica Neue",Inter,Helvetica,Arial,sans-serif;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    html{-webkit-text-size-adjust:100%;}
+
+    body{
+        background:var(--ink);
+        color:var(--white);
+        font-family:var(--sans);
+        overflow-x:hidden;
+        position:relative;
+    }
+
+    /* ---------- GLOBAL TEXTURE ---------- */
+    body::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        pointer-events:none;
+        z-index:9998;
+        background-image:repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,.028) 0px,
+            rgba(255,255,255,.028) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+        mix-blend-mode:overlay;
+    }
+    body::after{
+        content:"";
+        position:fixed;
+        inset:-50%;
+        pointer-events:none;
+        z-index:9999;
+        opacity:.05;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    ::selection{background:var(--acid);color:#000;}
+
+    /* ---------- TYPE PRIMITIVES ---------- */
+    .mono{
+        font-family:var(--mono);
+        text-transform:uppercase;
+        letter-spacing:.16em;
+        font-size:10px;
+        line-height:1.4;
+    }
+    .mono-lg{
+        font-family:var(--mono);
+        text-transform:uppercase;
+        letter-spacing:.12em;
+        font-size:12px;
+    }
+    .dim{color:var(--grey);}
+    .acid{color:var(--acid);}
+    .cy{color:var(--cyan);}
+    .mg{color:var(--magenta);}
+
+    p{color:var(--grey-2);font-size:16px;line-height:1.55;max-width:56ch;}
+
+    a{color:inherit;text-decoration:none;}
+
+    /* ---------- LAYOUT SHELL ---------- */
+    .wrap{
+        max-width:1500px;
+        margin:0 auto;
+        border-left:1px solid var(--line);
+        border-right:1px solid var(--line);
+        position:relative;
+    }
+
+    /* faint vertical grid rails */
+    .rails{
+        position:absolute;
+        inset:0;
+        pointer-events:none;
+        z-index:0;
+        display:grid;
+        grid-template-columns:repeat(12,1fr);
+    }
+    .rails span{border-right:1px solid rgba(255,255,255,.022);}
+    .rails span:last-child{border-right:none;}
+
+    section{position:relative;z-index:1;}
+
+    .sec-label{
+        display:flex;
+        align-items:center;
+        gap:14px;
+        padding:12px 20px;
+        border-bottom:1px solid var(--line);
+        background:var(--ink-2);
+    }
+    .sec-label .idx{color:var(--acid);}
+    .sec-label .grow{flex:1;height:1px;background:var(--line);}
+
+    /* ---------- TOP BAR ---------- */
+    .topbar{
+        position:sticky;
+        top:0;
+        z-index:500;
+        display:flex;
+        align-items:stretch;
+        border-bottom:1px solid var(--line);
+        background:rgba(10,12,11,.92);
+        backdrop-filter:blur(6px);
+    }
+    .brand{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:0 20px;
+        border-right:1px solid var(--line);
+        height:52px;
+        flex-shrink:0;
+    }
+    .brand .glyph{
+        width:16px;height:16px;
+        background:var(--acid);
+        clip-path:polygon(0 0,100% 0,100% 62%,62% 100%,0 100%);
+    }
+    .brand b{
+        font-family:var(--mono);
+        font-size:14px;
+        letter-spacing:.14em;
+        font-weight:600;
+    }
+    .navlinks{
+        display:flex;
+        align-items:center;
+        flex:1;
+        min-width:0;
+    }
+    .navlinks a{
+        padding:0 18px;
+        height:52px;
+        display:flex;align-items:center;
+        border-right:1px solid var(--line);
+        color:var(--grey);
+        transition:.15s;
+        white-space:nowrap;
+    }
+    .navlinks a:hover{color:var(--acid);background:var(--ink-3);}
+    .topbar .status{
+        display:flex;align-items:center;gap:8px;
+        padding:0 18px;
+        border-left:1px solid var(--line);
+        color:var(--grey);
+        white-space:nowrap;
+    }
+    .topbar .cta-mini{
+        display:flex;align-items:center;
+        padding:0 22px;
+        background:var(--acid);
+        color:#000;
+        font-family:var(--mono);
+        font-size:11px;
+        letter-spacing:.16em;
+        text-transform:uppercase;
+        font-weight:700;
+        white-space:nowrap;
+    }
+    .topbar .cta-mini:hover{background:var(--white);}
+
+    .dot{
+        width:7px;height:7px;border-radius:50%;
+        background:var(--acid);
+        box-shadow:0 0 0 0 rgba(198,255,0,.7);
+        animation:pulse 1.6s infinite;
+        flex-shrink:0;
+    }
+    @keyframes pulse{
+        0%{box-shadow:0 0 0 0 rgba(198,255,0,.55);}
+        70%{box-shadow:0 0 0 8px rgba(198,255,0,0);}
+        100%{box-shadow:0 0 0 0 rgba(198,255,0,0);}
+    }
+
+    /* ---------- TICKER ---------- */
+    .ticker{
+        border-bottom:1px solid var(--line);
+        overflow:hidden;
+        background:var(--ink-2);
+        height:34px;
+        display:flex;
+        align-items:center;
+    }
+    .ticker-track{
+        display:flex;
+        white-space:nowrap;
+        animation:slide 42s linear infinite;
+    }
+    .ticker-track span{
+        font-family:var(--mono);
+        font-size:10px;
+        letter-spacing:.2em;
+        text-transform:uppercase;
+        color:var(--grey);
+        padding-right:34px;
+    }
+    .ticker-track span em{color:var(--acid);font-style:normal;}
+    @keyframes slide{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+    /* ---------- HERO ---------- */
+    .hero{
+        display:grid;
+        grid-template-columns:7fr 5fr;
+        border-bottom:1px solid var(--line);
+    }
+    .hero-l{
+        padding:56px 20px 30px;
+        border-right:1px solid var(--line);
+        position:relative;
+        overflow:hidden;
+    }
+    .ghost-num{
+        position:absolute;
+        right:-30px;bottom:-70px;
+        font-family:var(--sans);
+        font-weight:800;
+        font-size:260px;
+        line-height:.8;
+        letter-spacing:-.06em;
+        color:rgba(255,255,255,.028);
+        pointer-events:none;
+        user-select:none;
+    }
+    h1{
+        font-size:clamp(46px,8.6vw,124px);
+        line-height:.86;
+        letter-spacing:-.045em;
+        font-weight:800;
+        text-transform:uppercase;
+        margin:26px 0 0;
+        position:relative;
+    }
+    h1 .out{
+        display:block;
+        color:transparent;
+        -webkit-text-stroke:1px var(--line-2);
+    }
+    h1 .hit{
+        display:inline-block;
+        background:var(--acid);
+        color:#000;
+        padding:0 .06em;
+        transform:rotate(-1.4deg);
+    }
+    .hero-kicker{
+        display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    }
+    .tag{
+        border:1px solid var(--line-2);
+        padding:5px 9px;
+        color:var(--grey-2);
+    }
+    .tag.on{border-color:var(--acid);color:var(--acid);}
+    .hero-sub{margin-top:34px;font-size:17px;max-width:50ch;}
+    .hero-actions{
+        display:flex;flex-wrap:wrap;gap:0;margin-top:38px;
+        border:1px solid var(--line);
+        width:fit-content;
+    }
+    .btn{
+        font-family:var(--mono);
+        text-transform:uppercase;
+        letter-spacing:.16em;
+        font-size:11px;
+        font-weight:700;
+        padding:17px 26px;
+        border:none;
+        cursor:pointer;
+        background:transparent;
+        color:var(--white);
+        transition:.15s;
+        display:flex;align-items:center;gap:10px;
+    }
+    .btn-primary{
+        background:var(--acid);
+        color:#000;
+        box-shadow:0 0 26px rgba(198,255,0,.24);
+    }
+    .btn-primary:hover{background:var(--white);box-shadow:0 0 30px rgba(244,247,245,.28);}
+    .btn-ghost{border-left:1px solid var(--line);}
+    .btn-ghost:hover{color:var(--acid);background:var(--ink-3);}
+
+    .hero-stats{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        border-top:1px solid var(--line);
+        margin-top:52px;
+    }
+    .hero-stats div{
+        padding:18px 20px 18px 0;
+    }
+    .hero-stats div:not(:first-child){padding-left:20px;border-left:1px solid var(--line);}
+    .hero-stats b{
+        display:block;
+        font-size:30px;
+        letter-spacing:-.03em;
+        font-weight:700;
+        margin-bottom:5px;
+        font-variant-numeric:tabular-nums;
+    }
+
+    /* ---------- HERO PLAYER PANEL ---------- */
+    .player{display:flex;flex-direction:column;}
+    .player-head{
+        display:flex;align-items:center;gap:10px;
+        padding:11px 16px;
+        border-bottom:1px solid var(--line);
+        background:var(--ink-3);
+    }
+    .player-head .live{
+        color:var(--acid);
+        font-family:var(--mono);
+        font-size:10px;
+        letter-spacing:.2em;
+    }
+    .player-head .push{margin-left:auto;}
+    .cam{
+        border-bottom:1px solid var(--line);
+        padding:14px 16px;
+        display:flex;gap:12px;align-items:center;
+        background:
+          linear-gradient(115deg,rgba(139,92,246,.10),rgba(0,229,255,.06) 60%,transparent),
+          var(--ink-2);
+    }
+    .avatar{
+        width:40px;height:40px;flex-shrink:0;
+        background:linear-gradient(140deg,var(--acid),var(--cyan) 70%);
+        clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);
+    }
+    .cam .who{font-family:var(--mono);font-size:12px;letter-spacing:.06em;}
+    .cam .what{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--grey);text-transform:uppercase;margin-top:4px;}
+
+    .feed{flex:1;display:flex;flex-direction:column;}
+    .feed-row{
+        border-bottom:1px solid var(--line);
+        padding:13px 16px;
+    }
+    .feed-row .rl{
+        display:flex;align-items:center;gap:8px;
+        margin-bottom:8px;
+    }
+    .swatch{width:6px;height:12px;flex-shrink:0;}
+    .code{
+        font-family:var(--mono);
+        font-size:11.5px;
+        line-height:1.75;
+        letter-spacing:0;
+        text-transform:none;
+        white-space:pre-wrap;
+        word-break:break-word;
+        color:var(--grey-2);
+    }
+    .code .k{color:var(--violet);}
+    .code .s{color:var(--acid);}
+    .code .c{color:#4E5654;}
+    .code .f{color:var(--cyan);}
+    .code .plus{color:var(--acid);}
+    .code .minus{color:var(--magenta);}
+    .caret{
+        display:inline-block;
+        width:7px;height:13px;
+        background:var(--acid);
+        vertical-align:-2px;
+        animation:blink 1s steps(1) infinite;
+    }
+    @keyframes blink{50%{opacity:0;}}
+
+    .player-foot{
+        display:flex;align-items:center;gap:14px;
+        padding:0;
+        border-top:1px solid var(--line);
+        background:var(--ink-3);
+    }
+    .player-foot .cell{
+        padding:12px 16px;
+        border-right:1px solid var(--line);
+        font-family:var(--mono);
+        font-size:10px;
+        letter-spacing:.14em;
+        text-transform:uppercase;
+        color:var(--grey);
+    }
+    .player-foot .fork{
+        margin-left:auto;
+        padding:12px 20px;
+        background:var(--acid);
+        color:#000;
+        font-family:var(--mono);
+        font-size:10px;
+        font-weight:700;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+        cursor:pointer;
+        border:none;
+    }
+    .player-foot .fork:hover{background:var(--white);}
+
+    .meter{
+        height:3px;background:var(--line);width:100%;
+    }
+    .meter i{display:block;height:3px;background:var(--acid);width:34%;animation:load 9s linear infinite;}
+    @keyframes load{from{width:6%}to{width:98%}}
+
+    /* ---------- HOW IT WORKS ---------- */
+    .how{border-bottom:1px solid var(--line);}
+    .how-grid{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+    }
+    .step{
+        padding:34px 20px 40px;
+        border-right:1px solid var(--line);
+        position:relative;
+        min-height:250px;
+    }
+    .step:last-child{border-right:none;}
+    .step .n{
+        font-size:64px;
+        font-weight:800;
+        letter-spacing:-.05em;
+        line-height:1;
+        color:transparent;
+        -webkit-text-stroke:1px var(--line-2);
+        margin-bottom:20px;
+    }
+    .step:hover .n{-webkit-text-stroke:1px var(--acid);color:transparent;}
+    .step h3{
+        font-size:21px;
+        text-transform:uppercase;
+        letter-spacing:-.02em;
+        font-weight:700;
+        margin-bottom:12px;
+    }
+    .step p{font-size:15px;}
+    .step .arrow{
+        position:absolute;top:34px;right:20px;
+        font-family:var(--mono);color:var(--line-2);font-size:14px;
+    }
+
+    .anatomy{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        border-top:1px solid var(--line);
+    }
+    .an-col{border-right:1px solid var(--line);}
+    .an-col:last-child{border-right:none;}
+    .an-head{
+        display:flex;align-items:center;gap:8px;
+        padding:10px 16px;
+        border-bottom:1px solid var(--line);
+        background:var(--ink-2);
+    }
+    .an-body{padding:16px;min-height:170px;}
+
+    /* ---------- FEATURES ---------- */
+    .features{border-bottom:1px solid var(--line);}
+    .fgrid{display:grid;grid-template-columns:repeat(3,1fr);}
+    .feat{
+        border-right:1px solid var(--line);
+        padding:0;
+        display:flex;flex-direction:column;
+        transition:.2s;
+    }
+    .feat:last-child{border-right:none;}
+    .feat:hover{background:var(--ink-2);}
+    .feat-top{
+        padding:16px;
+        border-bottom:1px solid var(--line);
+        display:flex;align-items:center;justify-content:space-between;
+    }
+    .feat-body{padding:30px 20px 34px;flex:1;}
+    .feat h3{
+        font-size:clamp(24px,2.5vw,34px);
+        line-height:.95;
+        letter-spacing:-.035em;
+        text-transform:uppercase;
+        font-weight:800;
+        margin-bottom:16px;
+    }
+    .feat p{font-size:15px;}
+    .feat-list{
+        list-style:none;
+        margin-top:22px;
+        border-top:1px solid var(--line);
+    }
+    .feat-list li{
+        font-family:var(--mono);
+        font-size:10.5px;
+        letter-spacing:.1em;
+        text-transform:uppercase;
+        color:var(--grey);
+        padding:10px 0;
+        border-bottom:1px solid var(--line);
+        display:flex;gap:10px;
+    }
+    .feat-list li::before{content:"→";color:var(--acid);}
+    .badge{
+        font-family:var(--mono);
+        font-size:9px;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+        padding:4px 7px;
+        border:1px solid var(--line-2);
+        color:var(--grey);
+    }
+    .badge.a{border-color:var(--acid);color:var(--acid);}
+    .badge.c{border-color:var(--cyan);color:var(--cyan);}
+    .badge.m{border-color:var(--magenta);color:var(--magenta);}
+
+    /* ---------- CTA ---------- */
+    .cta{
+        position:relative;
+        overflow:hidden;
+        border-bottom:1px solid var(--line);
+    }
+    .cta-inner{
+        display:grid;
+        grid-template-columns:6fr 6fr;
+    }
+    .cta-l{
+        padding:60px 20px 64px;
+        border-right:1px solid var(--line);
+    }
+    .cta-l h2{
+        font-size:clamp(38px,6vw,86px);
+        line-height:.85;
+        letter-spacing:-.045em;
+        text-transform:uppercase;
+        font-weight:800;
+    }
+    .cta-l h2 .hit{
+        background:var(--acid);color:#000;display:inline-block;padding:0 .05em;
+    }
+    .cta-r{
+        padding:60px 20px 64px;
+        display:flex;flex-direction:column;justify-content:center;
+        background:
+          repeating-linear-gradient(-45deg,rgba(198,255,0,.035) 0 1px,transparent 1px 9px),
+          var(--ink-2);
+    }
+    form{margin-top:8px;}
+    .field{
+        display:flex;
+        border:1px solid var(--line-2);
+        background:var(--ink);
+    }
+    .field input{
+        flex:1;
+        background:transparent;
+        border:none;
+        outline:none;
+        color:var(--white);
+        font-family:var(--mono);
+        font-size:13px;
+        letter-spacing:.04em;
+        padding:18px 16px;
+        min-width:0;
+    }
+    .field input::placeholder{color:#5A625F;text-transform:uppercase;letter-spacing:.14em;font-size:11px;}
+    .field:focus-within{border-color:var(--acid);box-shadow:0 0 22px rgba(198,255,0,.14);}
+    .field button{
+        border:none;
+        border-left:1px solid var(--line-2);
+        background:var(--acid);
+        color:#000;
+        font-family:var(--mono);
+        font-size:11px;
+        font-weight:700;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+        padding:0 24px;
+        cursor:pointer;
+        white-space:nowrap;
+    }
+    .field button:hover{background:var(--white);}
+    .fineprint{margin-top:14px;color:var(--grey);}
+    .cta-meta{
+        display:grid;grid-template-columns:repeat(3,1fr);
+        border-top:1px solid var(--line);
+        margin-top:34px;
+    }
+    .cta-meta div{padding:14px 0;}
+    .cta-meta div:not(:first-child){padding-left:16px;border-left:1px solid var(--line);}
+    .cta-meta b{display:block;font-family:var(--mono);font-size:15px;margin-bottom:4px;letter-spacing:.02em;}
+
+    /* ---------- FOOTER ---------- */
+    footer{
+        display:grid;
+        grid-template-columns:4fr 8fr;
+    }
+    .foot-l{
+        padding:26px 20px 34px;
+        border-right:1px solid var(--line);
+    }
+    .foot-r{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+    }
+    .foot-col{
+        padding:26px 20px 34px;
+        border-right:1px solid var(--line);
+    }
+    .foot-col:last-child{border-right:none;}
+    .foot-col ul{list-style:none;margin-top:14px;}
+    .foot-col li{padding:6px 0;}
+    .foot-col a{color:var(--grey);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+    .foot-col a:hover{color:var(--acid);}
+    .legal{
+        grid-column:1/-1;
+        border-top:1px solid var(--line);
+        padding:14px 20px;
+        display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
+        background:var(--ink-2);
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media(max-width:1080px){
+        .hero{grid-template-columns:1fr;}
+        .hero-l{border-right:none;border-bottom:1px solid var(--line);}
+        .cta-inner{grid-template-columns:1fr;}
+        .cta-l{border-right:none;border-bottom:1px solid var(--line);}
+        footer{grid-template-columns:1fr;}
+        .foot-l{border-right:none;border-bottom:1px solid var(--line);}
+    }
+    @media(max-width:860px){
+        .how-grid,.fgrid,.anatomy,.foot-r{grid-template-columns:1fr;}
+        .step,.feat,.an-col,.foot-col{border-right:none;border-bottom:1px solid var(--line);}
+        .navlinks{display:none;}
+        .ghost-num{font-size:150px;}
+        .hero-stats{grid-template-columns:1fr 1fr;}
+        .hero-stats div:nth-child(3){border-left:none;border-top:1px solid var(--line);padding-left:0;}
+    }
+    @media(max-width:520px){
+        .topbar .status{display:none;}
+        .hero-l{padding:34px 16px 24px;}
+        .hero-actions{width:100%;}
+        .btn{flex:1;justify-content:center;padding:16px 12px;}
+        .field{flex-direction:column;}
+        .field button{border-left:none;border-top:1px solid var(--line-2);padding:16px;}
+        .cta-meta{grid-template-columns:1fr;}
+        .cta-meta div:not(:first-child){border-left:none;border-top:1px solid var(--line);padding-left:0;}
+    }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="rails"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- ================= TOP BAR ================= -->
+<div class="topbar">
+    <div class="brand"><i class="glyph"></i><b>STREAMFORGE</b></div>
+    <nav class="navlinks mono">
+        <a href="#live">LIVE NOW</a>
+        <a href="#how">HOW IT WORKS</a>
+        <a href="#features">FEATURES</a>
+        <a href="#signup">PRICING</a>
+    </nav>
+    <div class="status mono"><i class="dot"></i><span><b class="acid" id="onlineNow">4,318</b> DEVS ONLINE</span></div>
+    <a href="#signup" class="cta-mini">Get access</a>
+</div>
+
+<!-- ================= TICKER ================= -->
+<div class="ticker">
+    <div class="ticker-track">
+        <span>● LIVE — <em>@nkosi_dev</em> REFACTORING A RUST PARSER W/ CLAUDE</span>
+        <span>● LIVE — <em>@yuki.ts</em> BUILDING AN OAUTH FLOW FROM ZERO</span>
+        <span>● LIVE — <em>@margot</em> 4H 12M UNBROKEN SESSION · 812 WATCHING</span>
+        <span>◆ <em>18,402</em> FORKS THIS WEEK</span>
+        <span>● LIVE — <em>@tobi_h</em> DEBUGGING A RACE CONDITION IN PROD</span>
+        <span>◆ EVERY PROMPT LOGGED · EVERY DIFF REPLAYABLE</span>
+        <span>● LIVE — <em>@nkosi_dev</em> REFACTORING A RUST PARSER W/ CLAUDE</span>
+        <span>● LIVE — <em>@yuki.ts</em> BUILDING AN OAUTH FLOW FROM ZERO</span>
+        <span>● LIVE — <em>@margot</em> 4H 12M UNBROKEN SESSION · 812 WATCHING</span>
+        <span>◆ <em>18,402</em> FORKS THIS WEEK</span>
+        <span>● LIVE — <em>@tobi_h</em> DEBUGGING A RACE CONDITION IN PROD</span>
+        <span>◆ EVERY PROMPT LOGGED · EVERY DIFF REPLAYABLE</span>
+    </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="live">
+    <div class="hero-l">
+        <div class="ghost-num">01</div>
+        <div class="hero-kicker mono">
+            <span class="tag on">▲ LIVE BROADCAST PLATFORM</span>
+            <span class="tag">V2.4.0</span>
+            <span class="tag">BUILD 88217</span>
+        </div>
+
+        <h1>
+            Watch people<br>
+            <span class="out">build</span>
+            <span class="hit">Fork</span> the result.
+        </h1>
+
+        <p class="hero-sub">Developers stream themselves shipping software with AI assistants. You see the prompt, the model's raw output, and the diff land — in the same second they do. Then you take the repo.</p>
+
+        <div class="hero-actions">
+            <button class="btn btn-primary">Start watching <span>↗</span></button>
+            <button class="btn btn-ghost">Go live in 90s</button>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <b id="statWatch">12,940</b>
+                <div class="mono dim">Watching right now</div>
+            </div>
+            <div>
+                <b id="statTok">3.41M</b>
+                <div class="mono dim">Tokens streamed / hr</div>
+            </div>
+            <div>
+                <b id="statFork">18,402</b>
+                <div class="mono dim">Repos forked this week</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER -->
+    <div class="player">
+        <div class="player-head">
+            <i class="dot"></i>
+            <span class="live">LIVE</span>
+            <span class="mono dim">CH-0417 · SRC/PARSER/LEXER.RS</span>
+            <span class="mono acid push" id="viewers">812 WATCHING</span>
+        </div>
+
+        <div class="cam">
+            <div class="avatar"></div>
+            <div>
+                <div class="who">@nkosi_dev</div>
+                <div class="what">rewriting the tokenizer · claude-sonnet · 4h 12m</div>
+            </div>
+        </div>
+
+        <div class="feed">
+            <div class="feed-row">
+                <div class="rl"><i class="swatch" style="background:var(--cyan)"></i><span class="mono cy">01 / PROMPT</span><span class="mono dim">14:22:07</span></div>
+                <div class="code" id="promptLine"></div>
+            </div>
+
+            <div class="feed-row">
+                <div class="rl"><i class="swatch" style="background:var(--violet)"></i><span class="mono" style="color:var(--violet)">02 / MODEL OUTPUT</span><span class="mono dim">STREAMING</span></div>
+                <div class="code"><span class="c">// peek-ahead avoids the clone entirely —</span>
+<span class="c">// we can borrow the slice until the token closes.</span>
+<span class="k">fn</span> <span class="f">next_token</span>(&<span class="k">mut</span> self) -&gt; Option&lt;Token&lt;<span class="s">'src</span>&gt;&gt; {
+    <span class="k">let</span> start = self.cursor;
+    <span class="k">while let</span> Some(c) = self.peek() {<span class="caret"></span></div>
+            </div>
+
+            <div class="feed-row">
+                <div class="rl"><i class="swatch" style="background:var(--acid)"></i><span class="mono acid">03 / DIFF</span><span class="mono dim">+18 −6 · UNCOMMITTED</span></div>
+                <div class="code"><span class="minus">- let mut buf = String::new();</span>
+<span class="minus">- buf.push_str(&amp;self.src[i..j]);</span>
+<span class="plus">+ let slice = &amp;self.src[start..self.cursor];</span>
+<span class="plus">+ Some(Token::Ident(slice))</span></div>
+            </div>
+        </div>
+
+        <div class="meter"><i></i></div>
+
+        <div class="player-foot">
+            <div class="cell">◷ 04:12:38</div>
+            <div class="cell">⌘ 1,204 PROMPTS</div>
+            <button class="fork">◧ Fork repo</button>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="how" id="how">
+    <div class="sec-label mono">
+        <span class="idx">[02]</span><span>// HOW IT WORKS</span><span class="grow"></span><span class="dim">THREE LAYERS, ONE TIMELINE</span>
+    </div>
+
+    <div class="how-grid">
+        <div class="step">
+            <div class="arrow mono">→</div>
+            <div class="n">01</div>
+            <h3>Pick a stream</h3>
+            <p>Filter by language, model, or task. Compilers, CRUD, infra, game engines. No tutorials — real work with real dead ends.</p>
+        </div>
+        <div class="step">
+            <div class="arrow mono">→</div>
+            <div class="n">02</div>
+            <h3>Read the loop</h3>
+            <p>Three synced panes: what they asked, what the model said, what actually got committed. Scrub the timeline to any moment.</p>
+        </div>
+        <div class="step">
+            <div class="arrow mono">◧</div>
+            <div class="n">03</div>
+            <h3>Fork the state</h3>
+            <p>One click clones the repo at that exact commit — plus the full prompt history as a replayable log. Diverge from anywhere.</p>
+        </div>
+    </div>
+
+    <div class="anatomy">
+        <div class="an-col">
+            <div class="an-head"><i class="swatch" style="background:var(--cyan)"></i><span class="mono cy">PANE 01 — PROMPT</span></div>
+            <div class="an-body">
+                <div class="code"><span class="c">&gt; 14:22:07 · @nkosi_dev</span>
+the lexer clones every ident.
+kill the allocation. keep the
+lifetime tied to the source.</div>
+            </div>
+        </div>
+        <div class="an-col">
+            <div class="an-head"><i class="swatch" style="background:var(--violet)"></i><span class="mono" style="color:var(--violet)">PANE 02 — OUTPUT</span></div>
+            <div class="an-body">
+                <div class="code"><span class="c">// 412 tok · 1.9s · sonnet</span>
+<span class="k">pub struct</span> <span class="f">Lexer</span>&lt;<span class="s">'src</span>&gt; {
+    src: &<span class="s">'src</span> <span class="k">str</span>,
+    cursor: <span class="k">usize</span>,
+}</div>
+            </div>
+        </div>
+        <div class="an-col">
+            <div class="an-head"><i class="swatch" style="background:var(--acid)"></i><span class="mono acid">PANE 03 — REPO</span></div>
+            <div class="an-body">
+                <div class="code"><span class="c">// HEAD → a91f0c2</span>
+<span class="plus">+ 18 lines</span>
+<span class="minus">− 6 lines</span>
+<span class="c">// tests: 41 pass / 0 fail</span>
+<span class="s">fork available →</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="features" id="features">
+    <div class="sec-label mono">
+        <span class="idx">[03]</span><span>// CAPABILITIES</span><span class="grow"></span><span class="dim">003 OF 003</span>
+    </div>
+
+    <div class="fgrid">
+        <div class="feat">
+            <div class="feat-top"><span class="mono dim">F—001</span><span class="badge a">Live</span></div>
+            <div class="feat-body">
+                <h3>Prompt-level<br>transparency</h3>
+                <p>Nothing is edited out. Every prompt, retry, hallucination and rollback is on the timeline, timestamped against the diff it produced.</p>
+                <ul class="feat-list">
+                    <li>Full token stream capture</li>
+                    <li>Model + temperature exposed</li>
+                    <li>Failed attempts preserved</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="feat">
+            <div class="feat-top"><span class="mono dim">F—002</span><span class="badge c">Instant</span></div>
+            <div class="feat-body">
+                <h3>Fork any<br>stream, mid-air</h3>
+                <p>Hit fork at 02:41:16 and you get the tree exactly as it stood — dependencies pinned, env described, prompt log attached.</p>
+                <ul class="feat-list">
+                    <li>Commit-accurate snapshots</li>
+                    <li>Devcontainer generated</li>
+                    <li>Prompt log as .jsonl</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="feat">
+            <div class="feat-top"><span class="mono dim">F—003</span><span class="badge m">Multiplayer</span></div>
+            <div class="feat-body">
+                <h3>Chat that<br>ships code</h3>
+                <p>Viewers submit prompts to the queue. The streamer accepts, runs it, and the whole room watches the model take the bait.</p>
+                <ul class="feat-list">
+                    <li>Prompt queue + voting</li>
+                    <li>Inline diff annotations</li>
+                    <li>Fork-and-PR back to source</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta" id="signup">
+    <div class="sec-label mono">
+        <span class="idx">[04]</span><span>// ACCESS</span><span class="grow"></span><span class="dim"><i class="dot" style="display:inline-block;vertical-align:-1px"></i> ONBOARDING OPEN</span>
+    </div>
+
+    <div class="cta-inner">
+        <div class="cta-l">
+            <h2>Stop reading<br>changelogs.<br><span class="hit">Watch</span> the work.</h2>
+            <p style="margin-top:28px">Free to watch, free to fork. Streaming is free while we're in public beta — bring your own model keys.</p>
+        </div>
+
+        <div class="cta-r">
+            <div class="mono dim">// REQUEST ACCESS</div>
+            <form onsubmit="return false;">
+                <div class="field">
+                    <input type="email" placeholder="you@yourdomain.dev" aria-label="Email address" required>
+                    <button type="submit">Get access ↗</button>
+                </div>
+                <div class="mono fineprint">NO NEWSLETTER. ONE EMAIL WHEN YOUR SEAT IS LIVE.</div>
+            </form>
+
+            <div class="cta-meta">
+                <div><b class="acid">0.00</b><div class="mono dim">USD / month, beta</div></div>
+                <div><b>90s</b><div class="mono dim">CLI → first broadcast</div></div>
+                <div><b>MIT</b><div class="mono dim">Player is open source</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+    <div class="foot-l">
+        <div class="brand" style="padding:0;border:none;height:auto;margin-bottom:16px;"><i class="glyph"></i><b>STREAMFORGE</b></div>
+        <p style="font-size:14px;max-width:36ch;">A broadcast layer for AI-assisted software. Built in the open, on the platform.</p>
+        <div class="mono dim" style="margin-top:20px;">◷ UPTIME 99.98% · REGION EU-WEST-1</div>
+    </div>
+
+    <div class="foot-r">
+        <div class="foot-col">
+            <div class="mono acid">PLATFORM</div>
+            <ul>
+                <li><a href="#live">Live channels</a></li>
+                <li><a href="#">Fork explorer</a></li>
+                <li><a href="#">Replay archive</a></li>
+                <li><a href="#">Status</a></li>
+            </ul>
+        </div>
+        <div class="foot-col">
+            <div class="mono acid">DEVELOPERS</div>
+            <ul>
+                <li><a href="#">CLI docs</a></li>
+                <li><a href="#">Stream API</a></li>
+                <li><a href="#">Player SDK</a></li>
+                <li><a href="#">Changelog</a></li>
+            </ul>
+        </div>
+        <div class="foot-col">
+            <div class="mono acid">COMPANY</div>
+            <ul>
+                <li><a href="#">Manifesto</a></li>
+                <li><a href="#">Careers · 4</a></li>
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Terms</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="legal mono dim">
+        <span>© 2025 STREAMFORGE LABS — ALL STREAMS ARE THE PROPERTY OF THEIR BROADCASTERS</span>
+        <span>LAT 52.3676 / LON 4.9041 — AMSTERDAM</span>
+    </div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+    /* ---- animated counters ---- */
+    var fmt = function(n){ return n.toLocaleString('en-US'); };
+
+    var watching = 12940, forks = 18402, online = 4318, viewers = 812, tok = 3.41;
+
+    setInterval(function(){
+        watching += Math.floor(Math.random()*31) - 12;
+        online   += Math.floor(Math.random()*11) - 4;
+        viewers  += Math.floor(Math.random()*7) - 3;
+        tok      += (Math.random()*0.04) - 0.015;
+        if (Math.random() > 0.55) forks += Math.floor(Math.random()*3)+1;
+
+        document.getElementById('statWatch').textContent = fmt(watching);
+        document.getElementById('statFork').textContent  = fmt(forks);
+        document.getElementById('statTok').textContent   = tok.toFixed(2) + 'M';
+        document.getElementById('onlineNow').textContent = fmt(online);
+        document.getElementById('viewers').textContent   = fmt(viewers) + ' WATCHING';
+    }, 1800);
+
+    /* ---- typing prompt ---- */
+    var el = document.getElementById('promptLine');
+    var lines = [
+        "the lexer clones every ident. kill the allocation — tie the lifetime to the source buffer instead.",
+        "now make peek() zero-cost and prove it with a bench. no unsafe.",
+        "tests are green but the fuzz target panics on \\u{FEFF}. find it."
+    ];
+    var li = 0, ci = 0, holding = 0;
+
+    function tick(){
+        var line = lines[li];
+        if (holding > 0){ holding--; setTimeout(tick, 40); return; }
+        if (ci <= line.length){
+            el.innerHTML = '<span class="c">&gt; @nkosi_dev</span>\n' +
+                           line.slice(0, ci).replace(/</g,'&lt;') +
+                           '<span class="caret"></span>';
+            ci++;
+            setTimeout(tick, 26 + Math.random()*45);
+        } else {
+            holding = 90;
+            li = (li + 1) % lines.length;
+            ci = 0;
+            setTimeout(tick, 40);
+        }
+    }
+    tick();
+})();
+</script>
+
+</body>
+</html>

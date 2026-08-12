@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAMFORGE // LIVE AI CODING</title>
+<style>
+    /* ACID DESIGN RESET & VARIABLES */
+    :root {
+        --bg-void: #050505;
+        --acid-green: #CCFF00;
+        --cyan: #00F0FF;
+        --magenta: #FF003C;
+        --white: #F0F0F0;
+        --grey: #2A2A2A;
+        --font-display: Impact, 'Arial Black', sans-serif;
+        --font-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--bg-void);
+        color: var(--white);
+        font-family: var(--font-mono);
+        line-height: 1.5;
+        overflow-x: hidden;
+    }
+
+    /* TEXTURES & EFFECTS */
+    .crt-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.6;
+    }
+
+    .noise {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        opacity: 0.04;
+        pointer-events: none;
+        z-index: 9998;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    ::selection {
+        background: var(--magenta);
+        color: var(--acid-green);
+    }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3, .display-text {
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .text-acid { color: var(--acid-green); }
+    .text-cyan { color: var(--cyan); }
+    .text-magenta { color: var(--magenta); }
+
+    /* LAYOUT & HUD COMPONENTS */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .hud-border {
+        border: 2px solid var(--grey);
+        position: relative;
+    }
+    
+    .hud-border::before, .hud-border::after {
+        content: ''; position: absolute; width: 10px; height: 10px;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 2px solid var(--acid-green);
+        background: var(--bg-void);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .logo {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        letter-spacing: 2px;
+        color: var(--white);
+        text-shadow: 2px 2px 0 var(--magenta), -2px -2px 0 var(--cyan);
+    }
+
+    .btn {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        padding: 0.75rem 2rem;
+        background: transparent;
+        color: var(--acid-green);
+        border: 2px solid var(--acid-green);
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.1s;
+        box-shadow: 4px 4px 0 var(--magenta);
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background: var(--acid-green);
+        color: var(--bg-void);
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--magenta);
+    }
+
+    .btn-cyan {
+        color: var(--cyan);
+        border-color: var(--cyan);
+        box-shadow: 4px 4px 0 var(--acid-green);
+    }
+    .btn-cyan:hover {
+        background: var(--cyan);
+        box-shadow: 2px 2px 0 var(--acid-green);
+    }
+
+    /* MARQUEE */
+    .marquee-container {
+        width: 100%;
+        overflow: hidden;
+        background: var(--acid-green);
+        color: var(--bg-void);
+        padding: 0.5rem 0;
+        border-top: 2px solid var(--white);
+        border-bottom: 2px solid var(--white);
+    }
+    
+    .marquee-content {
+        display: flex;
+        width: 200%;
+        animation: scroll 15s linear infinite;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* SECTIONS */
+    section {
+        padding: 8rem 0;
+        border-bottom: 2px dashed var(--grey);
+    }
+
+    /* HERO */
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        padding: 6rem 2rem;
+    }
+
+    .hero-content h1 {
+        font-size: 6rem;
+        letter-spacing: -2px;
+        margin-bottom: 1.5rem;
+        text-shadow: 4px 4px 0 var(--magenta);
+    }
+
+    .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 2.5rem;
+        border-left: 4px solid var(--cyan);
+        padding-left: 1rem;
+        max-width: 500px;
+    }
+
+    .ide-mockup {
+        background: #0A0A0A;
+        border: 2px solid var(--cyan);
+        box-shadow: 8px 8px 0 var(--acid-green);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ide-header {
+        border-bottom: 2px solid var(--cyan);
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--cyan);
+    }
+
+    .ide-body {
+        display: grid;
+        grid-template-columns: 35% 65%;
+        height: 400px;
+    }
+
+    .ide-prompt {
+        border-right: 2px solid var(--cyan);
+        padding: 1rem;
+        font-size: 0.9rem;
+        color: var(--white);
+    }
+
+    .ide-code {
+        padding: 1rem;
+        color: var(--acid-green);
+        overflow: hidden;
+    }
+
+    .blink { animation: blinker 1s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+
+    /* HOW IT WORKS */
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 4rem;
+    }
+
+    .step-card {
+        border: 2px solid var(--white);
+        padding: 2rem;
+        position: relative;
+        background: rgba(20, 20, 20, 0.8);
+    }
+
+    .step-num {
+        font-family: var(--font-display);
+        font-size: 4rem;
+        color: var(--bg-void);
+        -webkit-text-stroke: 2px var(--magenta);
+        position: absolute;
+        top: -30px;
+        left: -10px;
+    }
+
+    .step-card h3 {
+        font-size: 2rem;
+        margin: 1rem 0;
+        color: var(--acid-green);
+    }
+
+    /* FEATURES */
+    .feature-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        margin-bottom: 6rem;
+        align-items: center;
+    }
+    
+    .feature-row:nth-child(even) {
+        grid-template-columns: 1fr 1fr;
+        direction: rtl;
+    }
+    .feature-row:nth-child(even) > * { direction: ltr; }
+
+    .feature-text h2 {
+        font-size: 4rem;
+        color: var(--cyan);
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 0 var(--magenta);
+    }
+
+    .feature-visual {
+        height: 300px;
+        border: 2px solid var(--magenta);
+        background: repeating-linear-gradient(45deg, #050505, #050505 10px, #1a0006 10px, #1a0006 20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: 3rem;
+        color: var(--magenta);
+    }
+
+    /* CTA */
+    .cta-section {
+        text-align: center;
+        padding: 10rem 2rem;
+        background: radial-gradient(circle at center, #1a1a1a 0%, var(--bg-void) 100%);
+    }
+
+    .cta-section h2 {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+        color: var(--white);
+    }
+
+    footer {
+        padding: 3rem 2rem;
+        text-align: center;
+        border-top: 2px solid var(--grey);
+        color: #666;
+    }
+
+    @media (max-width: 900px) {
+        .hero, .grid-3, .feature-row, .feature-row:nth-child(even) {
+            grid-template-columns: 1fr;
+        }
+        .hero-content h1 { font-size: 4rem; }
+        .step-card { margin-top: 2rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="noise"></div>
+
+<nav>
+    <div class="logo">STREAMFORGE</div>
+    <div>
+        <a href="#" class="btn btn-cyan">Login</a>
+    </div>
+</nav>
+
+<main>
+    <section class="hero container">
+        <div class="hero-content">
+            <h1>BROADCAST<br><span class="text-acid">THE MACHINE</span></h1>
+            <p>Syntax + Synthesis. The first streaming platform built strictly for AI-assisted software development. Watch elite builders prompt, generate, and compile in real-time.</p>
+            <a href="#signup" class="btn">Start Broadcasting</a>
+        </div>
+        <div class="ide-mockup">
+            <div class="ide-header">
+                <span>STREAM_ID: 0x8F9A</span>
+                <span>LIVE / 1,204 VIEWERS</span>
+            </div>
+            <div class="ide-body">
+                <div class="ide-prompt">
+                    <span class="text-magenta">&gt; SYSTEM:</span><br>
+                    Listening...<br><br>
+                    <span class="text-cyan">&gt; DEV:</span><br>
+                    "Refactor the authentication middleware to use the new JWT strategy. Handle token expiration gracefully."
+                </div>
+                <div class="ide-code">
+                    // GENERATING...<br>
+                    const authMiddleware = async (req, res, next) =&gt; {<br>
+                    &nbsp;&nbsp;try {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;const token = req.headers.authorization;<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;if (!token) throw new Error('No token');<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;const decoded = await jwt.verify(token);<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;req.user = decoded;<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;next();<br>
+                    &nbsp;&nbsp;} catch (e) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="blink">_</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            // NEW FORK: @ZER0DAY CLONED REPO_09 // LIVE NOW: @DATAMANCER BUILDING RUST CLI // TOP PROMPT: "OPTIMIZE WEBSOCKET PAYLOAD" // NEW FORK: @ZER0DAY CLONED REPO_09 // LIVE NOW: @DATAMANCER BUILDING RUST CLI // TOP PROMPT: "OPTIMIZE WEBSOCKET PAYLOAD" // 
+        </div>
+    </div>
+
+    <section id="how-it-works" class="container">
+        <h2 class="display-text text-white" style="font-size: 3rem;">EXECUTION FLOW</h2>
+        <div class="grid-3">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <h3>BROADCAST PROMPTS</h3>
+                <p>Stream your IDE and your AI chat interface simultaneously. Viewers see exactly how you instruct the model, refine context, and debug hallucinations.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <h3>MULTIPLEX STREAM</h3>
+                <p>Our HUD overlay natively parses your terminal output, browser preview, and LLM token generation rate into a high-density spectator view.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <h3>INSTANT FORK</h3>
+                <p>Viewers can clone the exact repository state at any timestamp during the live broadcast with a single click. No more asking for GitHub links.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="container">
+        <div class="feature-row">
+            <div class="feature-text">
+                <h2>RAW<br>GENERATION</h2>
+                <p>Cut the edited tutorial crap. Watch senior engineers wrestle with context windows, hit API limits, and architecture complex systems with AI copilots in real, unfiltered environments.</p>
+            </div>
+            <div class="feature-visual">
+                [ TOKEN STREAM VIEW ]
+            </div>
+        </div>
+
+        <div class="feature-row">
+            <div class="feature-text">
+                <h2 class="text-acid">LIVE<br>FORKING</h2>
+                <p>See a brilliant implementation? Rip it. The Streamforge agent continuously syncs the streamer's local state to our cloud. Viewers can fork the code exactly as it looks on the stream.</p>
+            </div>
+            <div class="feature-visual" style="border-color: var(--acid-green); color: var(--acid-green); background: repeating-linear-gradient(-45deg, #050505, #050505 10px, #101a00 10px, #101a00 20px);">
+                [ REPOSITORY CLONED ]
+            </div>
+        </div>
+
+        <div class="feature-row">
+            <div class="feature-text">
+                <h2 class="text-magenta">TACTICAL<br>HUD</h2>
+                <p>Standard video players fail for code. Our custom player separates the stream into interactive DOM layers. Copy code straight out of the video player. Inspect terminal errors in your browser.</p>
+            </div>
+            <div class="feature-visual" style="border-color: var(--cyan); color: var(--cyan); background: repeating-linear-gradient(90deg, #050505, #050505 10px, #00151a 10px, #00151a 20px);">
+                [ DOM INSPECT ACTIVE ]
+            </div>
+        </div>
+    </section>
+
+    <section id="signup" class="cta-section">
+        <h2>INITIALIZE <span class="text-acid">SEQUENCE</span></h2>
+        <p style="margin-bottom: 3rem; font-size: 1.5rem;">Join the underground network of AI builders.</p>
+        <a href="#" class="btn" style="font-size: 2rem; padding: 1rem 4rem;">CLAIM TERMINAL ID</a>
+    </section>
+</main>
+
+<footer>
+    <p>STREAMFORGE v1.0.0 // SYSTEM ONLINE // COPYRIGHT 2024</p>
+</footer>
+
+</body>
+</html>

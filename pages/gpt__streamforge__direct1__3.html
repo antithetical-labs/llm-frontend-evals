@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is where developers live-stream themselves building software with AI assistants. Watch every prompt, output, and commit—then fork the code.">
+  <title>Streamforge — Build in Public, Fork in Seconds</title>
+  <style>
+    :root {
+      --ink: #09090b;
+      --paper: #f4f1e8;
+      --lime: #c8ff00;
+      --pink: #ff3eb5;
+      --cyan: #27e7ff;
+      --violet: #8c5cff;
+      --orange: #ff6636;
+      --white: #fffef7;
+      --muted: #aaa89f;
+      --line: #2b2b2e;
+      --shadow: 8px 8px 0 var(--ink);
+      --radius: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(9, 9, 11, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(9, 9, 11, .06) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    body::before {
+      position: fixed;
+      z-index: -1;
+      top: -20vw;
+      right: -15vw;
+      width: 55vw;
+      height: 55vw;
+      border-radius: 50%;
+      background: var(--pink);
+      filter: blur(140px);
+      opacity: .12;
+      content: "";
+      pointer-events: none;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .mono,
+    .eyebrow,
+    .button,
+    .ticker,
+    .step-number,
+    .status,
+    .card-index,
+    .terminal,
+    .mini-label,
+    input {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 10;
+      padding: 20px 0;
+      border-bottom: 2px solid var(--ink);
+      background: rgba(244, 241, 232, .88);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 950;
+      font-size: 20px;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      position: relative;
+      display: grid;
+      width: 31px;
+      height: 31px;
+      border: 2px solid var(--ink);
+      background: var(--lime);
+      box-shadow: 3px 3px 0 var(--pink);
+      place-items: center;
+      transform: rotate(-4deg);
+    }
+
+    .brand-mark::before {
+      width: 0;
+      height: 0;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 11px solid var(--ink);
+      content: "";
+      transform: translateX(1px);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .nav-links a:not(.button):hover {
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-decoration-color: var(--pink);
+      text-underline-offset: 5px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 18px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      background: var(--lime);
+      box-shadow: 4px 4px 0 var(--ink);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: var(--cyan);
+      box-shadow: 1px 1px 0 var(--ink);
+      transform: translate(3px, 3px);
+    }
+
+    .button.dark {
+      background: var(--ink);
+      color: var(--white);
+      box-shadow: 5px 5px 0 var(--pink);
+    }
+
+    .button.dark:hover {
+      background: #252529;
+      box-shadow: 2px 2px 0 var(--pink);
+    }
+
+    .hero {
+      position: relative;
+      padding: 88px 0 92px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .hero::before {
+      position: absolute;
+      top: 52px;
+      left: -35px;
+      width: 120px;
+      height: 28px;
+      background: var(--violet);
+      content: "";
+      transform: rotate(-36deg);
+    }
+
+    .hero-grid {
+      display: grid;
+      align-items: center;
+      grid-template-columns: .88fr 1.12fr;
+      gap: 70px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 22px;
+      padding: 7px 10px;
+      border: 2px solid var(--ink);
+      background: var(--white);
+      box-shadow: 4px 4px 0 var(--cyan);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #ff2359;
+      box-shadow: 0 0 0 4px rgba(255, 35, 89, .14);
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      50% { opacity: .45; transform: scale(.8); }
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 660px;
+      margin-bottom: 24px;
+      font-size: clamp(54px, 7.1vw, 104px);
+      font-weight: 950;
+      letter-spacing: -.075em;
+      line-height: .86;
+      text-transform: uppercase;
+    }
+
+    .slash {
+      color: var(--pink);
+      text-shadow: 4px 4px 0 var(--ink);
+      -webkit-text-stroke: 2px var(--ink);
+    }
+
+    .highlight {
+      position: relative;
+      z-index: 0;
+      display: inline-block;
+    }
+
+    .highlight::after {
+      position: absolute;
+      z-index: -1;
+      right: -5px;
+      bottom: 3px;
+      left: -5px;
+      height: 24%;
+      background: var(--lime);
+      content: "";
+      transform: skewX(-11deg) rotate(-1deg);
+    }
+
+    .hero-copy > p {
+      max-width: 570px;
+      margin-bottom: 30px;
+      font-size: 19px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .micro-proof {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 30px;
+      color: #4f4e49;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      margin-right: -8px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 900;
+      place-items: center;
+    }
+
+    .avatar:nth-child(1) { background: var(--pink); }
+    .avatar:nth-child(2) { background: var(--cyan); }
+    .avatar:nth-child(3) { background: var(--lime); }
+    .avatar:nth-child(4) { background: var(--violet); color: white; }
+
+    .stream-wrap {
+      position: relative;
+      padding: 16px 0 0 12px;
+    }
+
+    .stream-wrap::before {
+      position: absolute;
+      right: -28px;
+      bottom: -30px;
+      width: 140px;
+      height: 140px;
+      border: 3px solid var(--ink);
+      background: var(--cyan);
+      content: "";
+      transform: rotate(8deg);
+    }
+
+    .stream-wrap::after {
+      position: absolute;
+      z-index: 2;
+      top: -6px;
+      right: -16px;
+      width: 78px;
+      height: 78px;
+      border: 2px solid var(--ink);
+      background: repeating-linear-gradient(45deg, var(--lime) 0 8px, var(--ink) 8px 10px);
+      content: "";
+      transform: rotate(11deg);
+    }
+
+    .stream-window {
+      position: relative;
+      z-index: 3;
+      overflow: hidden;
+      border: 3px solid var(--ink);
+      background: #111114;
+      box-shadow: 12px 12px 0 var(--pink);
+      color: #efefe7;
+      transform: rotate(1deg);
+    }
+
+    .window-bar {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--ink);
+      background: var(--white);
+      color: var(--ink);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots i {
+      display: block;
+      width: 11px;
+      height: 11px;
+      border: 1.5px solid var(--ink);
+      border-radius: 50%;
+    }
+
+    .window-dots i:nth-child(1) { background: var(--pink); }
+    .window-dots i:nth-child(2) { background: var(--lime); }
+    .window-dots i:nth-child(3) { background: var(--cyan); }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .stream-grid {
+      display: grid;
+      min-height: 430px;
+      grid-template-columns: 1fr .84fr;
+    }
+
+    .video-panel {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 18px;
+      border-right: 1px solid #3c3c42;
+      background:
+        radial-gradient(circle at 65% 32%, rgba(39, 231, 255, .25), transparent 28%),
+        linear-gradient(135deg, #27242e, #0c0c0e 70%);
+    }
+
+    .video-panel::before {
+      position: absolute;
+      top: 18%;
+      left: 17%;
+      width: 65%;
+      height: 46%;
+      border: 1px solid #4b4b53;
+      background:
+        linear-gradient(90deg, transparent 49%, #32323a 50%, transparent 51%),
+        linear-gradient(transparent 49%, #32323a 50%, transparent 51%),
+        #16161a;
+      background-size: 28px 28px;
+      box-shadow: 8px 8px 0 rgba(200, 255, 0, .8);
+      content: "";
+      transform: perspective(400px) rotateX(2deg) rotateY(-7deg);
+    }
+
+    .face-cam {
+      position: absolute;
+      z-index: 2;
+      right: 14px;
+      bottom: 72px;
+      display: grid;
+      width: 82px;
+      height: 66px;
+      border: 2px solid var(--cyan);
+      background: linear-gradient(145deg, #45425a, #1c1b24);
+      color: var(--cyan);
+      font-size: 23px;
+      font-weight: 950;
+      place-items: center;
+    }
+
+    .stream-title {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .viewer-count {
+      position: relative;
+      z-index: 2;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .right-panel {
+      display: grid;
+      min-width: 0;
+      grid-template-rows: 1fr 1.15fr;
+    }
+
+    .prompt-panel,
+    .terminal {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .prompt-panel {
+      border-bottom: 1px solid #3c3c42;
+      background: #19191e;
+    }
+
+    .mini-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: var(--cyan);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .model-chip {
+      padding: 3px 5px;
+      border: 1px solid #5c5c65;
+      color: var(--muted);
+    }
+
+    .prompt {
+      margin: 0;
+      color: #e9e9e3;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .prompt strong {
+      color: var(--lime);
+    }
+
+    .terminal {
+      overflow: hidden;
+      background: #0b0b0d;
+      font-size: 10px;
+      line-height: 1.65;
+      white-space: nowrap;
+    }
+
+    .terminal .purple { color: #c09cff; }
+    .terminal .cyan { color: var(--cyan); }
+    .terminal .lime { color: var(--lime); }
+    .terminal .gray { color: #777780; }
+
+    .repo-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 13px;
+      border-top: 1px solid #3c3c42;
+      background: #18181c;
+      font-size: 10px;
+    }
+
+    .fork-button {
+      padding: 7px 10px;
+      border: 1px solid var(--ink);
+      background: var(--lime);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 9px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .ticker {
+      overflow: hidden;
+      border-bottom: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--lime);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ticker-track {
+      width: max-content;
+      padding: 11px 0;
+      animation: marquee 24s linear infinite;
+    }
+
+    @keyframes marquee {
+      to { transform: translateX(-50%); }
+    }
+
+    .section {
+      padding: 100px 0;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .section-head {
+      display: grid;
+      align-items: end;
+      margin-bottom: 54px;
+      grid-template-columns: 1fr .75fr;
+      gap: 50px;
+    }
+
+    h2 {
+      margin-bottom: 0;
+      font-size: clamp(40px, 6vw, 76px);
+      font-weight: 950;
+      letter-spacing: -.06em;
+      line-height: .95;
+      text-transform: uppercase;
+    }
+
+    .section-head p {
+      margin-bottom: 3px;
+      font-size: 18px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .step {
+      position: relative;
+      min-height: 250px;
+      padding: 30px;
+      background: var(--white);
+    }
+
+    .step + .step {
+      border-left: 2px solid var(--ink);
+    }
+
+    .step:nth-child(2) {
+      background: var(--cyan);
+    }
+
+    .step-number {
+      display: inline-grid;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 38px;
+      border: 2px solid var(--ink);
+      background: var(--lime);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 950;
+      place-items: center;
+    }
+
+    .step:nth-child(2) .step-number {
+      background: var(--pink);
+    }
+
+    .step h3 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      max-width: 310px;
+      margin-bottom: 0;
+      color: #44433e;
+    }
+
+    .features {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .features .section-head p {
+      color: #aaaab1;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 24px;
+    }
+
+    .feature {
+      display: grid;
+      overflow: hidden;
+      min-height: 280px;
+      border: 2px solid var(--white);
+      grid-template-columns: .65fr 1.35fr;
+    }
+
+    .feature:nth-child(even) {
+      grid-template-columns: 1.35fr .65fr;
+    }
+
+    .feature:nth-child(even) .feature-art {
+      order: 2;
+    }
+
+    .feature-art {
+      position: relative;
+      min-height: 250px;
+      overflow: hidden;
+      border-right: 2px solid var(--white);
+      background: var(--pink);
+    }
+
+    .feature:nth-child(even) .feature-art {
+      border-right: 0;
+      border-left: 2px solid var(--white);
+      background: var(--lime);
+    }
+
+    .feature:nth-child(3) .feature-art {
+      background: var(--cyan);
+    }
+
+    .feature-art.grid-art {
+      background-image:
+        linear-gradient(var(--ink) 2px, transparent 2px),
+        linear-gradient(90deg, var(--ink) 2px, transparent 2px);
+      background-size: 32px 32px;
+    }
+
+    .code-stack {
+      position: absolute;
+      top: 44px;
+      right: 34px;
+      left: 34px;
+      padding: 22px;
+      border: 2px solid var(--white);
+      background: var(--ink);
+      box-shadow: 9px 9px 0 var(--lime);
+      color: var(--cyan);
+      font: 11px/1.8 "SFMono-Regular", Consolas, monospace;
+      transform: rotate(-3deg);
+    }
+
+    .code-stack span {
+      color: var(--pink);
+    }
+
+    .fork-graphic {
+      position: absolute;
+      inset: 30px;
+    }
+
+    .fork-node {
+      position: absolute;
+      display: grid;
+      width: 62px;
+      height: 62px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: var(--white);
+      font-weight: 950;
+      place-items: center;
+    }
+
+    .fork-node:nth-child(1) { top: 50%; left: 4%; transform: translateY(-50%); }
+    .fork-node:nth-child(2) { top: 5%; right: 4%; }
+    .fork-node:nth-child(3) { right: 4%; bottom: 5%; }
+
+    .fork-line {
+      position: absolute;
+      top: 50%;
+      left: 22%;
+      width: 60%;
+      height: 3px;
+      background: var(--ink);
+      transform-origin: left;
+    }
+
+    .fork-line.one { transform: rotate(-27deg); }
+    .fork-line.two { transform: rotate(27deg); }
+
+    .timeline-art::before,
+    .timeline-art::after {
+      position: absolute;
+      content: "";
+    }
+
+    .timeline-art::before {
+      top: 50%;
+      right: 12%;
+      left: 12%;
+      height: 5px;
+      background: var(--ink);
+    }
+
+    .timeline-art::after {
+      top: calc(50% - 16px);
+      left: 25%;
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow:
+        90px 0 0 -3px var(--lime),
+        90px 0 0 0 var(--ink),
+        180px 0 0 -3px var(--violet),
+        180px 0 0 0 var(--ink);
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 44px clamp(28px, 5vw, 72px);
+    }
+
+    .card-index {
+      margin-bottom: 30px;
+      color: var(--lime);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .feature:nth-child(2) .card-index { color: var(--pink); }
+    .feature:nth-child(3) .card-index { color: var(--cyan); }
+
+    .feature h3 {
+      margin-bottom: 16px;
+      font-size: clamp(30px, 4vw, 50px);
+      font-weight: 950;
+      letter-spacing: -.05em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .feature-copy p {
+      max-width: 620px;
+      margin-bottom: 0;
+      color: #bbbabc;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .cta {
+      position: relative;
+      overflow: hidden;
+      padding: 110px 0;
+      background: var(--violet);
+    }
+
+    .cta::before {
+      position: absolute;
+      top: -120px;
+      right: -90px;
+      width: 370px;
+      height: 370px;
+      border: 45px solid var(--lime);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .cta::after {
+      position: absolute;
+      bottom: -100px;
+      left: -80px;
+      width: 300px;
+      height: 200px;
+      background: repeating-linear-gradient(-45deg, var(--pink) 0 18px, var(--ink) 18px 22px);
+      content: "";
+      transform: rotate(12deg);
+    }
+
+    .cta-box {
+      position: relative;
+      z-index: 2;
+      max-width: 920px;
+      margin-inline: auto;
+      padding: clamp(34px, 6vw, 72px);
+      border: 3px solid var(--ink);
+      background: var(--paper);
+      box-shadow: 14px 14px 0 var(--ink);
+      text-align: center;
+      transform: rotate(-.5deg);
+    }
+
+    .cta h2 {
+      max-width: 770px;
+      margin: 0 auto 20px;
+    }
+
+    .cta p {
+      max-width: 620px;
+      margin: 0 auto 32px;
+      font-size: 18px;
+    }
+
+    .signup-form {
+      display: flex;
+      max-width: 650px;
+      margin-inline: auto;
+      gap: 10px;
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 14px 16px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      background: var(--white);
+      color: var(--ink);
+      outline: none;
+    }
+
+    .signup-form input:focus {
+      box-shadow: 0 0 0 4px var(--cyan);
+    }
+
+    .form-note {
+      margin-top: 16px !important;
+      color: #5f5e59;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px !important;
+    }
+
+    footer {
+      padding: 28px 0;
+      border-top: 2px solid var(--ink);
+      background: var(--paper);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--pink);
+      text-decoration-thickness: 2px;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-grid {
+        gap: 55px;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        min-height: 0;
+      }
+
+      .step + .step {
+        border-top: 2px solid var(--ink);
+        border-left: 0;
+      }
+
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature:nth-child(even) .feature-art {
+        order: 0;
+      }
+
+      .feature-art,
+      .feature:nth-child(even) .feature-art {
+        border: 0;
+        border-bottom: 2px solid var(--white);
+      }
+
+      .nav-links a:not(.button) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .site-header {
+        padding: 14px 0;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      .nav .button {
+        min-height: 40px;
+        padding: 8px 11px;
+        font-size: 10px;
+      }
+
+      .hero {
+        padding: 65px 0 70px;
+      }
+
+      h1 {
+        font-size: clamp(48px, 17vw, 76px);
+      }
+
+      .hero-copy > p {
+        font-size: 17px;
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .stream-wrap {
+        padding-left: 0;
+      }
+
+      .stream-grid {
+        min-height: 590px;
+        grid-template-columns: 1fr;
+      }
+
+      .video-panel {
+        min-height: 245px;
+        border-right: 0;
+        border-bottom: 1px solid #3c3c42;
+      }
+
+      .right-panel {
+        min-height: 345px;
+      }
+
+      .stream-wrap::after {
+        right: -4px;
+      }
+
+      .stream-wrap::before {
+        right: -10px;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-head {
+        margin-bottom: 36px;
+        gap: 24px;
+      }
+
+      .section-head p {
+        font-size: 16px;
+      }
+
+      .step {
+        padding: 24px;
+      }
+
+      .step-number {
+        margin-bottom: 25px;
+      }
+
+      .feature-copy {
+        padding: 35px 25px;
+      }
+
+      .signup-form {
+        flex-direction: column;
+      }
+
+      .cta {
+        padding: 78px 0;
+      }
+
+      .cta-box {
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .ticker-track,
+      .live-dot {
+        animation: none;
+      }
+
+      .button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Streamforge
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#signup" class="button">Get early access →</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid shell">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="live-dot" aria-hidden="true"></span>
+            Now shipping in public
+          </div>
+          <h1>Watch code <span class="slash">/</span> become <span class="highlight">real.</span></h1>
+          <p>
+            Live-stream developers building software with AI. See every prompt,
+            inspect every output, follow every commit—and fork the repo before the stream ends.
+          </p>
+          <div class="hero-actions">
+            <a class="button dark" href="#signup">Start watching →</a>
+            <a class="button" href="#how">See how it works</a>
+          </div>
+          <div class="micro-proof">
+            <div class="avatar-stack" aria-hidden="true">
+              <span class="avatar">AK</span>
+              <span class="avatar">MZ</span>
+              <span class="avatar">JL</span>
+              <span class="avatar">+9</span>
+            </div>
+            Built for developers who would rather ship than scroll.
+          </div>
+        </div>
+
+        <div class="stream-wrap" aria-label="Preview of a live Streamforge broadcast">
+          <div class="stream-window">
+            <div class="window-bar">
+              <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="status"><span class="live-dot"></span> Live · 42:18</div>
+            </div>
+
+            <div class="stream-grid">
+              <div class="video-panel">
+                <div class="face-cam" aria-hidden="true">&gt;_</div>
+                <div class="stream-title">Building a local-first issue tracker</div>
+                <div class="viewer-count">1,284 watching · @maya.codes</div>
+              </div>
+
+              <div class="right-panel">
+                <div class="prompt-panel">
+                  <div class="mini-label">
+                    Current prompt
+                    <span class="model-chip">MODEL: S4</span>
+                  </div>
+                  <p class="prompt"><strong>→</strong> Add optimistic updates to the issue form. Roll back local state if the sync request fails, and surface a retry action.</p>
+                </div>
+                <div class="terminal" aria-label="Live code output">
+                  <div><span class="purple">export function</span> useIssueSync() {</div>
+                  <div>&nbsp;&nbsp;<span class="purple">const</span> client = <span class="cyan">useQueryClient</span>();</div>
+                  <div>&nbsp;&nbsp;<span class="purple">return</span> useMutation({</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="lime">onMutate</span>: <span class="purple">async</span> (issue) =&gt; {</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="gray">// snapshot current state</span></div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="purple">await</span> client.cancelQueries();</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;},</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="lime">onError</span>: rollbackIssue</div>
+                  <div>&nbsp;&nbsp;});</div>
+                  <div>}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="repo-bar">
+              <span class="mono">maya/local-issue · main · 38 commits</span>
+              <span class="fork-button">⑂ Fork repo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        PROMPTS ARE THE NEW SOURCE CODE ✦ WATCH THE BUILD ✦ READ THE DIFF ✦ FORK THE FUTURE ✦ ZERO GATEKEEPING ✦
+        PROMPTS ARE THE NEW SOURCE CODE ✦ WATCH THE BUILD ✦ READ THE DIFF ✦ FORK THE FUTURE ✦ ZERO GATEKEEPING ✦
+      </div>
+    </div>
+
+    <section class="section" id="how">
+      <div class="shell">
+        <div class="section-head">
+          <h2>From prompt to pull request.</h2>
+          <p>Not another highlight reel. Streamforge captures the messy, useful middle where ideas become working software.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01</span>
+            <h3>Go live</h3>
+            <p>Connect your editor, terminal, AI assistant, and repository in a single developer-native stream.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">02</span>
+            <h3>Build openly</h3>
+            <p>Viewers follow prompts, model responses, file changes, and your reasoning as they happen.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">03</span>
+            <h3>Fork instantly</h3>
+            <p>Every stream stays attached to a live repository. Fork any checkpoint and keep building.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" id="features">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Built for the actual build.</h2>
+          <p>All the context of pair programming, with the reach of live video and the utility of open source.</p>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature">
+            <div class="feature-art grid-art" aria-hidden="true">
+              <div class="code-stack">
+                <div><span>USER</span> / refactor the cache layer</div>
+                <div><span>AI</span> / mapping dependencies...</div>
+                <div><span>DIFF</span> / +42 −19 across 4 files</div>
+                <div><span>TEST</span> / 18 passed in 2.4s</div>
+              </div>
+            </div>
+            <div class="feature-copy">
+              <div class="card-index">01 / Total context</div>
+              <h3>See what the AI sees.</h3>
+              <p>Prompts, model output, tool calls, terminal logs, and code diffs stay synchronized with the video. No missing setup. No unexplained magic.</p>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-art" aria-hidden="true">
+              <div class="fork-graphic">
+                <span class="fork-line one"></span>
+                <span class="fork-line two"></span>
+                <span class="fork-node">SRC</span>
+                <span class="fork-node">A</span>
+                <span class="fork-node">B</span>
+              </div>
+            </div>
+            <div class="feature-copy">
+              <div class="card-index">02 / Live repositories</div>
+              <h3>Fork the exact moment.</h3>
+              <p>Jump into the repository at any point in the stream. Clone a clean checkpoint, inspect the history, or take the project in a completely different direction.</p>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-art timeline-art" aria-hidden="true"></div>
+            <div class="feature-copy">
+              <div class="card-index">03 / Searchable replays</div>
+              <h3>Skip straight to the breakthrough.</h3>
+              <p>Replays are indexed by prompts, commits, errors, files, and model turns. Search for the decision—not a timestamp—and land directly in context.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="signup">
+      <div class="shell">
+        <div class="cta-box">
+          <div class="eyebrow">Private beta · invites rolling</div>
+          <h2>Stop watching demos. Watch software happen.</h2>
+          <p>Join the first wave of builders and viewers shaping the live layer of AI-native development.</p>
+          <form class="signup-form" action="#" method="post">
+            <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="dev@yourcompany.com" required>
+            <button class="button dark" type="submit">Request access →</button>
+          </form>
+          <p class="form-note">No spam. No growth hacks. Just your invite and product updates.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner shell">
+      <a class="brand" href="#">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Streamforge
+      </a>
+      <span>© 2025 Streamforge. Built live, probably.</span>
+      <div class="footer-links">
+        <a href="#">X / Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

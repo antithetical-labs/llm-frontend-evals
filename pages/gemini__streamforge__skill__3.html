@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge | Watch developers build with AI</title>
+<style>
+  :root {
+    /* Colors - IDE Dark Theme */
+    --bg-base: #0d1117;
+    --bg-surface: #161b22;
+    --bg-surface-hover: #21262d;
+    --border-subtle: #30363d;
+    --border-strong: #8b949e;
+    
+    --text-main: #c9d1d9;
+    --text-muted: #8b949e;
+    --text-accent: #58a6ff;
+    
+    --accent-base: #238636;
+    --accent-hover: #2ea043;
+    --accent-fg: #ffffff;
+    
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+    --space-7: 64px;
+    --space-8: 96px;
+    
+    /* Typography */
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Reset */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* Typography */
+  h1, h2, h3, .mono { font-family: var(--font-mono); font-weight: normal; }
+  h1 { font-size: 2.5rem; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: var(--space-4); color: #fff; }
+  h2 { font-size: 1.5rem; margin-bottom: var(--space-5); color: #fff; border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-3); }
+  h3 { font-size: 1.125rem; margin-bottom: var(--space-2); color: #fff; }
+  p { margin-bottom: var(--space-3); color: var(--text-muted); }
+  
+  /* Layout */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-4); }
+  .section { padding: var(--space-8) 0; border-bottom: 1px solid var(--border-subtle); }
+  
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-subtle);
+    background-color: var(--bg-base);
+  }
+  .logo { font-family: var(--font-mono); font-size: 1.25rem; font-weight: bold; color: var(--text-main); text-decoration: none; }
+  .logo::before { content: ">_"; color: var(--accent-base); margin-right: var(--space-2); }
+  
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: var(--bg-surface);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 150ms ease-out;
+  }
+  .btn:hover { background: var(--bg-surface-hover); border-color: var(--border-strong); }
+  .btn:focus-visible { outline: 2px solid var(--text-accent); outline-offset: 2px; }
+  .btn-primary { background: var(--accent-base); color: var(--accent-fg); border-color: transparent; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: transparent; }
+  
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); align-items: center; padding-top: var(--space-8); padding-bottom: var(--space-8); }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
+  
+  /* IDE Mockup */
+  .ide-mockup {
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .ide-header { display: flex; padding: var(--space-2); border-bottom: 1px solid var(--border-subtle); background: var(--bg-base); gap: var(--space-2); }
+  .ide-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-subtle); }
+  .ide-body { display: flex; height: 300px; }
+  .ide-sidebar { width: 30%; border-right: 1px solid var(--border-subtle); padding: var(--space-3); color: var(--text-muted); }
+  .ide-main { flex: 1; padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+  .ide-prompt { background: var(--bg-base); border: 1px solid var(--border-subtle); padding: var(--space-2); border-radius: 4px; color: var(--text-accent); }
+  .ide-code { color: var(--text-main); line-height: 1.5; white-space: pre; overflow-x: auto; }
+  .ide-cursor { display: inline-block; width: 6px; height: 14px; background: var(--text-main); animation: blink 1s step-end infinite; vertical-align: middle; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Grid blocks */
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-5); }
+  .card {
+    padding: var(--space-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: var(--bg-surface);
+  }
+  .card-num { font-family: var(--font-mono); color: var(--border-strong); font-size: 0.875rem; margin-bottom: var(--space-3); display: block; }
+  
+  /* Footer CTA */
+  .footer-cta { text-align: center; padding: var(--space-8) 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Streamforge</a>
+  <div style="display: flex; gap: var(--space-3);">
+    <a href="/login" class="btn">Log in</a>
+    <a href="/signup" class="btn btn-primary">Start watching</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="hero section" style="border-bottom: none;">
+    <div>
+      <h1>Live-streaming for the AI-assisted developer.</h1>
+      <p>Don't just look at final repositories. Watch working developers build software in real time. See their exact prompts, the model's raw output, and how they integrate generated code into production systems.</p>
+      <div style="display: flex; gap: var(--space-3); margin-top: var(--space-5);">
+        <a href="/browse" class="btn btn-primary">Browse live streams</a>
+        <a href="/docs" class="btn">Read the docs</a>
+      </div>
+    </div>
+    
+    <div class="ide-mockup" aria-hidden="true">
+      <div class="ide-header">
+        <div class="ide-dot"></div>
+        <div class="ide-dot"></div>
+        <div class="ide-dot"></div>
+        <div style="margin-left: auto; color: var(--text-muted);">LIVE 🔴 1.2k viewing</div>
+      </div>
+      <div class="ide-body">
+        <div class="ide-sidebar">
+          <div>> Viewers (1204)</div>
+          <div style="margin-top: var(--space-3);">> Stream Chat</div>
+          <div style="margin-top: var(--space-2); color: var(--text-main);">
+            [alice]: wait why did it suggest a reduce there?<br>
+            [bob_dev]: fork it and check the memory usage<br>
+            [charlie]: prompt engineering is on point today
+          </div>
+        </div>
+        <div class="ide-main">
+          <div class="ide-prompt">
+            > System: Refactor the token validator to use the new caching interface. Handle stale reads gracefully.
+          </div>
+          <div class="ide-code">async function validateToken(token, cache) {
+  const cached = await cache.get(`auth:${token}`);
+  if (cached && !isStale(cached)) {
+    return cached;
+  }
+  
+  const payload = await verifySignature(token);
+  await cache.set(`auth:${token}`, payload, {
+    ttl: 3600<span class="ide-cursor"></span>
+  });
+}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>How it works</h2>
+    <div class="grid-3">
+      <div class="card" style="border: none; background: transparent; padding-left: 0;">
+        <span class="card-num">01 / BROADCAST</span>
+        <h3>Connect your editor</h3>
+        <p>Install the Streamforge extension. It securely streams your active editor pane, your AI assistant panel, and your terminal stdout. No desktop capture required.</p>
+      </div>
+      <div class="card" style="border: none; background: transparent; padding-left: 0;">
+        <span class="card-num">02 / EXPOSE</span>
+        <h3>Reveal the workflow</h3>
+        <p>Viewers see exactly what you type into Copilot, Claude, or ChatGPT. They see the diffs generated, and whether you accept, modify, or reject them.</p>
+      </div>
+      <div class="card" style="border: none; background: transparent; padding-left: 0;">
+        <span class="card-num">03 / COLLABORATE</span>
+        <h3>Live-forking</h3>
+        <p>Every stream is attached to a temporary Git repository. Viewers can hit 'Fork' at any moment to branch off the streamer's exact local state and experiment.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Platform capabilities</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Prompt visibility</h3>
+        <p>Stop guessing how senior engineers use LLMs. The prompt stream is treated as a first-class citizen alongside the video and code.</p>
+      </div>
+      <div class="card">
+        <h3>Time-travel diffs</h3>
+        <p>Scrub back through the VOD not just by video timestamp, but by code state. See the exact state of the project before and after a specific prompt execution.</p>
+      </div>
+      <div class="card">
+        <h3>Zero-setup environment</h3>
+        <p>Click any active stream to spin up a web-based IDE populated with the streamer's exact current file tree. Test their generated code immediately.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="footer-cta section" style="border-bottom: none;">
+    <h2 style="border: none; margin-bottom: var(--space-3);">Stop watching tutorials. Start watching reality.</h2>
+    <p style="max-width: 600px; margin: 0 auto var(--space-5) auto;">Join thousands of developers learning the reality of AI-assisted software engineering through live observation.</p>
+    <a href="/signup" class="btn btn-primary" style="font-size: 1rem; padding: var(--space-3) var(--space-5);">Create your account</a>
+  </section>
+</main>
+
+</body>
+</html>

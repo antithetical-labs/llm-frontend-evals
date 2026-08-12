@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamforge | Live AI-Assisted Development</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --accent-color: #ff3e00;
+            --accent-hover: #ff5c29;
+            --terminal-bg: #111111;
+            --code-green: #4af626;
+            --code-blue: #4a9cff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: -1px;
+            color: var(--text-main);
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: #fff;
+        }
+
+        /* Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            padding: 6rem 0;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: normal;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .terminal-window {
+            background: var(--terminal-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .terminal-window::before {
+            content: "streamforge_session.sh";
+            position: absolute;
+            top: -10px;
+            left: 1rem;
+            background: var(--bg-color);
+            padding: 0 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .log-line {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .log-prompt { color: var(--code-blue); }
+        .log-ai { color: var(--text-muted); }
+        .log-code { color: var(--code-green); }
+
+        /* How it works */
+        .section-title {
+            font-size: 2rem;
+            font-weight: normal;
+            margin-bottom: 3rem;
+            letter-spacing: -1px;
+        }
+
+        .how-it-works {
+            padding: 6rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .step {
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+        .step-number {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .step p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Features */
+        .features {
+            padding: 6rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-desc h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .feature-desc p {
+            color: var(--text-muted);
+        }
+
+        .feature-visual {
+            background: var(--terminal-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 8rem 0;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: normal;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .cta p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .cta-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 0.5rem;
+        }
+
+        .cta-form input {
+            flex: 1;
+            background: var(--terminal-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .cta-form input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero, .steps-grid, .feature-row {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .cta-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">Stream<span>forge</span></div>
+            <nav>
+                <a href="#" class="btn">Sign In</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Watch code write itself. Live.</h1>
+                <p>The streaming platform for modern developers. Watch top engineers collaborate with AI in real-time. See the prompts, analyze the outputs, and fork the repository instantly.</p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary">Start Watching</a>
+                    <a href="#" class="btn">Become a Broadcaster</a>
+                </div>
+            </div>
+            <div class="terminal-window">
+                <div class="log-line"><span class="log-prompt">> PROMPT:</span> Write a fast Redis-backed rate limiter in Go.</div>
+                <div class="log-line"><span class="log-ai">Generating implementation... (2.4s)</span></div>
+                <div class="log-line"><span class="log-code">+ func NewRateLimiter(rdb *redis.Client) *Limiter {</span></div>
+                <div class="log-line"><span class="log-code">+     return &Limiter{redis: rdb}</span></div>
+                <div class="log-line"><span class="log-code">+ }</span></div>
+                <div class="log-line" style="margin-top: 1rem; color: var(--text-muted);">viewer_883 forked the repository.</div>
+                <div class="log-line"><span class="log-prompt">> PROMPT:</span> Optimize the Lua script for atomic token reduction.</div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h2 class="section-title">The Workflow</h2>
+            <div class="steps-grid">
+                <div class="step">
+                    <span class="step-number">01</span>
+                    <h3>Exposed Prompts</h3>
+                    <p>No secrets. See exactly what context and instructions the broadcaster provides to their AI assistant.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">02</span>
+                    <h3>Live Output Stream</h3>
+                    <p>Watch the model's raw output stream in real-time, side-by-side with the broadcaster's local codebase diffs.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">03</span>
+                    <h3>One-Click Fork</h3>
+                    <p>See an implementation you like? Click "Fork Stream" to instantly clone the broadcaster's exact repository state.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2 class="section-title">Built for the AI-Native Era</h2>
+            
+            <div class="feature-row">
+                <div class="feature-desc">
+                    <h3>Synchronized Context Windows</h3>
+                    <p>Traditional streams compress code into unreadable video. Streamforge hooks directly into the broadcaster's IDE, rendering the code and AI context natively in your browser. Copy, paste, and search directly from the stream.</p>
+                </div>
+                <div class="feature-visual" style="color: var(--code-blue);">
+                    {<br>
+                    &nbsp;&nbsp;"stream_id": "sf_9921",<br>
+                    &nbsp;&nbsp;"active_file": "main.py",<br>
+                    &nbsp;&nbsp;"ai_context": ["models.py", "schema.sql"],<br>
+                    &nbsp;&nbsp;"live_tokens_sec": 84<br>
+                    }
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-desc">
+                    <h3>Diff-Driven Viewing</h3>
+                    <p>Instead of squinting at a video feed, watch semantic diffs. When the AI suggests a refactor, the viewer UI highlights the exact line changes, additions, and deletions as they are accepted by the developer.</p>
+                </div>
+                <div class="feature-visual">
+                    <span style="color: #ff5555;">- data = fetch_all()</span><br>
+                    <span style="color: var(--code-green);">+ data = await fetch_paginated(cursor)</span><br>
+                    <span style="color: var(--code-green);">+ if not data: break</span>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-desc">
+                    <h3>Time-Travel Repositories</h3>
+                    <p>Every stream is automatically versioned. Scrub back through the stream timeline and fork the repository at any specific timestamp. Never miss the context behind a complex architectural decision.</p>
+                </div>
+                <div class="feature-visual" style="color: var(--text-muted);">
+                    $ git clone https://streamforge.dev/u/alex/cache-sys<br>
+                    $ cd cache-sys<br>
+                    $ sf checkout 01:24:33<br>
+                    > Restored state to timestamp [01:24:33]
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Ready to build in public?</h2>
+            <p>Join the beta. Broadcast your AI workflows, or learn from those who do.</p>
+            <form class="cta-form" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="dev@example.com" required>
+                <button type="submit" class="btn btn-primary">Request Access</button>
+            </form>
+        </section>
+
+        <footer>
+            <p>&copy; 2023 Streamforge. System operational.</p>
+        </footer>
+    </div>
+
+</body>
+</html>

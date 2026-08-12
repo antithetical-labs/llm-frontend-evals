@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | Operations for Full-Time Creators</title>
+    <style>
+        :root {
+            --bg-color: #f4f1eb;
+            --text-color: #111111;
+            --primary: #d94824; /* Solid brick red */
+            --secondary: #316b53; /* Solid forest green */
+            --tertiary: #dfb23b; /* Solid mustard */
+            --border-color: #111111;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-stack);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Buttons - Hard corners, solid colors, no gradients, no pills */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            text-align: center;
+            background-color: var(--primary);
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 4px; /* NOT pill shaped */
+            box-shadow: 4px 4px 0px var(--border-color); /* Solid shadow, no blur */
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--border-color);
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            color: var(--text-color);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        section {
+            padding: 6rem 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Header */
+        header {
+            padding: 1.5rem 0;
+            border-bottom: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            text-align: center;
+            padding: 8rem 0;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            font-size: 1.25rem;
+        }
+
+        .hero-image-placeholder {
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 900px;
+            height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ffffff;
+            border: 2px solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+        }
+
+        /* How it Works */
+        .how-it-works {
+            background-color: var(--secondary);
+            color: #ffffff;
+        }
+        
+        .how-it-works h2, .how-it-works p {
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .step-card {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 4px 4px 0px var(--border-color);
+        }
+
+        .step-number {
+            display: inline-block;
+            background-color: var(--tertiary);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            line-height: 36px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        /* Features */
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            padding: 6rem 0;
+        }
+
+        .feature-block:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature-block:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-text p {
+            font-size: 1.125rem;
+        }
+
+        .feature-visual {
+            background-color: #ffffff;
+            height: 350px;
+            border: 2px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .feat-1 { background-color: #e8dcd0; }
+        .feat-2 { background-color: #d1e2c7; }
+        .feat-3 { background-color: #d7e6f4; }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 8rem 0;
+            background-color: var(--tertiary);
+            border-bottom: none;
+        }
+
+        .cta-section h2 {
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-color);
+            color: #ffffff;
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        footer p {
+            color: #999;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .feature-block {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .feature-block:nth-child(even) {
+                direction: ltr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">Backlot</div>
+            <nav>
+                <a href="#" class="btn btn-secondary">Log In</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Stop digging through emails.<br>Start making videos.</h1>
+            <p>Backlot is the complete operating system for full-time solo creators. Consolidate your brand deals, track your invoices, and monitor platform payouts—all in one place, without needing an accounting degree.</p>
+            <a href="#" class="btn">Get Started for Free</a>
+            
+            <div class="hero-image-placeholder">
+                [ Dashboard UI Overview: Contracts, Calendar, and Earnings ]
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How Backlot Works</h2>
+            <p>Designed for creators, not accountants. Get your business organized in three simple steps.</p>
+            
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Drop your contracts</h3>
+                    <p>Upload your brand deal contracts. Backlot automatically extracts the deliverables, deadlines, and payment terms.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Track the work</h3>
+                    <p>See all your sponsor integrations and deadlines in a single, unified calendar view.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Get paid on time</h3>
+                    <p>Generate invoices instantly and track precisely when YouTube, TikTok, and brands owe you money.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>Everything in one folder</h2>
+                    <p>No more searching for that one email thread to find a brief or a signed NDA. Backlot keeps every contract, brief, and invoice tied to its specific campaign so you always know where your assets are.</p>
+                </div>
+                <div class="feature-visual feat-1">
+                    [ Contract & Document Management UI ]
+                </div>
+            </div>
+
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>Never miss a sponsor deadline</h2>
+                    <p>Managing three different integrations this month? Backlot translates your contracts into a clear timeline. See exactly when drafts are due, when revisions are expected, and when the video needs to go live.</p>
+                </div>
+                <div class="feature-visual feat-2">
+                    [ Sponsor Timeline & Calendar UI ]
+                </div>
+            </div>
+
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2>Know what you're owed</h2>
+                    <p>Say goodbye to the messy finance spreadsheet. Backlot aggregates your per-platform payouts (AdSense, Creator Fund) alongside unpaid brand invoices so you always know your exact cash flow for the month.</p>
+                </div>
+                <div class="feature-visual feat-3">
+                    [ Payout Tracking & Earnings UI ]
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to run your channel like a real business?</h2>
+            <p>Join hundreds of full-time creators taking control of their operations.</p>
+            <a href="#" class="btn" style="background-color: var(--text-color); color: #fff;">Create Your Account</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Backlot Operations Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

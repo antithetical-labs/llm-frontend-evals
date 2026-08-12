@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge | Live AI-Assisted Development</title>
+<style>
+  /* Base Reset & Variables */
+  :root {
+    --bg-base: #09090b;
+    --bg-surface: #18181b;
+    --bg-surface-hover: #27272a;
+    --border-color: #3f3f46;
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --accent: #10b981; /* Phosphor/Terminal Green */
+    --accent-hover: #059669;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+    --space-7: 64px;
+    --space-8: 96px;
+    --space-9: 128px;
+    --radius-sm: 2px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .mono {
+    font-family: var(--font-mono);
+    font-weight: normal;
+  }
+
+  a {
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color 0.15s ease-out;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-4);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    line-height: 1.2;
+    margin-bottom: var(--space-6);
+  }
+
+  p.lead {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 60ch;
+    margin-bottom: var(--space-5);
+  }
+
+  /* Layout */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+  }
+
+  section {
+    padding: var(--space-8) 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-main);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease-out;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg-base);
+    border-color: var(--accent);
+    box-shadow: 4px 4px 0px rgba(16, 185, 129, 0.2);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0px rgba(16, 185, 129, 0.3);
+    color: var(--bg-base);
+  }
+
+  .btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-surface-hover);
+  }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-3) 0;
+    background: var(--bg-base);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-main);
+  }
+
+  .logo::before {
+    content: ">_ ";
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
+  /* Hero Section */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .hero-visual {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .window-header {
+    background: var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .window-body {
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .prompt-line { color: var(--accent); margin-bottom: var(--space-2); }
+  .code-line { color: #61afef; }
+  .code-keyword { color: #c678dd; }
+  .code-string { color: #98c379; }
+
+  /* How It Works */
+  .step-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .step-card {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .step-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  .step-title {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-2);
+    color: var(--text-main);
+  }
+
+  .step-desc {
+    color: var(--text-muted);
+  }
+
+  /* Features */
+  .feature-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+  }
+
+  .feature-header {
+    border-right: 1px solid var(--border-color);
+    padding-right: var(--space-4);
+  }
+
+  .feature-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .feature-content {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+  }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    padding: var(--space-9) 0;
+    border-bottom: none;
+  }
+
+  .cta-section h2 {
+    margin-bottom: var(--space-4);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border-color);
+    padding: var(--space-5) 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .feature-row { grid-template-columns: 1fr; }
+    .feature-header { border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: var(--space-3); }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <a href="#" class="logo mono">Streamforge</a>
+      <nav class="nav-links">
+        <a href="#how-it-works">How it Works</a>
+        <a href="#features">Features</a>
+        <a href="#streams">Live Streams</a>
+      </nav>
+      <a href="#signup" class="btn btn-secondary">Log In</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <h1>Watch the prompt.<br>See the code.<br>Fork the stream.</h1>
+          <p class="lead">The live-streaming platform where working developers broadcast their AI-assisted workflows in real time. Learn the real patterns behind generated code.</p>
+          <div class="hero-actions">
+            <a href="#streams" class="btn btn-primary">Watch Streams</a>
+            <a href="#broadcast" class="btn btn-secondary">Start Broadcasting</a>
+          </div>
+        </div>
+        
+        <div class="hero-visual">
+          <div class="window-header">
+            <span>user@streamforge:~/session</span>
+            <span>LIVE [01:24:10]</span>
+          </div>
+          <div class="window-body">
+            <div class="prompt-line">❯ prompt: "Refactor the caching layer to use Redis sets and handle connection drops."</div>
+            <div>[Model: Claude 3.5 Sonnet] generating...</div>
+            <br>
+            <div><span class="code-keyword">import</span> { createClient } <span class="code-keyword">from</span> <span class="code-string">'redis'</span>;</div>
+            <br>
+            <div><span class="code-keyword">export class</span> <span class="code-line">CacheService</span> {</div>
+            <div>&nbsp;&nbsp;<span class="code-keyword">constructor</span>() {</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">this</span>.client = createClient();</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">this</span>.client.on(<span class="code-string">'error'</span>, (err) => ...);</div>
+            <div>&nbsp;&nbsp;}</div>
+            <div>}</div>
+            <br>
+            <div style="color: var(--text-main);">+ 42 lines added</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+      <div class="container">
+        <h2>The Loop</h2>
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-marker">[01]</div>
+            <h3 class="step-title">Observe Context</h3>
+            <p class="step-desc">See exactly what context the broadcaster selects. Watch how senior engineers construct their prompts and frame their architecture constraints.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-marker">[02]</div>
+            <h3 class="step-title">Watch Generation</h3>
+            <p class="step-desc">View the model's raw output streamed into the editor alongside the human's manual edits and corrections in a synchronized diff view.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-marker">[03]</div>
+            <h3 class="step-title">Fork Reality</h3>
+            <p class="step-desc">See a solution you like? Hit fork. Streamforge clones the broadcaster's repository state at that exact timestamp directly to your workspace.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <h2>Features</h2>
+        <div class="feature-list">
+          <article class="feature-row">
+            <div class="feature-header">
+              <h3 class="mono">Live Prompt Telemetry</h3>
+              <span class="mono" style="color: var(--accent); font-size: 0.875rem;">sys.monitor_input()</span>
+            </div>
+            <div class="feature-content">
+              <p>Don't just watch the code appear. Our editor plugins capture every prompt, context inclusion, and system instruction the broadcaster uses, displaying it in an isolated, readable stream.</p>
+            </div>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-header">
+              <h3 class="mono">Time-Travel Diff</h3>
+              <span class="mono" style="color: var(--accent); font-size: 0.875rem;">git.watch_head()</span>
+            </div>
+            <div class="feature-content">
+              <p>Rewind any stream to see exactly what changed. The viewer UI separates human keystrokes from AI-generated blocks, letting you analyze the ratio and integration strategy.</p>
+            </div>
+          </article>
+
+          <article class="feature-row">
+            <div class="feature-header">
+              <h3 class="mono">Instant State Fork</h3>
+              <span class="mono" style="color: var(--accent); font-size: 0.875rem;">repo.clone_at_timestamp()</span>
+            </div>
+            <div class="feature-content">
+              <p>Every stream is tied to a live Git session. Click 'Fork' at any point in the broadcast to grab a zip of the repo precisely as it exists on the broadcaster's machine in that moment.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="cta" class="cta-section">
+      <div class="container">
+        <h2>Stop coding in a vacuum.</h2>
+        <p class="lead" style="margin: 0 auto var(--space-5);">Join thousands of developers sharing their AI workflows.</p>
+        <a href="#signup" class="btn btn-primary">Create Developer Account</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Streamforge &copy; 2024. Build in public.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

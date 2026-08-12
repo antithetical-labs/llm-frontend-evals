@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backlot — the production office for your brand deals</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS  (Backlot)
+     Subject world: film production paperwork. Call sheets, slates,
+     carbon-copy invoices, gaffer tape, stamped approvals.
+     Signature element: the hero is a real call sheet.
+     ============================================================ */
+  :root{
+    /* type */
+    --font-doc: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+
+    --step--1: 0.8125rem;  /* 13px, document labels */
+    --step-0:  1.0625rem;  /* 17px, body */
+    --step-1:  1.375rem;   /* 22px */
+    --step-2:  1.9375rem;  /* 31px */
+    --step-3:  2.6875rem;  /* 43px */
+    --step-4:  3.75rem;    /* 60px */
+
+    /* color: warm buff paper, ink, marker red, approval green */
+    --paper:      #EFE6D4;
+    --paper-2:    #F7F1E4;
+    --paper-3:    #E3D8C2;
+    --ink:        #191510;
+    --ink-2:      #4A4033;
+    --ink-3:      #7A6E5C;
+    --rule:       #C4B79C;
+    --marker:     #A83417;
+    --marker-ink: #8A2A11;
+    --stamp:      #2C5638;
+    --tape:       #D8C46A;
+
+    /* space: 4pt scale */
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px;
+    --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
+
+    /* shape + elevation: paper stacks, one recipe only */
+    --r-doc:3px; --r-tag:2px;
+    --stack: 3px 3px 0 var(--paper-3);
+
+    /* motion */
+    --t-fast:120ms; --t-mid:240ms;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    /* faint paper tooth */
+    background-image:
+      repeating-linear-gradient(0deg, rgba(25,21,16,.022) 0 1px, transparent 1px 3px);
+  }
+  ::selection{background:var(--tape);color:var(--ink)}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 var(--s-5)}
+
+  h1,h2,h3{font-family:var(--font-doc);font-weight:700;margin:0;letter-spacing:-0.02em;line-height:1.12}
+  p{margin:0}
+  a{color:var(--marker-ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  a:hover{text-decoration-thickness:2px}
+
+  :is(a,button,input,summary):focus-visible{
+    outline:2px solid var(--marker);
+    outline-offset:3px;
+  }
+
+  /* document label: only used where it names a real field */
+  .label{
+    font-family:var(--font-doc);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-3);
+  }
+
+  /* ---------- masthead ---------- */
+  header.bar{
+    border-bottom:1px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .bar-in{display:flex;align-items:center;gap:var(--s-4);padding:var(--s-3) var(--s-5);max-width:1120px;margin:0 auto}
+  .mark{font-family:var(--font-doc);font-weight:700;font-size:var(--step-1);letter-spacing:-0.04em}
+  .mark span{color:var(--marker)}
+  .bar-in .label{margin-left:auto;display:none}
+  @media (min-width:720px){.bar-in .label{display:block}}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
+    min-height:48px;padding:var(--s-3) var(--s-5);
+    font-family:var(--font-doc);font-size:var(--step-0);font-weight:700;
+    letter-spacing:.02em;
+    border-radius:var(--r-tag);
+    border:1px solid var(--ink);
+    background:var(--marker);color:var(--paper-2);
+    text-decoration:none;cursor:pointer;
+    box-shadow:var(--stack);
+    transition:transform var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+  }
+  .btn:hover{background:var(--marker-ink)}
+  .btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--paper-3)}
+  .btn:disabled,.btn[aria-disabled="true"]{
+    background:var(--paper-3);color:var(--ink-3);border-color:var(--rule);
+    box-shadow:none;cursor:not-allowed;
+  }
+  .btn-quiet{background:transparent;color:var(--ink);box-shadow:none}
+  .btn-quiet:hover{background:var(--paper-3)}
+
+  /* ---------- hero: the call sheet ---------- */
+  .hero{padding:var(--s-8) 0 var(--s-7)}
+  .hero-grid{display:grid;gap:var(--s-7)}
+  @media (min-width:940px){
+    .hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:var(--s-8);align-items:start}
+    .hero{padding:var(--s-9) 0 var(--s-8)}
+  }
+  .kicker{
+    display:inline-block;
+    font-family:var(--font-doc);font-size:var(--step--1);font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+    background:var(--tape);color:var(--ink);
+    padding:var(--s-1) var(--s-3);
+    transform:rotate(-1.4deg);
+    margin-bottom:var(--s-5);
+  }
+  h1{font-size:var(--step-3)}
+  @media (min-width:940px){h1{font-size:var(--step-4)}}
+  h1 em{font-style:normal;color:var(--marker);}
+  .lede{margin-top:var(--s-5);max-width:52ch;font-size:var(--step-1);line-height:1.5;color:var(--ink-2)}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6);align-items:center}
+  .hero-note{margin-top:var(--s-4);max-width:44ch}
+
+  /* the sheet itself */
+  .sheet{
+    background:var(--paper-2);
+    border:1px solid var(--ink);
+    border-radius:var(--r-doc);
+    box-shadow:var(--stack);
+    overflow:hidden;
+  }
+  .sheet-head{
+    display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3);
+    padding:var(--s-3) var(--s-4);
+    border-bottom:1px solid var(--ink);
+    background:var(--ink);color:var(--paper);
+  }
+  .sheet-head .label{color:var(--paper-3)}
+  .sheet-title{font-family:var(--font-doc);font-size:var(--step--1);font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .row{
+    display:grid;grid-template-columns:auto 1fr auto;gap:var(--s-3);
+    align-items:baseline;
+    padding:var(--s-3) var(--s-4);
+    border-bottom:1px dashed var(--rule);
+    font-family:var(--font-doc);font-size:var(--step--1);
+  }
+  .row:last-of-type{border-bottom:0}
+  .row .no{color:var(--ink-3)}
+  .row .who{font-size:var(--step-0);letter-spacing:-0.01em}
+  .row .who small{display:block;font-size:var(--step--1);color:var(--ink-3);letter-spacing:0;font-weight:400}
+  .flag{
+    font-weight:700;white-space:nowrap;
+    padding:2px var(--s-2);border-radius:var(--r-tag);
+    border:1px solid currentColor;
+  }
+  .flag-due{color:var(--marker-ink)}
+  .flag-paid{color:var(--stamp)}
+  .flag-wait{color:var(--ink-3)}
+  .sheet-foot{
+    display:flex;justify-content:space-between;gap:var(--s-3);
+    padding:var(--s-3) var(--s-4);
+    border-top:1px solid var(--ink);
+    background:var(--paper-3);
+    font-family:var(--font-doc);font-size:var(--step--1);
+  }
+  .sheet-foot b{font-size:var(--step-0)}
+
+  /* ---------- sprocket rule (film edge) ---------- */
+  .sprocket{
+    height:22px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+    background:
+      repeating-linear-gradient(90deg,
+        transparent 0 10px,
+        var(--paper-3) 10px 24px,
+        transparent 24px 34px);
+    background-color:var(--paper-2);
+  }
+
+  /* ---------- how it works ---------- */
+  section{padding:var(--s-8) 0}
+  @media (min-width:940px){section{padding:var(--s-9) 0}}
+  .sec-head{max-width:56ch;margin-bottom:var(--s-7)}
+  .sec-head h2{font-size:var(--step-2);margin-top:var(--s-3)}
+  .sec-head p{margin-top:var(--s-4);color:var(--ink-2)}
+
+  ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid var(--ink)}
+  ol.steps li{
+    display:grid;gap:var(--s-2) var(--s-5);
+    padding:var(--s-5) 0;
+    border-bottom:1px solid var(--rule);
+  }
+  @media (min-width:760px){
+    ol.steps li{grid-template-columns:64px minmax(0,20ch) minmax(0,1fr);align-items:baseline;padding:var(--s-6) 0}
+  }
+  ol.steps .num{font-family:var(--font-doc);font-size:var(--step-1);font-weight:700;color:var(--marker)}
+  ol.steps h3{font-size:var(--step-1)}
+  ol.steps p{color:var(--ink-2);max-width:60ch}
+
+  /* ---------- features: deliberately uneven ---------- */
+  .features{display:grid;gap:var(--s-5)}
+  @media (min-width:880px){
+    .features{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-5);align-items:start}
+    .feat:nth-child(2){margin-top:var(--s-6)}
+    .feat:nth-child(3){margin-top:var(--s-3)}
+  }
+  .feat{
+    background:var(--paper-2);
+    border:1px solid var(--ink);
+    border-radius:var(--r-doc);
+    box-shadow:var(--stack);
+    padding:var(--s-5);
+  }
+  .feat h3{font-size:var(--step-1);margin-top:var(--s-3)}
+  .feat p{margin-top:var(--s-3);color:var(--ink-2)}
+  .feat dl{margin:var(--s-5) 0 0;padding-top:var(--s-4);border-top:1px dashed var(--rule);
+    font-family:var(--font-doc);font-size:var(--step--1)}
+  .feat dl div{display:flex;justify-content:space-between;gap:var(--s-3);padding:var(--s-1) 0}
+  .feat dt{color:var(--ink-3)}
+  .feat dd{margin:0;font-weight:700}
+  .feat dd.pos{color:var(--stamp)}
+  .feat dd.due{color:var(--marker-ink)}
+
+  /* ---------- sign-up ---------- */
+  .cta{border-top:1px solid var(--ink);background:var(--paper-3)}
+  .cta-grid{display:grid;gap:var(--s-7)}
+  @media (min-width:940px){.cta-grid{grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:var(--s-8);align-items:start}}
+  .cta h2{font-size:var(--step-2)}
+  .cta p{margin-top:var(--s-4);color:var(--ink-2);max-width:50ch}
+  form{
+    background:var(--paper-2);
+    border:1px solid var(--ink);
+    border-radius:var(--r-doc);
+    box-shadow:var(--stack);
+    padding:var(--s-5);
+  }
+  .field{display:grid;gap:var(--s-2);margin-bottom:var(--s-5)}
+  label{font-family:var(--font-doc);font-size:var(--step--1);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .hint{font-size:var(--step--1);color:var(--ink-3);line-height:1.45}
+  input,select{
+    font-family:var(--font-doc);font-size:var(--step-0);
+    min-height:48px;padding:var(--s-3);
+    color:var(--ink);background:var(--paper);
+    border:1px solid var(--ink-2);border-radius:var(--r-tag);
+    width:100%;
+  }
+  input::placeholder{color:var(--ink-3)}
+  input:hover,select:hover{border-color:var(--ink)}
+  input:invalid:not(:placeholder-shown){border-color:var(--marker);background:#F7E9E2}
+  input:invalid:not(:placeholder-shown) ~ .err{display:block}
+  .err{display:none;font-family:var(--font-doc);font-size:var(--step--1);color:var(--marker-ink);font-weight:700}
+  form .btn{width:100%}
+  .after{margin-top:var(--s-4);font-size:var(--step--1);color:var(--ink-3);line-height:1.5}
+
+  footer{border-top:1px solid var(--ink);background:var(--paper-2)}
+  .foot-in{display:flex;flex-wrap:wrap;gap:var(--s-4);justify-content:space-between;padding:var(--s-5) var(--s-5);max-width:1120px;margin:0 auto}
+  .foot-in nav{display:flex;flex-wrap:wrap;gap:var(--s-5);font-family:var(--font-doc);font-size:var(--step--1)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:1ms !important;animation-duration:1ms !important}
+    .btn:active{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="mark">BACK<span>LOT</span></div>
+    <p class="label">Production office for one-person crews</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="kicker">Sheet 01 &nbsp;/&nbsp; Day 1 of forever</p>
+        <h1>Every brand deal, invoice and payout on <em>one sheet</em>.</h1>
+        <p class="lede">You shoot, edit and post. Backlot keeps the paperwork side of the channel in order: signed contracts, what each sponsor owes, when the deliverable is due, and which platform actually paid.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#signup">Set up my sheet</a>
+          <a class="btn btn-quiet" href="#how">See how it works</a>
+        </div>
+        <p class="hero-note label">Free while you have three sponsors or fewer. No card, no sales call.</p>
+      </div>
+
+      <!-- signature element: a working call sheet -->
+      <div class="sheet" role="img" aria-label="Example Backlot sheet listing four sponsor deals with amounts, due dates and payment status, totalling 14,200 dollars outstanding.">
+        <div class="sheet-head">
+          <span class="sheet-title">Call sheet &middot; This week</span>
+          <span class="label">Rev. 04</span>
+        </div>
+
+        <div class="row">
+          <span class="no">01</span>
+          <span class="who">Ridgeline Coffee<small>60s integration &middot; delivered Tue</small></span>
+          <span class="flag flag-due">$4,500 due Fri</span>
+        </div>
+        <div class="row">
+          <span class="no">02</span>
+          <span class="who">Nomad Audio<small>Short + 2 stories &middot; cut in review</small></span>
+          <span class="flag flag-wait">$2,700 net 30</span>
+        </div>
+        <div class="row">
+          <span class="no">03</span>
+          <span class="who">Halyard Bags<small>Contract signed 12 Mar</small></span>
+          <span class="flag flag-due">$7,000 late 9d</span>
+        </div>
+        <div class="row">
+          <span class="no">04</span>
+          <span class="who">Field Notes Co.<small>Invoice 0118 &middot; paid by transfer</small></span>
+          <span class="flag flag-paid">$3,200 paid</span>
+        </div>
+
+        <div class="sheet-foot">
+          <span>Outstanding <b>$14,200</b></span>
+          <span>Next deadline <b>Fri 09:00</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sprocket" aria-hidden="true"></div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">How it works</p>
+        <h2>Three steps, then it runs in the background.</h2>
+        <p>Setup takes about fifteen minutes. After that you only open Backlot when something needs signing, sending or chasing.</p>
+      </div>
+
+      <ol class="steps">
+        <li>
+          <span class="num">01</span>
+          <h3>Drop in the deal</h3>
+          <p>Forward the sponsor email or upload the contract PDF. Backlot reads out the fee, the deliverables, the exclusivity window and the payment terms, then shows you what it found so you can correct it.</p>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <h3>Connect the money</h3>
+          <p>Link YouTube, TikTok, Twitch, Patreon and your bank. Payouts land in one running ledger with the platform fee already separated out, so you can see what you actually earned per video.</p>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <h3>Work the sheet</h3>
+          <p>Each morning you get one short list: what ships today, what invoice to send, who is late. Chasers go out on their own unless you tell them not to.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">What you get</p>
+        <h2>Built for people who never wanted to be their own finance department.</h2>
+      </div>
+
+      <div class="features">
+        <article class="feat">
+          <p class="label">Contracts</p>
+          <h3>Read in plain words</h3>
+          <p>Every clause that can cost you money gets pulled to the front: exclusivity length, usage rights, revision limits, kill fees. If a new deal conflicts with one you already signed, Backlot says so before you reply.</p>
+          <dl>
+            <div><dt>Deals on file</dt><dd>23</dd></div>
+            <div><dt>Exclusivity clashes</dt><dd class="due">1 found</dd></div>
+          </dl>
+        </article>
+
+        <article class="feat">
+          <p class="label">Invoices &amp; deadlines</p>
+          <h3>Sent, then chased</h3>
+          <p>Invoices are generated from the contract the moment you mark a deliverable live, numbered and formatted the way brand finance teams expect. Reminders go out at day 7, 14 and 30 so you are not the one writing the awkward email.</p>
+          <dl>
+            <div><dt>Average days to paid</dt><dd class="pos">21 &rarr; 12</dd></div>
+            <div><dt>Chasers sent for you</dt><dd>38</dd></div>
+          </dl>
+        </article>
+
+        <article class="feat">
+          <p class="label">Payouts</p>
+          <h3>Per platform, per video</h3>
+          <p>Ad revenue, tips, memberships and brand fees sit in the same ledger, each tagged to the upload that earned it. Export a clean year-end summary for whoever does your taxes, in one file.</p>
+          <dl>
+            <div><dt>Sources connected</dt><dd>6</dd></div>
+            <div><dt>Untagged income</dt><dd class="pos">$0</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGN UP -->
+  <section class="cta" id="signup">
+    <div class="wrap cta-grid">
+      <div>
+        <p class="label">Sign up</p>
+        <h2>Start your first sheet tonight.</h2>
+        <p>Bring one deal you are already working on. If Backlot does not save you an hour in the first month, close the account and take your data with you as CSV.</p>
+        <p class="after">Used by 4,100 solo creators. Your contracts stay yours; we never share deal terms with brands or agencies.</p>
+      </div>
+
+      <form action="#" method="post" novalidate>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" inputmode="email" required
+                 placeholder="you@yourchannel.com" aria-describedby="email-err email-hint">
+          <p class="err" id="email-err">Enter an email in the form name@domain.com</p>
+          <p class="hint" id="email-hint">We send one setup email and nothing else until you ask.</p>
+        </div>
+
+        <div class="field">
+          <label for="income">Roughly what did you earn last year?</label>
+          <select id="income" name="income" aria-describedby="income-hint">
+            <option>Under $25,000</option>
+            <option selected>$25,000 to $100,000</option>
+            <option>$100,000 to $500,000</option>
+            <option>Over $500,000</option>
+          </select>
+          <p class="hint" id="income-hint">Only used to pick sensible invoice and tax defaults for you.</p>
+        </div>
+
+        <button class="btn" type="submit">Create my account</button>
+        <p class="after">Free up to three active sponsors. Paid plans start at $19 a month, cancel from the settings page.</p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot-in">
+    <p class="label">Backlot &middot; Made by two people who edit their own videos</p>
+    <nav aria-label="Footer">
+      <a href="#how">How it works</a>
+      <a href="#signup">Pricing</a>
+      <a href="#signup">Contact support</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

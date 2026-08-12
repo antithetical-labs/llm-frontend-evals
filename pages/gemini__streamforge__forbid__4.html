@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamforge - Live AI-Assisted Development</title>
+    <style>
+        :root {
+            --bg-color: #f7f7f5;
+            --text-main: #1a1a1a;
+            --text-muted: #4a4a4a;
+            --border-color: #1a1a1a;
+            --accent-blue: #0055ff;
+            --accent-red: #ff3333;
+            --accent-yellow: #ffcc00;
+            --card-bg: #ffffff;
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+        h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1.5rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        p { font-size: 1.125rem; margin-bottom: 1rem; color: var(--text-muted); }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 6rem 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Buttons (No pill shapes) */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            border-radius: 4px; /* Slight rounding, not pill */
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 4px 4px 0px var(--border-color);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--border-color);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-yellow);
+            color: var(--text-main);
+        }
+
+        /* Header */
+        header {
+            border-bottom: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-box {
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent-red);
+            border: 2px solid var(--border-color);
+        }
+
+        .nav-links a {
+            font-family: var(--font-mono);
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 2rem;
+        }
+
+        /* Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text .btn-group {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hero-visual {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .browser-bar {
+            border-bottom: 2px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            background-color: #eaeaea;
+        }
+
+        .dot { width: 12px; height: 12px; border: 2px solid var(--border-color); border-radius: 0; }
+        .dot:nth-child(1) { background-color: var(--accent-red); }
+        .dot:nth-child(2) { background-color: var(--accent-yellow); }
+        .dot:nth-child(3) { background-color: var(--accent-green); background-color: #00cc66;}
+
+        .editor {
+            font-family: var(--font-mono);
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            background-color: #1a1a1a;
+            color: #f7f7f5;
+        }
+
+        .editor .prompt { color: var(--accent-yellow); margin-bottom: 1rem; }
+        .editor .code { color: #a6e22e; }
+        
+        /* How It Works */
+        .how-it-works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            border: 2px solid var(--border-color);
+            padding: 2rem;
+            background-color: var(--card-bg);
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -1.5rem;
+            left: -1.5rem;
+            width: 3rem;
+            height: 3rem;
+            background-color: var(--text-main);
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .feature-row:nth-child(even) {
+            direction: rtl;
+        }
+        
+        .feature-row:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-box {
+            border: 2px solid var(--border-color);
+            background-color: var(--accent-yellow);
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: 6px 6px 0px var(--border-color);
+        }
+
+        .feature-row:nth-child(2) .feature-box { background-color: var(--accent-red); color: white; }
+        .feature-row:nth-child(3) .feature-box { background-color: var(--accent-blue); color: white; }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            background-color: var(--card-bg);
+        }
+
+        .cta-section h2 { margin-bottom: 1rem; }
+        .cta-section p { max-width: 600px; margin: 0 auto 2rem auto; }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .hero, .feature-row { grid-template-columns: 1fr; }
+            .hero-text .btn-group { flex-direction: column; }
+            .feature-row:nth-child(even) { direction: ltr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">
+                <div class="logo-box"></div>
+                STREAMFORGE
+            </a>
+            <nav class="nav-links">
+                <a href="#how-it-works">How it Works</a>
+                <a href="#features">Features</a>
+                <a href="#">Log In</a>
+                <a href="#" class="btn btn-primary" style="padding: 0.5rem 1rem; margin-left: 1rem;">Sign Up</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="container hero">
+                <div class="hero-text">
+                    <h1>Watch Software Build Itself. Live.</h1>
+                    <p>The first live-streaming platform built for AI-assisted development. Watch top engineers prompt, iterate, and ship code in real time. See the AI's exact output, and fork the repository at any moment.</p>
+                    <div class="btn-group">
+                        <a href="#cta" class="btn btn-primary">Start Watching</a>
+                        <a href="#how-it-works" class="btn btn-secondary">Become a Broadcaster</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="browser-bar">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="editor">
+                        <div class="prompt">
+                            > User: Generate a robust authentication middleware in Node.js using JWT, including refresh token logic.
+                        </div>
+                        <div class="code">
+// AI Assistant generating response...<br>
+const jwt = require('jsonwebtoken');<br>
+<br>
+const authenticate = (req, res, next) => {<br>
+&nbsp;&nbsp;const token = req.header('Authorization');<br>
+&nbsp;&nbsp;if (!token) return res.status(401).send('Access Denied');<br>
+<br>
+&nbsp;&nbsp;try {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;const verified = jwt.verify(token, process.env.SECRET);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;req.user = verified;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;next();<br>
+&nbsp;&nbsp;} catch (err) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res.status(400).send('Invalid Token');<br>
+&nbsp;&nbsp;}<br>
+};
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works">
+            <div class="container">
+                <h2>How Streamforge Works</h2>
+                <p>Designed specifically for the modern developer workflow.</p>
+                
+                <div class="how-it-works-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Connect Your IDE</h3>
+                        <p>Install the Streamforge plugin for VS Code, Cursor, or JetBrains. It securely broadcasts your code state and AI chat panel.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Stream the Process</h3>
+                        <p>Viewers see a synchronized split-screen: your local code on the left, and your AI interactions (prompts and context) on the right.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Instant Forking</h3>
+                        <p>With GitHub integration, viewers can hit "Fork" to instantly copy your exact branch and state to their own repositories to play along.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+            <div class="container features-grid">
+                
+                <div class="feature-row">
+                    <div class="feature-text">
+                        <h2>Transparent AI Context</h2>
+                        <p>Stop guessing what prompts the streamer used. Streamforge exposes the exact system prompts, user inputs, and LLM raw outputs happening on the broadcaster's machine. Learn prompt engineering by watching the best in the industry.</p>
+                    </div>
+                    <div class="feature-box">
+                        { prompt: "Optimize this loop..." }
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-text">
+                        <h2>One-Click Live Forking</h2>
+                        <p>See an interesting implementation on stream? Don't wait for the streamer to push to main. Click the Fork button to capture a snapshot of the current stream's codebase and open it directly in your own environment.</p>
+                    </div>
+                    <div class="feature-box">
+                        git clone streamforge/live-branch
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-text">
+                        <h2>Developer-First Interface</h2>
+                        <p>No more blurry screen shares compressed for video games. Streamforge parses the code and renders it natively on the viewer's end. Customize your own theme, font size, and syntax highlighting while watching.</p>
+                    </div>
+                    <div class="feature-box">
+                        Native Code Rendering
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="cta" class="cta-section">
+            <div class="container">
+                <h2>Ready to Forge?</h2>
+                <p>Join thousands of developers learning, building, and sharing the future of AI-assisted software engineering.</p>
+                <a href="#" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 2.5rem;">Create Your Account</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2023 Streamforge Inc. Built for developers, by developers.
+        </div>
+    </footer>
+
+</body>
+</html>

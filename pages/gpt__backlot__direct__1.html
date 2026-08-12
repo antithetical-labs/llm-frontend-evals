@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Backlot keeps creator contracts, invoices, sponsor deadlines, deliverables, and platform payouts in one operational workspace.">
+  <title>Backlot — Run the business behind your content</title>
+  <style>
+    :root {
+      --ink: #0b0b0d;
+      --ink-soft: #141417;
+      --paper: #f2f0e8;
+      --muted: #aaa9a3;
+      --acid: #c8ff00;
+      --violet: #7447ff;
+      --coral: #ff5a48;
+      --cyan: #35dfff;
+      --line: rgba(242, 240, 232, 0.18);
+      --display: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+      --body: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --shadow: 10px 10px 0 var(--acid);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--paper);
+      background:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px),
+        var(--ink);
+      background-size: 42px 42px;
+      font-family: var(--body);
+      line-height: 1.5;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: .18;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 3px,
+        rgba(255,255,255,.035) 3px,
+        rgba(255,255,255,.035) 4px
+      );
+    }
+
+    ::selection {
+      color: var(--ink);
+      background: var(--acid);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .6rem;
+      align-items: center;
+      margin: 0 0 1.25rem;
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 8px;
+      height: 8px;
+      content: "";
+      background: currentColor;
+      box-shadow: 4px 4px 0 var(--violet);
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 11, 13, .88);
+    }
+
+    .ticker {
+      display: flex;
+      min-height: 32px;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px;
+      color: var(--ink);
+      background: var(--acid);
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      min-height: 76px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .7rem;
+      color: var(--paper);
+      font-family: var(--display);
+      font-size: 1.35rem;
+      letter-spacing: -.06em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      border: 2px solid var(--paper);
+      transform: rotate(-7deg);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+      background: var(--acid);
+    }
+
+    .brand-mark::before {
+      top: 5px;
+      right: -6px;
+      width: 16px;
+      height: 5px;
+    }
+
+    .brand-mark::after {
+      bottom: 4px;
+      left: 4px;
+      width: 6px;
+      height: 6px;
+      background: var(--violet);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-family: var(--mono);
+      font-size: .76rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--acid);
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 50px;
+      align-items: center;
+      justify-content: center;
+      gap: .7rem;
+      padding: 0 1.25rem;
+      border: 2px solid var(--acid);
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--acid);
+      box-shadow: 5px 5px 0 var(--violet);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      box-shadow: 2px 2px 0 var(--violet);
+      transform: translate(3px, 3px);
+    }
+
+    .button.secondary {
+      color: var(--paper);
+      border-color: var(--paper);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus-visible {
+      color: var(--ink);
+      background: var(--paper);
+      transform: none;
+    }
+
+    .hero {
+      position: relative;
+      padding: 108px 0 122px;
+    }
+
+    .hero::before {
+      position: absolute;
+      top: 65px;
+      right: -100px;
+      width: 330px;
+      height: 330px;
+      border: 1px solid rgba(200, 255, 0, .4);
+      border-radius: 50%;
+      content: "";
+      box-shadow:
+        0 0 0 50px rgba(200,255,0,.03),
+        0 0 0 100px rgba(116,71,255,.025);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(420px, .97fr);
+      gap: 70px;
+      align-items: center;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 1.6rem;
+      font-family: var(--display);
+      font-size: clamp(3.7rem, 7.3vw, 7.3rem);
+      font-weight: 900;
+      letter-spacing: -.085em;
+      line-height: .84;
+      text-transform: uppercase;
+    }
+
+    h1 .outline {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--paper);
+    }
+
+    h1 .acid {
+      position: relative;
+      display: inline-block;
+      color: var(--ink);
+      background: var(--acid);
+      padding: .02em .1em .08em;
+      transform: rotate(-1.5deg);
+    }
+
+    .hero-copy {
+      max-width: 610px;
+      margin-bottom: 2rem;
+      color: #d2d0c9;
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .microcopy {
+      width: 100%;
+      margin: .35rem 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-wrap {
+      position: relative;
+      transform: rotate(1deg);
+    }
+
+    .dashboard-wrap::before {
+      position: absolute;
+      top: -20px;
+      right: -18px;
+      z-index: -1;
+      width: 110px;
+      height: 110px;
+      content: "";
+      background: radial-gradient(var(--coral) 1.5px, transparent 1.5px);
+      background-size: 9px 9px;
+    }
+
+    .dashboard {
+      overflow: hidden;
+      border: 2px solid var(--paper);
+      color: var(--paper);
+      background: #111115;
+      box-shadow: var(--shadow);
+    }
+
+    .dash-head {
+      display: flex;
+      min-height: 50px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: .67rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots i {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: var(--coral);
+    }
+
+    .window-dots i:nth-child(2) {
+      background: var(--acid);
+    }
+
+    .window-dots i:nth-child(3) {
+      background: var(--violet);
+    }
+
+    .dash-body {
+      padding: 20px;
+    }
+
+    .dash-top {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      min-height: 135px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: #18181d;
+    }
+
+    .metric.primary {
+      color: var(--ink);
+      background: var(--acid);
+    }
+
+    .metric-label {
+      font-family: var(--mono);
+      font-size: .64rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      margin: .35rem 0 0;
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 3.15rem);
+      letter-spacing: -.07em;
+      line-height: 1;
+    }
+
+    .metric-note {
+      margin: .7rem 0 0;
+      font-family: var(--mono);
+      font-size: .64rem;
+    }
+
+    .bars {
+      display: flex;
+      height: 65px;
+      align-items: flex-end;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .bars span {
+      width: 14%;
+      background: var(--violet);
+    }
+
+    .bars span:nth-child(1) { height: 30%; }
+    .bars span:nth-child(2) { height: 53%; }
+    .bars span:nth-child(3) { height: 40%; }
+    .bars span:nth-child(4) { height: 72%; }
+    .bars span:nth-child(5) { height: 60%; }
+    .bars span:nth-child(6) { height: 92%; background: var(--cyan); }
+
+    .deal-list {
+      border: 1px solid var(--line);
+    }
+
+    .deal-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .deal-row:last-child {
+      border-bottom: 0;
+    }
+
+    .deal-name {
+      margin: 0 0 2px;
+      font-size: .82rem;
+      font-weight: 750;
+    }
+
+    .deal-meta,
+    .status {
+      font-family: var(--mono);
+      font-size: .6rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .deal-meta {
+      color: var(--muted);
+    }
+
+    .status {
+      padding: 4px 7px;
+      color: var(--acid);
+      border: 1px solid currentColor;
+    }
+
+    .status.coral {
+      color: var(--coral);
+    }
+
+    .status.violet {
+      color: #ae98ff;
+    }
+
+    .float-tag {
+      position: absolute;
+      right: -25px;
+      bottom: -28px;
+      padding: 10px 13px;
+      color: var(--ink);
+      background: var(--coral);
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      transform: rotate(-4deg);
+    }
+
+    .proof-strip {
+      border-block: 1px solid var(--line);
+      background: var(--ink-soft);
+    }
+
+    .proof-inner {
+      display: grid;
+      grid-template-columns: .8fr 2.2fr;
+      min-height: 110px;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .proof-title {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .platforms {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px 35px;
+      color: #e1dfd7;
+      font-family: var(--display);
+      font-size: clamp(.9rem, 1.4vw, 1.12rem);
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+    }
+
+    section {
+      padding: 120px 0;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 70px;
+      align-items: end;
+      margin-bottom: 64px;
+    }
+
+    h2 {
+      max-width: 780px;
+      margin-bottom: 0;
+      font-family: var(--display);
+      font-size: clamp(2.7rem, 5.7vw, 5.5rem);
+      letter-spacing: -.075em;
+      line-height: .92;
+      text-transform: uppercase;
+    }
+
+    .section-intro {
+      max-width: 490px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.06rem;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line);
+    }
+
+    .step {
+      position: relative;
+      min-height: 270px;
+      padding: 28px;
+      border-right: 1px solid var(--line);
+      background: rgba(20, 20, 23, .86);
+    }
+
+    .step:last-child {
+      border-right: 0;
+    }
+
+    .step-number {
+      display: flex;
+      width: 38px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 60px;
+      color: var(--ink);
+      background: var(--acid);
+      font-family: var(--mono);
+      font-size: .8rem;
+      font-weight: 800;
+      transform: rotate(-3deg);
+    }
+
+    .step:nth-child(2) .step-number {
+      color: var(--paper);
+      background: var(--violet);
+      transform: rotate(3deg);
+    }
+
+    .step:nth-child(3) .step-number {
+      background: var(--coral);
+    }
+
+    .step h3 {
+      margin-bottom: .75rem;
+      font-family: var(--display);
+      font-size: 1.35rem;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      max-width: 300px;
+      margin: 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .features {
+      padding-top: 0;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      min-height: 500px;
+      border-top: 1px solid var(--line);
+    }
+
+    .feature:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 70px 70px 70px 0;
+    }
+
+    .feature-number {
+      margin-bottom: 1.5rem;
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .feature h3 {
+      max-width: 460px;
+      margin-bottom: 1.25rem;
+      font-family: var(--display);
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      letter-spacing: -.07em;
+      line-height: .94;
+      text-transform: uppercase;
+    }
+
+    .feature-copy > p {
+      max-width: 490px;
+      color: var(--muted);
+    }
+
+    .check-list {
+      display: grid;
+      gap: 8px;
+      margin: 1.3rem 0 0;
+      padding: 0;
+      list-style: none;
+      font-family: var(--mono);
+      font-size: .73rem;
+      text-transform: uppercase;
+    }
+
+    .check-list li::before {
+      margin-right: 9px;
+      color: var(--acid);
+      content: "↳";
+    }
+
+    .feature-art {
+      position: relative;
+      display: flex;
+      overflow: hidden;
+      min-height: 430px;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px solid var(--line);
+      background: #101014;
+    }
+
+    .feature-art::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      opacity: .25;
+      background: radial-gradient(circle at 70% 30%, var(--violet), transparent 35%);
+    }
+
+    .feature:nth-child(2) {
+      grid-template-columns: 1.15fr .85fr;
+    }
+
+    .feature:nth-child(2) .feature-art {
+      order: -1;
+      border-right: 1px solid var(--line);
+      border-left: 0;
+    }
+
+    .feature:nth-child(2) .feature-copy {
+      padding-right: 0;
+      padding-left: 70px;
+    }
+
+    .feature:nth-child(2) .feature-art::before {
+      background: radial-gradient(circle at 30% 65%, var(--coral), transparent 35%);
+    }
+
+    .mock-card {
+      position: relative;
+      z-index: 1;
+      width: min(430px, 78%);
+      border: 2px solid var(--paper);
+      background: #18181d;
+      box-shadow: 12px 12px 0 var(--violet);
+      transform: rotate(-2deg);
+    }
+
+    .mock-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: .64rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .mock-content {
+      padding: 20px;
+    }
+
+    .mock-title {
+      margin-bottom: 22px;
+      font-family: var(--display);
+      font-size: 1.2rem;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+
+    .mock-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      padding: 11px 0;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: .68rem;
+    }
+
+    .mock-line span:first-child {
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      position: absolute;
+      right: -35px;
+      bottom: 45px;
+      z-index: 2;
+      padding: 10px 16px;
+      color: var(--ink);
+      background: var(--acid);
+      font-family: var(--mono);
+      font-size: .74rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      transform: rotate(8deg);
+    }
+
+    .calendar {
+      position: relative;
+      z-index: 1;
+      width: min(455px, 82%);
+      padding: 18px;
+      border: 2px solid var(--paper);
+      background: #18181d;
+      box-shadow: -12px 12px 0 var(--coral);
+      transform: rotate(1.5deg);
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-family: var(--mono);
+      font-size: .7rem;
+      text-transform: uppercase;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 55px 1fr;
+      gap: 0 13px;
+    }
+
+    .time {
+      padding-top: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: .62rem;
+    }
+
+    .event {
+      margin-bottom: 8px;
+      padding: 11px 13px;
+      color: var(--ink);
+      background: var(--acid);
+      font-family: var(--mono);
+      font-size: .65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .event.violet {
+      color: var(--paper);
+      background: var(--violet);
+    }
+
+    .event.coral {
+      background: var(--coral);
+    }
+
+    .payout-stack {
+      position: relative;
+      z-index: 1;
+      width: min(450px, 82%);
+    }
+
+    .payout-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      margin-bottom: -1px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      background: #18181d;
+      transition: transform .15s ease;
+    }
+
+    .payout-card:nth-child(2) {
+      margin-left: 22px;
+      border-color: var(--violet);
+    }
+
+    .payout-card:nth-child(3) {
+      margin-left: 44px;
+      border-color: var(--acid);
+    }
+
+    .payout-platform {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .payout-date {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .61rem;
+      text-transform: uppercase;
+    }
+
+    .payout-sum {
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .cta-section {
+      padding: 140px 0;
+    }
+
+    .cta {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(45px, 8vw, 90px);
+      color: var(--ink);
+      background: var(--acid);
+      box-shadow: 14px 14px 0 var(--violet);
+    }
+
+    .cta::before {
+      position: absolute;
+      top: -130px;
+      right: -80px;
+      width: 370px;
+      height: 370px;
+      border: 34px solid rgba(11,11,13,.12);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .cta .eyebrow {
+      color: var(--ink);
+    }
+
+    .cta .eyebrow::before {
+      box-shadow: 4px 4px 0 var(--coral);
+    }
+
+    .cta h2 {
+      position: relative;
+      max-width: 850px;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-copy {
+      position: relative;
+      max-width: 620px;
+      margin-bottom: 2rem;
+      font-size: 1.08rem;
+    }
+
+    .signup-form {
+      position: relative;
+      display: flex;
+      max-width: 720px;
+      gap: 10px;
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      min-height: 56px;
+      padding: 0 18px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--paper);
+      outline: 0;
+    }
+
+    .signup-form input:focus {
+      box-shadow: 0 0 0 4px var(--violet);
+    }
+
+    .signup-form .button {
+      color: var(--paper);
+      border-color: var(--ink);
+      background: var(--ink);
+      box-shadow: 5px 5px 0 var(--coral);
+    }
+
+    .form-note {
+      position: relative;
+      margin: 14px 0 0;
+      font-family: var(--mono);
+      font-size: .67rem;
+      text-transform: uppercase;
+    }
+
+    footer {
+      padding: 30px 0 50px;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .67rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      text-decoration: none;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: var(--acid);
+    }
+
+    @media (max-width: 900px) {
+      .nav-links a:not(.button) {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 80px;
+      }
+
+      .hero-grid,
+      .section-heading {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-grid {
+        gap: 65px;
+      }
+
+      .section-heading {
+        gap: 24px;
+      }
+
+      .proof-inner {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding-block: 27px;
+      }
+
+      .platforms {
+        justify-content: flex-start;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .step:last-child {
+        border-bottom: 0;
+      }
+
+      .step-number {
+        margin-bottom: 35px;
+      }
+
+      .feature,
+      .feature:nth-child(2) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-copy,
+      .feature:nth-child(2) .feature-copy {
+        padding: 65px 0;
+      }
+
+      .feature-art,
+      .feature:nth-child(2) .feature-art {
+        order: 0;
+        border: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .shell {
+        width: min(100% - 28px, 1180px);
+      }
+
+      nav {
+        min-height: 66px;
+      }
+
+      .nav-links {
+        gap: 0;
+      }
+
+      .nav-links .button {
+        min-height: 42px;
+        padding-inline: .85rem;
+        font-size: .68rem;
+      }
+
+      .hero {
+        padding: 68px 0 90px;
+      }
+
+      h1 {
+        font-size: clamp(3.15rem, 17vw, 5rem);
+      }
+
+      .hero-grid {
+        gap: 52px;
+      }
+
+      .dash-top {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-wrap {
+        transform: none;
+      }
+
+      .dashboard {
+        box-shadow: 7px 7px 0 var(--acid);
+      }
+
+      .float-tag {
+        right: -5px;
+      }
+
+      section {
+        padding: 90px 0;
+      }
+
+      .platforms {
+        font-size: .85rem;
+      }
+
+      .feature-art {
+        min-height: 370px;
+      }
+
+      .mock-card,
+      .calendar,
+      .payout-stack {
+        width: 87%;
+      }
+
+      .stamp {
+        right: -8px;
+      }
+
+      .payout-card:nth-child(2) {
+        margin-left: 10px;
+      }
+
+      .payout-card:nth-child(3) {
+        margin-left: 20px;
+      }
+
+      .cta-section {
+        padding: 95px 0;
+      }
+
+      .cta {
+        padding: 42px 24px;
+        box-shadow: 8px 8px 0 var(--violet);
+      }
+
+      .signup-form {
+        flex-direction: column;
+      }
+
+      .signup-form .button {
+        width: 100%;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="ticker">Now boarding: contracts · invoices · deadlines · payouts · one clean back office</div>
+    <nav class="shell" aria-label="Primary navigation">
+      <a class="brand" href="#" aria-label="Backlot home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Backlot
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="button" href="#signup">Join the waitlist <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <p class="eyebrow">Creator operations, under control</p>
+          <h1>Make content. <span class="outline">Not</span> spreadsheets. <span class="acid">Get paid.</span></h1>
+          <p class="hero-copy">
+            Backlot puts every brand deal, contract, invoice, sponsor deadline, and platform payout in one place—without making you become a finance person.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#signup">Get early access <span aria-hidden="true">→</span></a>
+            <a class="button secondary" href="#how">See how it works</a>
+            <p class="microcopy">Built for full-time video creators · No accounting degree required</p>
+          </div>
+        </div>
+
+        <div class="dashboard-wrap" aria-label="Backlot dashboard preview">
+          <div class="dashboard">
+            <div class="dash-head">
+              <span>Backlot / Overview</span>
+              <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+            <div class="dash-body">
+              <div class="dash-top">
+                <div class="metric primary">
+                  <div class="metric-label">Incoming this month</div>
+                  <div class="metric-value">$18,420</div>
+                  <div class="metric-note">↑ 14% from last month</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label">Payout flow</div>
+                  <div class="bars" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="metric-note">6 sources tracked</div>
+                </div>
+              </div>
+
+              <div class="deal-list">
+                <div class="deal-row">
+                  <div>
+                    <p class="deal-name">NOVA / YouTube integration</p>
+                    <span class="deal-meta">Final cut · Due Fri 14 Jun</span>
+                  </div>
+                  <span class="status coral">Action due</span>
+                </div>
+                <div class="deal-row">
+                  <div>
+                    <p class="deal-name">Daybreak / Short-form package</p>
+                    <span class="deal-meta">Invoice #BL-2048 · $6,500</span>
+                  </div>
+                  <span class="status">Payment sent</span>
+                </div>
+                <div class="deal-row">
+                  <div>
+                    <p class="deal-name">Kinship / Q3 campaign</p>
+                    <span class="deal-meta">Contract uploaded · 3 deliverables</span>
+                  </div>
+                  <span class="status violet">In review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="float-tag">Nothing slipping ↗</div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="proof-strip" aria-label="Supported income sources">
+      <div class="shell proof-inner">
+        <p class="proof-title">Track income from</p>
+        <div class="platforms">
+          <span>YouTube</span>
+          <span>TikTok</span>
+          <span>Instagram</span>
+          <span>Patreon</span>
+          <span>Sponsors</span>
+          <span>Affiliates</span>
+        </div>
+      </div>
+    </aside>
+
+    <section id="how">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">How it works</p>
+            <h2>Your business, minus the chaos.</h2>
+          </div>
+          <p class="section-intro">
+            Backlot turns scattered emails, PDFs, calendar notes, and payout dashboards into one straightforward workflow.
+          </p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div class="step-number">01</div>
+            <h3>Bring it together</h3>
+            <p>Add deals, upload contracts, and connect your platforms. Backlot gives every revenue stream a home.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">02</div>
+            <h3>Know what’s next</h3>
+            <p>See approvals, posts, usage windows, and payment dates in one clear production timeline.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">03</div>
+            <h3>Close the loop</h3>
+            <p>Send invoices, follow every payment, and understand what you actually earned—without spreadsheet archaeology.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="shell">
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-number">Feature 01 / Deal desk</span>
+            <h3>Every deal has a paper trail.</h3>
+            <p>
+              Keep the contract, rate, usage rights, deliverables, contacts, and invoice attached to the same project. No more searching your inbox for “final_final_v3.pdf.”
+            </p>
+            <ul class="check-list">
+              <li>Contracts and key terms together</li>
+              <li>Deliverables tied to each deal</li>
+              <li>Plain-language payment status</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Example contract summary">
+            <div class="mock-card">
+              <div class="mock-header">
+                <span>Deal file / BL-028</span>
+                <span>Active</span>
+              </div>
+              <div class="mock-content">
+                <div class="mock-title">NOVA Summer Launch</div>
+                <div class="mock-line"><span>Deal value</span><strong>$8,500</strong></div>
+                <div class="mock-line"><span>Deliverables</span><strong>1 video + 2 shorts</strong></div>
+                <div class="mock-line"><span>Usage</span><strong>90 days / organic</strong></div>
+                <div class="mock-line"><span>Payment terms</span><strong>Net 30</strong></div>
+              </div>
+              <div class="stamp">Contract locked ✓</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-number">Feature 02 / Deadline radar</span>
+            <h3>Never miss the sponsor note.</h3>
+            <p>
+              Backlot maps every brief, draft, approval, go-live date, and revision round so you always know what needs your attention next.
+            </p>
+            <ul class="check-list">
+              <li>One timeline across every campaign</li>
+              <li>Clear reminders before work is due</li>
+              <li>Approval and revision tracking</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Example sponsor timeline">
+            <div class="calendar">
+              <div class="calendar-head">
+                <strong>June / Production queue</strong>
+                <span>Week 24</span>
+              </div>
+              <div class="timeline">
+                <div class="time">MON 10</div>
+                <div class="event violet">Kinship · Concept approval</div>
+                <div class="time">WED 12</div>
+                <div class="event">NOVA · Final cut due</div>
+                <div class="time">FRI 14</div>
+                <div class="event coral">Daybreak · Post live at 14:00</div>
+                <div class="time">MON 17</div>
+                <div class="event violet">Q+A round · Client review</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-number">Feature 03 / Money map</span>
+            <h3>See where every dollar is.</h3>
+            <p>
+              Track sponsor invoices beside platform, affiliate, and membership payouts. Know what landed, what is coming, and what needs a nudge.
+            </p>
+            <ul class="check-list">
+              <li>Per-platform payout tracking</li>
+              <li>Overdue invoice visibility</li>
+              <li>Monthly income at a glance</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Example payout tracker">
+            <div class="payout-stack">
+              <div class="payout-card">
+                <div>
+                  <p class="payout-platform">YouTube</p>
+                  <span class="payout-date">Expected Jun 21</span>
+                </div>
+                <strong class="payout-sum">$4,280</strong>
+              </div>
+              <div class="payout-card">
+                <div>
+                  <p class="payout-platform">Sponsor invoice</p>
+                  <span class="payout-date">Due Jun 24</span>
+                </div>
+                <strong class="payout-sum">$6,500</strong>
+              </div>
+              <div class="payout-card">
+                <div>
+                  <p class="payout-platform">Patreon</p>
+                  <span class="payout-date">Paid Jun 05</span>
+                </div>
+                <strong class="payout-sum">$2,140</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+      <div class="shell">
+        <div class="cta">
+          <p class="eyebrow">Backlot is opening soon</p>
+          <h2>Your content has a front end. Give the business a back end.</h2>
+          <p class="cta-copy">
+            Join the early-access list and be first to replace your spreadsheet stack with one creator-friendly command center.
+          </p>
+          <form class="signup-form" action="#" method="post">
+            <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@yourchannel.com" required>
+            <button class="button" type="submit">Join the waitlist <span aria-hidden="true">↗</span></button>
+          </form>
+          <p class="form-note">No spam. No finance jargon. Just launch updates.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <a class="brand" href="#" aria-label="Backlot home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Backlot
+      </a>
+      <span>© 2025 Backlot / Built for creator business</span>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="mailto:hello@backlot.example">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

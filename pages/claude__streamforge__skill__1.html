@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streamforge — watch software get built, prompt by prompt</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     Subject: the developer's terminal, the diff, the prompt log.
+     Brand face: system monospace at display sizes. Signature:
+     the live diff panel with a blinking caret and gutter marks.
+     ============================================================ */
+  :root{
+    /* type */
+    --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --font-text: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+
+    --step--1: 0.875rem;
+    --step-0:  1.0625rem;
+    --step-1:  1.375rem;
+    --step-2:  1.875rem;
+    --step-3:  2.5rem;
+    --step-4:  3.375rem;
+
+    /* color: tinted near-black, slate-teal neutrals, ochre accent */
+    --ink-900:#0d1113;
+    --ink-850:#12171a;
+    --ink-800:#171d21;
+    --ink-700:#20282d;
+    --ink-600:#2c363c;
+    --ink-400:#5f6f77;
+    --ink-200:#a8b6bc;
+    --ink-100:#d8e0e2;
+    --paper:  #f2efe8;
+
+    --ochre:  #e2a03c;
+    --ochre-dim:#a3712450;
+    --teal:   #6fbfae;
+    --rust:   #c8674a;
+
+    /* space (4pt) */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px; --s9:96px;
+
+    /* shape */
+    --r-sm:3px; --r-md:6px;
+    --line:1px solid var(--ink-700);
+
+    /* motion */
+    --fast:120ms; --mid:240ms;
+    --ease:cubic-bezier(0.16,1,0.3,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--ink-900);
+    color:var(--ink-100);
+    font-family:var(--font-text);
+    font-size:var(--step-0);
+    line-height:1.65;
+  }
+  body::before{
+    /* faint scanline grain, one consistent surface treatment */
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.014) 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 var(--s5)}
+
+  h1,h2,h3,.mono{font-family:var(--font-mono)}
+  h1,h2,h3{line-height:1.12;letter-spacing:-0.02em;margin:0}
+  a{color:var(--ochre);text-decoration:none;border-bottom:1px solid var(--ochre-dim)}
+  a:hover{border-bottom-color:var(--ochre)}
+  a:focus-visible,button:focus-visible,input:focus-visible{
+    outline:2px solid var(--ochre);outline-offset:3px;border-radius:var(--r-sm)
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{border-bottom:var(--line);background:var(--ink-900)}
+  .masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s5);height:60px}
+  .logo{font-family:var(--font-mono);font-size:var(--step-0);font-weight:700;letter-spacing:-0.03em;color:var(--ink-100);border:0}
+  .logo b{color:var(--ochre)}
+  .navlinks{display:flex;gap:var(--s5);font-family:var(--font-mono);font-size:var(--step--1)}
+  .navlinks a{color:var(--ink-200);border:0}
+  .navlinks a:hover{color:var(--ink-100)}
+  @media (max-width:640px){.navlinks{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:var(--s9) 0 var(--s8)}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr);gap:var(--s8);align-items:start}
+  @media (max-width:900px){
+    .hero{padding:var(--s7) 0 var(--s7)}
+    .hero-grid{grid-template-columns:1fr;gap:var(--s7)}
+  }
+  .live{
+    display:inline-flex;align-items:center;gap:var(--s2);
+    font-family:var(--font-mono);font-size:var(--step--1);letter-spacing:.06em;
+    color:var(--ink-200);border:var(--line);border-radius:999px;padding:5px 12px 5px 10px;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--rust);animation:pulse 2.4s var(--ease) infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  h1{font-size:var(--step-4);margin:var(--s5) 0 0}
+  h1 em{font-style:normal;color:var(--ochre)}
+  .lede{max-width:52ch;margin:var(--s5) 0 0;color:var(--ink-200);font-size:var(--step-1);line-height:1.55}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6);align-items:center}
+  .meta{margin-top:var(--s5);font-family:var(--font-mono);font-size:var(--step--1);color:var(--ink-400)}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font-family:var(--font-mono);font-size:var(--step-0);
+    display:inline-flex;align-items:center;gap:var(--s2);
+    min-height:44px;padding:0 var(--s5);border-radius:var(--r-sm);
+    border:1px solid var(--ochre);background:var(--ochre);color:var(--ink-900);
+    cursor:pointer;transition:background var(--fast) var(--ease), transform var(--fast) var(--ease);
+  }
+  .btn:hover{background:#f0b054}
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{background:var(--ink-700);border-color:var(--ink-600);color:var(--ink-400);cursor:not-allowed}
+  .btn-ghost{background:transparent;border-color:var(--ink-600);color:var(--ink-100)}
+  .btn-ghost:hover{background:var(--ink-800);border-color:var(--ink-400)}
+
+  /* ---------- SIGNATURE: the stream panel ---------- */
+  .panel{border:var(--line);border-radius:var(--r-md);background:var(--ink-850);overflow:hidden;font-family:var(--font-mono)}
+  .panel-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
+    padding:var(--s3) var(--s4);border-bottom:var(--line);
+    font-size:var(--step--1);color:var(--ink-200);background:var(--ink-800)
+  }
+  .panel-bar .who{color:var(--ink-100)}
+  .panel-bar .viewers{color:var(--ink-400);white-space:nowrap}
+  .pane{padding:var(--s4);font-size:var(--step--1);line-height:1.7}
+  .pane + .pane{border-top:var(--line)}
+  .pane-label{
+    font-size:0.75rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-400);margin-bottom:var(--s2)
+  }
+  .prompt{color:var(--ink-100);margin:0}
+  .prompt::before{content:"› ";color:var(--ochre)}
+  .model{color:var(--teal);margin:0}
+  .caret{display:inline-block;width:8px;height:1em;vertical-align:-2px;background:var(--ochre);margin-left:2px;animation:blink 1.05s steps(1,end) infinite}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+  .diff{margin:0;overflow-x:auto}
+  .diff div{display:grid;grid-template-columns:3.5ch 1ch auto;gap:var(--s2);white-space:pre;color:var(--ink-200)}
+  .diff .n{color:var(--ink-600);text-align:right}
+  .diff .add{background:rgba(111,191,174,.09);color:#bfe7dd}
+  .diff .add .m{color:var(--teal)}
+  .diff .del{background:rgba(200,103,74,.09);color:#e6b9ac}
+  .diff .del .m{color:var(--rust)}
+  .panel-foot{display:flex;gap:var(--s4);padding:var(--s3) var(--s4);border-top:var(--line);font-size:var(--step--1);color:var(--ink-400);background:var(--ink-800)}
+  .panel-foot span:first-child{color:var(--ochre)}
+
+  /* ---------- section frame ---------- */
+  section{padding:var(--s9) 0}
+  @media (max-width:900px){section{padding:var(--s8) 0}}
+  .rule{border:0;border-top:var(--line);margin:0}
+  .sec-head{max-width:60ch}
+  .sec-head h2{font-size:var(--step-3)}
+  .sec-head p{color:var(--ink-200);margin:var(--s4) 0 0;max-width:56ch}
+
+  /* ---------- how it works (order matters, so it is numbered) ---------- */
+  .steps{margin-top:var(--s8);display:grid;gap:var(--s6)}
+  .step{display:grid;grid-template-columns:6ch minmax(0,1fr);gap:var(--s5);align-items:baseline;
+        padding-top:var(--s5);border-top:var(--line)}
+  .step .num{font-family:var(--font-mono);font-size:var(--step-1);color:var(--ochre)}
+  .step h3{font-size:var(--step-1);margin-bottom:var(--s2)}
+  .step p{margin:0;color:var(--ink-200);max-width:62ch}
+  @media (max-width:640px){.step{grid-template-columns:1fr;gap:var(--s2)}}
+
+  /* ---------- features: three panels, deliberately unequal ---------- */
+  .features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);margin-top:var(--s8)}
+  @media (max-width:900px){.features{grid-template-columns:1fr}}
+  .feat{border:var(--line);border-radius:var(--r-md);padding:var(--s6) var(--s5);background:var(--ink-850);
+        transition:border-color var(--mid) var(--ease)}
+  .feat:hover{border-color:var(--ink-400)}
+  .feat h3{font-size:var(--step-1);margin-bottom:var(--s3)}
+  .feat p{margin:0;color:var(--ink-200);font-size:var(--step-0)}
+  .feat .tag{font-family:var(--font-mono);font-size:0.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);display:block;margin-bottom:var(--s4)}
+  .feat pre{
+    font-family:var(--font-mono);font-size:var(--step--1);margin:var(--s4) 0 0;padding:var(--s3);
+    background:var(--ink-900);border:var(--line);border-radius:var(--r-sm);color:var(--ink-200);overflow-x:auto
+  }
+  .feat pre .k{color:var(--ochre)}
+  .feat ul{margin:var(--s4) 0 0;padding-left:1.2em;color:var(--ink-200)}
+  .feat li + li{margin-top:var(--s2)}
+
+  /* ---------- sign up ---------- */
+  .signup{border-top:var(--line);background:var(--ink-850)}
+  .signup-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s8);align-items:start}
+  @media (max-width:900px){.signup-grid{grid-template-columns:1fr;gap:var(--s6)}}
+  form{margin-top:var(--s2)}
+  .field{display:grid;gap:var(--s2);margin-bottom:var(--s5)}
+  label{font-family:var(--font-mono);font-size:var(--step--1);color:var(--ink-100)}
+  .hint{font-family:var(--font-mono);font-size:0.75rem;color:var(--ink-400)}
+  input{
+    font-family:var(--font-mono);font-size:var(--step-0);color:var(--ink-100);
+    background:var(--ink-900);border:1px solid var(--ink-600);border-radius:var(--r-sm);
+    min-height:44px;padding:0 var(--s3);transition:border-color var(--fast) var(--ease)
+  }
+  input:hover{border-color:var(--ink-400)}
+  input::placeholder{color:var(--ink-400)}
+  input:user-invalid{border-color:var(--rust)}
+  .err{font-family:var(--font-mono);font-size:0.75rem;color:var(--rust);display:none}
+  input:user-invalid ~ .err{display:block}
+  .form-note{font-family:var(--font-mono);font-size:0.75rem;color:var(--ink-400);margin-top:var(--s4)}
+  .roster{border:var(--line);border-radius:var(--r-md);background:var(--ink-900)}
+  .roster h3{font-size:var(--step-0);padding:var(--s4);border-bottom:var(--line);color:var(--ink-200);font-weight:400}
+  .roster ol{list-style:none;margin:0;padding:0;font-family:var(--font-mono);font-size:var(--step--1)}
+  .roster li{display:flex;justify-content:space-between;gap:var(--s4);padding:var(--s3) var(--s4)}
+  .roster li + li{border-top:var(--line)}
+  .roster .lang{color:var(--ink-400)}
+  .roster .n{color:var(--teal)}
+
+  footer{border-top:var(--line);padding:var(--s6) 0;font-family:var(--font-mono);font-size:var(--step--1);color:var(--ink-400)}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:var(--s5);justify-content:space-between}
+  footer a{color:var(--ink-200);border:0}
+  footer a:hover{color:var(--ochre)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="logo" href="#top">stream<b>forge</b></a>
+    <nav class="navlinks" aria-label="Main">
+      <a href="#watch">Browse streams</a>
+      <a href="#how">How it works</a>
+      <a href="#forking">Forking</a>
+      <a href="#signup">Start a stream</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="live"><span class="dot" aria-hidden="true"></span> 412 sessions live right now</p>
+        <h1>Watch the prompt, the reply, and the <em>diff</em> land.</h1>
+        <p class="lede">Streamforge broadcasts a developer's whole loop: what they asked the model, what it wrote back, and every line that hit the repo. Fork any session and pick up where they left off.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#signup">Claim your handle</a>
+          <a class="btn btn-ghost" href="#watch">Watch a session</a>
+        </div>
+        <p class="meta">No card. No invite queue. Streams are public by default.</p>
+      </div>
+
+      <!-- signature element: the live session panel -->
+      <div class="panel" id="watch" aria-label="Live session preview">
+        <div class="panel-bar">
+          <span class="who">@rosaline / rate-limiter</span>
+          <span class="viewers">1,284 watching · 00:41:07</span>
+        </div>
+        <div class="pane">
+          <p class="pane-label">Prompt</p>
+          <p class="prompt">the bucket refills too fast under burst load. make refill monotonic and clamp to capacity</p>
+        </div>
+        <div class="pane">
+          <p class="pane-label">Model</p>
+          <p class="model">Wall clock drifts backwards on NTP correction, so refill can double-credit. Switching to a monotonic source and clamping<span class="caret" aria-hidden="true"></span></p>
+        </div>
+        <div class="pane">
+          <p class="pane-label">limiter/bucket.go</p>
+          <div class="diff">
+<div class="del"><span class="n">61</span><span class="m">-</span><span>  now := time.Now()</span></div>
+<div class="add"><span class="n">61</span><span class="m">+</span><span>  now := b.clock.Monotonic()</span></div>
+<div><span class="n">62</span><span class="m"> </span><span>  gap := now.Sub(b.last)</span></div>
+<div class="add"><span class="n">63</span><span class="m">+</span><span>  if gap &lt; 0 { gap = 0 }</span></div>
+<div><span class="n">64</span><span class="m"> </span><span>  b.tokens += gap.Seconds() * b.rate</span></div>
+<div class="add"><span class="n">65</span><span class="m">+</span><span>  b.tokens = math.Min(b.tokens, b.cap)</span></div>
+          </div>
+        </div>
+        <div class="panel-foot">
+          <span>fork this repo</span><span>147 forks</span><span>go 1.23</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How a session runs</h2>
+        <p>Four stages, in order. You install one thing and the rest is the work you were going to do anyway.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="num" aria-hidden="true">01</span>
+          <div>
+            <h3>Attach the recorder</h3>
+            <p>A small process sits between your editor, your assistant, and your repo. It reads the prompt log and the working tree. It does not read your shell history or your environment file.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="num" aria-hidden="true">02</span>
+          <div>
+            <h3>Go live</h3>
+            <p>Three panes go out together: what you typed, what the model returned, and the diff as it applies. Viewers scrub back through any of them without losing the live edge.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="num" aria-hidden="true">03</span>
+          <div>
+            <h3>Field the room</h3>
+            <p>Chat messages can carry a file path and line number. Click one and the panel jumps there. Good suggestions get promoted into your prompt queue with one keystroke.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="num" aria-hidden="true">04</span>
+          <div>
+            <h3>Leave something behind</h3>
+            <p>When you stop, the session freezes into a repository at the exact commit you ended on, with the prompt transcript stored alongside it. Anyone can fork both.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section id="forking">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>What you get that a screen recording cannot give you</h2>
+      </div>
+      <div class="features">
+        <article class="feat">
+          <span class="tag">Fork</span>
+          <h3>Take the tree, not a video</h3>
+          <p>Every stream is a real repository with real history. Fork at the live head or at any earlier moment and start from there.</p>
+          <pre><span class="k">$</span> sf fork rosaline/rate-limiter --at 00:38:12
+cloning 214 commits + 61 prompts
+<span class="k">→</span> ready in ./rate-limiter</pre>
+        </article>
+        <article class="feat">
+          <span class="tag">Transcript</span>
+          <h3>Searchable prompt history</h3>
+          <p>Prompts are indexed as text next to the diff they produced, so you can look up how a problem was actually phrased.</p>
+          <ul>
+            <li>Search by prompt, file, or model</li>
+            <li>Jump from a diff line to the prompt that wrote it</li>
+            <li>Export a session as a plain markdown log</li>
+          </ul>
+        </article>
+        <article class="feat">
+          <span class="tag">Boundaries</span>
+          <h3>Redaction you can trust</h3>
+          <p>Path and pattern rules are enforced in the recorder before anything leaves your machine, and the stream shows a marker where content was withheld.</p>
+          <pre>redact:
+  - "**/.env*"
+  - "**/secrets/**"
+  - /sk-[A-Za-z0-9]{20,}/</pre>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="signup" id="signup">
+    <div class="wrap signup-grid">
+      <div>
+        <div class="sec-head">
+          <h2>Start streaming this week</h2>
+          <p>Reserve a handle and we will send the recorder plus a setup walkthrough. First broadcast usually takes about ten minutes to get going.</p>
+        </div>
+        <form action="#signup" method="post" novalidate>
+          <div class="field">
+            <label for="handle">Handle you want</label>
+            <input id="handle" name="handle" type="text" required pattern="[a-z0-9_-]{3,20}" placeholder="rosaline" autocomplete="username" aria-describedby="handle-hint handle-err">
+            <span class="hint" id="handle-hint">Lowercase letters, numbers, dash, underscore. 3 to 20 characters.</span>
+            <span class="err" id="handle-err">That handle uses characters we cannot route. Try letters, numbers, dash, or underscore.</span>
+          </div>
+          <div class="field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" type="email" required placeholder="you@company.dev" autocomplete="email" aria-describedby="email-err">
+            <span class="err" id="email-err">Check the address. We need a full email to send the recorder.</span>
+          </div>
+          <button class="btn" type="submit">Reserve the handle</button>
+          <p class="form-note">One setup email, then nothing until you go live. Unsubscribe in a click.</p>
+        </form>
+      </div>
+
+      <div class="roster" aria-labelledby="roster-h">
+        <h3 id="roster-h">Live in the last hour</h3>
+        <ol>
+          <li><span>@dmitri / parser rewrite</span><span class="lang">rust</span><span class="n">3.1k</span></li>
+          <li><span>@hana / flaky test hunt</span><span class="lang">python</span><span class="n">890</span></li>
+          <li><span>@obi / shader pipeline</span><span class="lang">wgsl</span><span class="n">2.4k</span></li>
+          <li><span>@marguerite / migration 0042</span><span class="lang">sql</span><span class="n">512</span></li>
+          <li><span>@tobin / cli refactor</span><span class="lang">go</span><span class="n">1.7k</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Streamforge, Portland OR</span>
+    <nav aria-label="Footer">
+      <a href="#watch">Browse streams</a> ·
+      <a href="#forking">Forking</a> ·
+      <a href="#signup">Start a stream</a> ·
+      <a href="#top">Status</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge | Live AI-Assisted Development</title>
+<style>
+  :root {
+    /* Colors - Dark Editor Theme */
+    --bg-base: #09090b;
+    --bg-surface: #18181b;
+    --bg-surface-hover: #27272a;
+    --border-subtle: #27272a;
+    --border-focus: #52525b;
+    
+    /* Text */
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    
+    /* Accent - Terminal Gold/Yellow instead of generic AI purple */
+    --accent-base: #eab308;
+    --accent-hover: #ca8a04;
+    --accent-text: #000000;
+    
+    /* Syntax Highlighting */
+    --code-green: #4ade80;
+    --code-blue: #60a5fa;
+    --code-dim: #52525b;
+
+    /* Typography */
+    --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-24: 96px;
+    
+    /* Radii - Sharp, structural */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+  }
+
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  /* Focus States */
+  :focus:not(:focus-visible) { outline: none; }
+  :focus-visible {
+    outline: 2px solid var(--accent-base);
+    outline-offset: 2px;
+  }
+
+  /* Typography */
+  h1, h2, h3 {
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  
+  h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+  h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+  h3 { font-size: 1.25rem; }
+  
+  p {
+    color: var(--text-secondary);
+    max-width: 65ch;
+  }
+  
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  /* Layout */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+  }
+  
+  header {
+    padding: var(--space-6) 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  
+  .logo::before {
+    content: ">_";
+    color: var(--accent-base);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 100ms ease;
+    border: none;
+  }
+  
+  .btn:active {
+    transform: translateY(1px);
+  }
+  
+  .btn-primary {
+    background-color: var(--accent-base);
+    color: var(--accent-text);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--accent-hover);
+  }
+  
+  .btn-secondary {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--border-focus);
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: var(--space-24) 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+  
+  @media (min-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  /* Editor/Terminal Window */
+  .editor-window {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .editor-header {
+    display: flex;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .editor-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--border-focus);
+  }
+
+  .editor-tab {
+    margin-left: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .editor-body {
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  
+  .code-prompt { color: var(--text-secondary); margin-bottom: var(--space-4); }
+  .code-prompt::before { content: "User: "; color: var(--code-blue); }
+  .code-addition { color: var(--code-green); }
+  .code-addition::before { content: "+ "; color: var(--code-dim); }
+  .code-line::before { content: "  "; }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1em;
+    background-color: var(--accent-base);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* How It Works */
+  .section {
+    padding: var(--space-24) 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .section-header {
+    margin-bottom: var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .steps-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .step-number {
+    font-family: var(--font-mono);
+    color: var(--accent-base);
+    font-size: 0.875rem;
+  }
+
+  /* Features */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .features-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .feature-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: var(--space-24) 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  footer {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo">Streamforge</div>
+    <nav>
+      <a href="#login" class="btn btn-secondary">Sign in</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <span class="label">Live Broadcasts</span>
+        <h1>Watch software build itself.</h1>
+        <p>The streaming platform for AI-assisted development. See the exact prompts engineers use, watch the model generate logic in real time, and fork the repository at any commit.</p>
+        <div class="hero-actions">
+          <a href="#signup" class="btn btn-primary">Start watching</a>
+          <a href="#docs" class="btn btn-secondary">Read the docs</a>
+        </div>
+      </div>
+      
+      <div class="editor-window">
+        <div class="editor-header">
+          <div class="editor-dot"></div>
+          <div class="editor-dot"></div>
+          <div class="editor-dot"></div>
+          <div class="editor-tab">app/api/route.ts</div>
+        </div>
+        <div class="editor-body">
+<div class="code-prompt">Refactor the auth handler to use Edge runtime and validate the session token.</div>
+<div class="code-line">export const runtime = 'edge';</div>
+<div class="code-line"> </div>
+<div class="code-line">export async function POST(req: Request) {</div>
+<div class="code-addition">  const token = req.headers.get('Authorization');</div>
+<div class="code-addition">  if (!token || !await verifyJWT(token)) {</div>
+<div class="code-addition">    return new Response('Unauthorized', { status: 401 });</div>
+<div class="code-addition">  }</div>
+<div class="code-addition">  <span class="cursor"></span></div>
+<div class="code-line">}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it Works -->
+    <section class="section">
+      <div class="section-header">
+        <span class="label">The Loop</span>
+        <h2>From prompt to production.</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number">[01] Observe</div>
+          <h3>Watch the context</h3>
+          <p>See exactly which files the streamer selects as context and how they formulate constraints before they hit submit.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">[02] Analyze</div>
+          <h3>Review the diffs</h3>
+          <p>As the AI assistant streams output, watch the streamer accept, reject, or manually refactor the proposed architecture.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">[03] Build</div>
+          <h3>Fork the state</h3>
+          <p>Every stream is bound to a live Git repository. Click a button to fork the codebase at the exact moment you are watching.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+      <div class="section-header">
+        <span class="label">Platform Primitives</span>
+        <h2>Built for technical context.</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="mono" style="color: var(--text-primary);">Editor Integration</span>
+          <p>Broadcasters stream directly from VS Code or Cursor using our CLI. No screen capture overhead, just raw file state.</p>
+        </div>
+        <div class="feature-card">
+          <span class="mono" style="color: var(--text-primary);">Interactive Transcripts</span>
+          <p>Every prompt and AI response is indexed. Search a stream's history to find exactly how they solved a specific bug.</p>
+        </div>
+        <div class="feature-card">
+          <span class="mono" style="color: var(--text-primary);">Audience Forks</span>
+          <p>Viewers can spin up a cloud environment of the streamer's code with one click, running on the same dependencies.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Ready to see how the best engineers use AI?</h2>
+      <p>Join thousands of developers watching, learning, and building live.</p>
+      <a href="#signup" class="btn btn-primary">Create an account</a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="logo">Streamforge</div>
+    <div class="mono">© 2024. All systems operational.</div>
+  </footer>
+</div>
+
+</body>
+</html>

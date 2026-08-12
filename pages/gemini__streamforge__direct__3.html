@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAMFORGE // LIVE AI DEVELOPMENT</title>
+    <style>
+        :root {
+            --acid-green: #ccff00;
+            --cyan: #00ffff;
+            --magenta: #ff00ff;
+            --bg-color: #050505;
+            --grid-color: #1a1a1a;
+            --mono: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+            --sans: "Arial Black", Impact, "Franklin Gothic Heavy", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: var(--mono);
+            line-height: 1.5;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+        }
+
+        /* CRT Scanline Effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--sans);
+            text-transform: uppercase;
+            font-weight: 900;
+            line-height: 0.9;
+        }
+
+        a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--magenta);
+            background: var(--cyan);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Nav */
+        header {
+            border-bottom: 2px solid var(--acid-green);
+            padding: 20px 0;
+            background: #000;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--sans);
+            font-size: 2rem;
+            color: var(--acid-green);
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 0 var(--magenta);
+        }
+
+        .btn {
+            background: #000;
+            color: var(--acid-green);
+            border: 2px solid var(--acid-green);
+            padding: 10px 20px;
+            font-family: var(--sans);
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--acid-green);
+            transition: all 0.1s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--magenta);
+            border-color: var(--magenta);
+            color: var(--magenta);
+        }
+
+        /* Marquee */
+        .marquee {
+            background: var(--acid-green);
+            color: #000;
+            font-weight: bold;
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: 2px solid #000;
+            font-family: var(--mono);
+        }
+
+        .marquee span {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 6rem;
+            color: #fff;
+            letter-spacing: -4px;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px var(--cyan), -4px -4px 0px var(--magenta);
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--magenta);
+            padding-left: 20px;
+            color: #ccc;
+        }
+
+        .hero-window {
+            border: 2px solid var(--cyan);
+            background: #000;
+            box-shadow: 10px 10px 0 var(--cyan);
+            position: relative;
+        }
+
+        .window-header {
+            background: var(--cyan);
+            color: #000;
+            padding: 5px 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .window-body {
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .prompt { color: var(--magenta); }
+        .code { color: var(--acid-green); }
+
+        /* How it Works */
+        .how-it-works {
+            padding: 80px 0;
+            border-top: 2px solid var(--magenta);
+            background: #050505;
+        }
+
+        .section-title {
+            font-size: 4rem;
+            margin-bottom: 60px;
+            color: var(--magenta);
+            text-shadow: 3px 3px 0 #fff;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .step {
+            border: 2px solid #fff;
+            padding: 30px;
+            background: #000;
+            position: relative;
+        }
+
+        .step-num {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            background: var(--magenta);
+            color: #000;
+            font-family: var(--sans);
+            font-size: 2rem;
+            padding: 5px 15px;
+            border: 2px solid #fff;
+        }
+
+        .step h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+            background: var(--acid-green);
+            color: #000;
+            border-top: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+        }
+
+        .features .section-title {
+            color: #000;
+            text-shadow: 3px 3px 0 #fff;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 30px;
+            box-shadow: 8px 8px 0 #fff;
+        }
+
+        .feature-card h3 {
+            color: var(--acid-green);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        /* CTA */
+        .cta {
+            padding: 120px 0;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 5rem;
+            color: var(--cyan);
+            text-shadow: 4px 4px 0 var(--magenta);
+            margin-bottom: 40px;
+        }
+
+        .signup-form {
+            display: flex;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .signup-form input[type="email"] {
+            flex-grow: 1;
+            background: #000;
+            border: 2px solid var(--cyan);
+            color: #fff;
+            font-family: var(--mono);
+            font-size: 1.2rem;
+            padding: 15px;
+            outline: none;
+        }
+
+        .signup-form input[type="email"]:focus {
+            background: #111;
+            border-color: var(--acid-green);
+        }
+
+        .signup-form .btn {
+            box-shadow: none;
+            border-left: none;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 2px solid var(--grid-color);
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; }
+            .hero-content h1 { font-size: 4rem; }
+            .steps, .feature-grid { grid-template-columns: 1fr; }
+            .cta h2 { font-size: 3rem; }
+            .signup-form { flex-direction: column; }
+            .signup-form .btn { border-left: 2px solid var(--acid-green); margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-inner">
+            <div class="logo">STREAMFORGE</div>
+            <nav>
+                <button class="btn">GOTO /_LOGIN</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="marquee">
+        <span>LIVE: [0x7F] Building AGI in Rust // FORKS: 1,402 // LIVE: [ZER0_DAY] Refactoring microservices with GPT-4 // FORKS: 890 // COMMITS_IN_LAST_HOUR: 12,455 //</span>
+    </div>
+
+    <section class="hero">
+        <div class="container hero">
+            <div class="hero-content">
+                <h1>WATCH.<br>PROMPT.<br>FORK.</h1>
+                <p>Observe the machine. The first live-streaming platform for developers building software in real-time with AI assistants. No cuts. No edits. Raw friction.</p>
+                <button class="btn" style="font-size: 1.5rem; padding: 15px 30px;">INITIALIZE_SESSION</button>
+            </div>
+            
+            <div class="hero-window">
+                <div class="window-header">
+                    <span>stream_obs.exe</span>
+                    <span>[ _ ] [ X ]</span>
+                </div>
+                <div class="window-body">
+                    <div class="prompt">
+                        > PROMPT_INPUT: "Write a WebSocket server in Go that broadcasts incoming messages to all connected clients. Use channels for concurrency."
+                    </div>
+                    <br>
+                    <div>AI_MODEL: Generating response...</div>
+                    <br>
+                    <div class="code">
+                        package main<br>
+                        import (<br>
+                        &nbsp;&nbsp;"log"<br>
+                        &nbsp;&nbsp;"net/http"<br>
+                        &nbsp;&nbsp;"github.com/gorilla/websocket"<br>
+                        )<br>
+                        // STREAMFORGE_HOOK: Fork state captured at line 14.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">EXECUTION_FLOW</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <h3>OBSERVE THE PROMPT</h3>
+                    <p>Watch streamers input architecture queries, debug logs, and raw requirements into their AI models in real time.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <h3>WATCH THE BUILD</h3>
+                    <p>See the model's output stream into the IDE. Watch the developer accept, reject, or fight the generated code.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <h3>FORK THE STATE</h3>
+                    <p>Hit the fork button to instantly clone the streamer's entire repository and local environment state to your machine.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">SYSTEM_SPECS</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>SPLIT-SCREEN CONTEXT</h3>
+                    <p>The UI exposes both the streamer's IDE and the AI's internal context window. See exactly what data the model is chewing on.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>INSTANT SNAPSHOTS</h3>
+                    <p>Every keystroke is versioned. Viewers can fork the stream's codebase at any exact timestamp without missing a beat.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>RAW OUTPUT</h3>
+                    <p>No polished tutorials. Watch senior engineers troubleshoot AI hallucinations and architecture bottlenecks live on stream.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>JOIN THE BETA_</h2>
+            <form class="signup-form" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="ENTER_EMAIL_ADDRESS..." required>
+                <button type="submit" class="btn">REQUEST_ACCESS</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>STREAMFORGE © 2024 // ACID_TECH_BRUTALISM // END_OF_FILE</p>
+        </div>
+    </footer>
+
+</body>
+</html>

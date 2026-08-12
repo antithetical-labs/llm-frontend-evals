@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | The Operations Hub for Full-Time Creators</title>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-hover: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --accent-secondary: #10b981;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: var(--accent-primary);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--surface-hover);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--surface-hover);
+            transform: translateY(0);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            color: var(--accent-secondary);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+        }
+
+        .hero-image-placeholder {
+            margin-top: 60px;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-hover);
+            border-radius: 16px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background-image: linear-gradient(var(--surface-color), #0f172a);
+        }
+
+        /* How it Works */
+        .how-it-works {
+            padding: 80px 0;
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--surface-hover);
+            border-bottom: 1px solid var(--surface-hover);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 2.25rem;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background-color: var(--accent-primary);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 16px auto;
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+        }
+
+        .feature-block {
+            display: flex;
+            align-items: center;
+            gap: 64px;
+            margin-bottom: 100px;
+        }
+
+        .feature-block:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .feature-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-content h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .feature-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .feature-visual {
+            flex: 1;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-hover);
+            border-radius: 12px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--surface-color) 0%, #1e1b4b 100%);
+            border-top: 1px solid var(--surface-hover);
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            border-top: 1px solid var(--surface-hover);
+            font-size: 0.9rem;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .feature-block, .feature-block:nth-child(even) {
+                flex-direction: column;
+                gap: 32px;
+                text-align: center;
+            }
+            .feature-visual {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="2" y1="7" x2="7" y2="7"></line>
+                <line x1="2" y1="17" x2="7" y2="17"></line>
+                <line x1="17" y1="17" x2="22" y2="17"></line>
+                <line x1="17" y1="7" x2="22" y2="7"></line>
+            </svg>
+            Backlot
+        </div>
+        <nav>
+            <a href="#signup" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.9rem;">Get Early Access</a>
+        </nav>
+    </header>
+
+    <section class="hero container">
+        <h1>Run your creator business <br><span>like a production studio.</span></h1>
+        <p>You make videos, not spreadsheets. Backlot consolidates your brand deals, invoices, deadlines, and multi-platform payouts in one simple dashboard.</p>
+        <a href="#signup" class="btn" style="font-size: 1.1rem; padding: 16px 32px;">Start Organizing for Free</a>
+        
+        <div class="hero-image-placeholder">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--surface-hover)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            <span style="margin-left: 16px; font-weight: 500;">Interactive Dashboard Preview</span>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Backlot Works</h2>
+                <p>Designed for solo creators. Zero finance degree required.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Drop your contracts</h3>
+                    <p>Upload a brand deal contract. Backlot automatically extracts deliverables, rates, and terms.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Track the deadlines</h3>
+                    <p>We automatically add script approvals and posting dates to your content calendar.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Get paid on time</h3>
+                    <p>Send automated invoices and track exactly when Net-30 hits. Never chase a payment again.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features container">
+        <div class="feature-block">
+            <div class="feature-content">
+                <h2>All your brand deals in one view</h2>
+                <p>Stop searching through your inbox for that one email from a sponsor. Backlot keeps every contract, brief, and brand contact organized by project. You always know what is due, when it's due, and exactly what you agreed to.</p>
+            </div>
+            <div class="feature-visual">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-content">
+                <h2>Invoicing on autopilot</h2>
+                <p>Generate clean, professional invoices the second a video goes live. Backlot tracks Net-15, Net-30, and Net-60 terms and sends polite follow-up emails for you when brands are late paying.</p>
+            </div>
+            <div class="feature-visual">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path></svg>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-content">
+                <h2>Per-platform payout tracking</h2>
+                <p>YouTube AdSense, TikTok Creator Fund, Patreon, and Twitch subs—monitor all your revenue streams in a single dashboard. Actually understand your month-to-month cash flow without opening a spreadsheet.</p>
+            </div>
+            <div class="feature-visual">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+            </div>
+        </div>
+    </section>
+
+    <section id="signup" class="cta">
+        <div class="container">
+            <h2>Stop chasing payments. Start creating.</h2>
+            <p>Join thousands of full-time creators treating their channels like the real businesses they are.</p>
+            <form style="display: flex; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="Enter your email" required style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--surface-hover); background: var(--bg-color); color: white; font-size: 1rem; outline: none;">
+                <button type="submit" class="btn">Get Access</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Backlot Operations Inc. Built for creators.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

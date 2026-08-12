@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot — The production office for your creator business</title>
+<style>
+  :root {
+    --paper: #f3efe6;
+    --paper-deep: #e9e3d5;
+    --ink: #1c1915;
+    --ink-soft: #57503f;
+    --rec: #d5402b;
+    --rec-deep: #b02f1e;
+    --line: #1c1915;
+    --stripe-a: #1c1915;
+    --stripe-b: #f3efe6;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--rec); color: var(--paper); }
+
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- clapper stripe ---------- */
+  .clapper {
+    height: 1.125rem;
+    background: repeating-linear-gradient(
+      -55deg,
+      var(--stripe-a) 0, var(--stripe-a) 1.75rem,
+      var(--stripe-b) 1.75rem, var(--stripe-b) 3.5rem
+    );
+  }
+
+  /* ---------- nav ---------- */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 0;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .brand .dot {
+    width: 0.625rem; height: 0.625rem;
+    border-radius: 50%;
+    background: var(--rec);
+    display: inline-block;
+  }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .nav-links a:hover { color: var(--rec); }
+  .nav-links a:focus-visible,
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--rec);
+    outline-offset: 3px;
+  }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--paper) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+  }
+  .nav-cta:hover { background: var(--rec); color: var(--paper) !important; }
+  @media (max-width: 40rem) { .nav-links a:not(.nav-cta) { display: none; } }
+
+  /* ---------- hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
+    align-items: center;
+    padding: 5rem 0 6rem;
+  }
+  @media (max-width: 56rem) {
+    .hero { grid-template-columns: 1fr; gap: 3rem; padding: 3rem 0 4rem; }
+  }
+
+  .slate-tag {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.125rem;
+    margin-bottom: 1.75rem;
+  }
+  .slate-tag em { color: var(--rec); font-style: normal; }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 5.5vw, 4rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.5rem;
+  }
+  h1 .rec { color: var(--rec); }
+
+  .hero p.lede {
+    font-size: 1.1875rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 34rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.25rem;
+    border: 2px solid var(--ink);
+    transition: background 150ms ease-out, color 150ms ease-out, transform 150ms ease-out;
+    display: inline-block;
+  }
+  .btn-primary { background: var(--rec); border-color: var(--rec); color: var(--paper); }
+  .btn-primary:hover { background: var(--rec-deep); border-color: var(--rec-deep); transform: translateY(-2px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-ghost { color: var(--ink); background: transparent; }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  /* ---------- hero slate card ---------- */
+  .slate-card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 0.375rem;
+    box-shadow: 0.5rem 0.5rem 0 var(--ink);
+    overflow: hidden;
+    transform: rotate(1.5deg);
+  }
+  .slate-card .clapper { height: 1.5rem; }
+  .slate-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1.25rem 1.5rem 0.75rem;
+    border-bottom: 1px solid var(--paper-deep);
+  }
+  .slate-head .scene {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .slate-head .due {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--rec);
+    font-weight: 700;
+  }
+  .slate-body { padding: 1.25rem 1.5rem 1.5rem; }
+  .slate-body h3 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+  .slate-body .brand-name {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    margin-bottom: 1.25rem;
+  }
+  .slate-rows { display: grid; gap: 0.625rem; }
+  .slate-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #c9c2b0;
+  }
+  .slate-row:last-child { border-bottom: none; }
+  .slate-row .k { color: var(--ink-soft); }
+  .slate-row .v { font-weight: 700; }
+  .slate-row .v.paid { color: #2e6b34; }
+  .slate-row .v.due { color: var(--rec); }
+
+  /* ---------- section chrome ---------- */
+  section { padding: 5rem 0; }
+  .section-head { margin-bottom: 3rem; max-width: 40rem; }
+  .scene-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rec);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .scene-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #c9c2b0;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .section-head p { color: var(--ink-soft); margin-top: 0.875rem; font-size: 1.0625rem; }
+
+  /* ---------- how it works ---------- */
+  .how { background: var(--paper-deep); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+  .takes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  @media (max-width: 48rem) { .takes { grid-template-columns: 1fr; } }
+  .take {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 0.375rem;
+    padding: 1.75rem;
+  }
+  .take .take-no {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.125rem;
+    margin-bottom: 1.25rem;
+  }
+  .take h3 {
+    font-family: var(--serif);
+    font-size: 1.375rem;
+    margin-bottom: 0.625rem;
+    line-height: 1.25;
+  }
+  .take p { color: var(--ink-soft); font-size: 0.9375rem; }
+
+  /* ---------- features ---------- */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  @media (max-width: 48rem) { .features-grid { grid-template-columns: 1fr; } }
+  .feature {
+    border-top: 3px solid var(--ink);
+    padding-top: 1.5rem;
+  }
+  .feature .glyph {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    color: var(--rec);
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .feature h3 {
+    font-family: var(--serif);
+    font-size: 1.375rem;
+    margin-bottom: 0.625rem;
+    line-height: 1.25;
+  }
+  .feature p { color: var(--ink-soft); font-size: 0.9375rem; margin-bottom: 1rem; }
+  .feature .mono-note {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-left: 3px solid var(--rec);
+    padding-left: 0.75rem;
+  }
+
+  /* ---------- cta ---------- */
+  .cta { padding: 0 0 6rem; }
+  .cta-card {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    text-align: center;
+  }
+  .cta-inner { padding: 4.5rem 2rem 4rem; }
+  .cta-card .scene-label { color: var(--rec); justify-content: center; }
+  .cta-card .scene-label::after { display: none; }
+  .cta-card h2 { color: var(--paper); margin-bottom: 1rem; }
+  .cta-card p {
+    color: #b9b2a2;
+    max-width: 32rem;
+    margin: 0 auto 2.5rem;
+    font-size: 1.0625rem;
+  }
+  .signup {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 30rem;
+    margin: 0 auto;
+  }
+  @media (max-width: 32rem) { .signup { flex-direction: column; } }
+  .signup input {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 0.9375rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.25rem;
+    border: 2px solid #4a4436;
+    background: #2a261f;
+    color: var(--paper);
+    min-width: 0;
+  }
+  .signup input::placeholder { color: #8a8272; }
+  .signup input:focus { border-color: var(--rec); outline: none; }
+  .signup .btn { border: none; cursor: pointer; white-space: nowrap; }
+  .cta-note {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: #8a8272;
+    margin-top: 1.25rem;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 2rem 0;
+  }
+  footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+    .btn-primary:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="clapper" role="presentation"></div>
+
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="brand" href="#"><span class="dot" aria-hidden="true"></span>Backlot</a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#signup" class="nav-cta">Get access</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <span class="slate-tag">Scene 01 <em>/</em> Your business, on the record</span>
+        <h1>Every deal, deadline, and dollar. <span class="rec">One slate.</span></h1>
+        <p class="lede">Backlot is the production office for full-time creators. Brand contracts, invoices, sponsor deliverables, and per-platform payouts live in one place, so you can spend your energy on the next video, not the next spreadsheet.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#signup">Start shooting</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+      </div>
+
+      <aside class="slate-card" aria-label="Example deal card">
+        <div class="clapper" role="presentation"></div>
+        <div class="slate-head">
+          <span class="scene">Deal / A-114</span>
+          <span class="due">Due in 6 days</span>
+        </div>
+        <div class="slate-body">
+          <h3>Spring Integration</h3>
+          <p class="brand-name">Northwind Coffee Co.</p>
+          <div class="slate-rows">
+            <div class="slate-row"><span class="k">Fee</span><span class="v">$4,800</span></div>
+            <div class="slate-row"><span class="k">Deliverables</span><span class="v">1 video · 2 shorts</span></div>
+            <div class="slate-row"><span class="k">Invoice</span><span class="v paid">Sent · Net 30</span></div>
+            <div class="slate-row"><span class="k">Sponsor cut</span><span class="v due">Awaiting approval</span></div>
+          </div>
+        </div>
+      </aside>
+    </header>
+  </div>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="scene-label">Scene 02 / How it works</p>
+        <h2>Three takes to a clean books.</h2>
+        <p>No accounting degree required. If you can read a call sheet, you can run Backlot.</p>
+      </div>
+      <div class="takes">
+        <article class="take">
+          <span class="take-no">Take 1</span>
+          <h3>Drop in the deal</h3>
+          <p>Forward a contract or paste the terms. Backlot pulls out the fee, deliverables, usage rights, and payment terms, and files it under the brand.</p>
+        </article>
+        <article class="take">
+          <span class="take-no">Take 2</span>
+          <h3>Track the work</h3>
+          <p>Each deliverable gets a deadline and a status. Approvals, revisions, and publish dates stay attached to the deal that pays for them.</p>
+        </article>
+        <article class="take">
+          <span class="take-no">Take 3</span>
+          <h3>Watch the money land</h3>
+          <p>Invoices go out on schedule. Payouts from YouTube, TikTok, Twitch, and sponsors roll up into one income view you can actually read.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="scene-label">Scene 03 / What's on the lot</p>
+        <h2>Built for creators, not CFOs.</h2>
+        <p>Everything speaks plain language. "Net 30" comes with a translation.</p>
+      </div>
+      <div class="features-grid">
+        <article class="feature">
+          <span class="glyph" aria-hidden="true">[##]</span>
+          <h3>Deal room</h3>
+          <p>Every brand deal in one board: terms, contacts, contracts, and deliverables. Search any brand and see the full history in seconds.</p>
+          <p class="mono-note">Contracts · Terms · Usage rights</p>
+        </article>
+        <article class="feature">
+          <span class="glyph" aria-hidden="true">[$_]</span>
+          <h3>Invoice autopilot</h3>
+          <p>Generate an invoice from any deal in one click. Backlot nags the brand, not you, when a payment runs late.</p>
+          <p class="mono-note">Net 15 / 30 / 45 · Late reminders</p>
+        </article>
+        <article class="feature">
+          <span class="glyph" aria-hidden="true">[&gt;_]</span>
+          <h3>Payout tracker</h3>
+          <p>Ad revenue, memberships, and platform payouts land in one ledger, split by platform and month. Tax season stops being a scavenger hunt.</p>
+          <p class="mono-note">YouTube · TikTok · Twitch · Sponsors</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="signup">
+    <div class="wrap">
+      <div class="cta-card">
+        <div class="clapper" role="presentation"></div>
+        <div class="cta-inner">
+          <p class="scene-label">Final scene / Roll credits on chaos</p>
+          <h2>Your channel is a business. Run it like one.</h2>
+          <p>Join the early access list. We onboard a new crew of creators every week, and setup takes less time than rendering a thumbnail.</p>
+          <form class="signup" action="#" method="post">
+            <label for="email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Email address</label>
+            <input type="email" id="email" name="email" placeholder="you@yourchannel.com" required autocomplete="email">
+            <button class="btn btn-primary" type="submit">Get early access</button>
+          </form>
+          <p class="cta-note">Free while in beta · No card required</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>Backlot · A production office for creators</p>
+      <p>© 2025 · Fin</p>
+    </div>
+  </footer>
+
+</body>
+</html>

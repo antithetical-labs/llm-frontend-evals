@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# secrets
+.env
+
+.DS_Store
+
+# Screenshots are 325 MB and fully derivable: `python -m house_style.extract`
+# re-renders them from pages/. Everything else the post cites is committed.
+shots/
+
+generate.log
+.generate.lock

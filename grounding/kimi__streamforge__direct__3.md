@@ -1,0 +1,21 @@
+## Grounding the Aesthetic: Acid Design for Streamforge
+
+Acid design comes out of 90s rave flyers and early web anarchism, and its modern revival borrows from Y2K internet culture, brutalism, glitch art, and cyberpunk interfaces. For Streamforge — a product about watching code get written live — this is a near-perfect fit, because the content itself is screens, terminals, and machine output. The aesthetic should feel like the platform is *made of* the thing it broadcasts.
+
+**Palette.** The foundation is near-black — not pure #000, but a deep digital charcoal with a faint blue or green undertone, like a monitor in a dark room. Against it, one dominant acid color does the heavy lifting: electric chartreuse/lime green (that unmistakable #CCFF00–#B4FF00 range). This is the signature — it reads as phosphor, as terminal cursor, as toxic, as energy. Supporting accents should be used sparingly and at full saturation: a hot magenta or acid purple for secondary states, and maybe a cold cyan for "live" indicators. No pastels, no muted gradients, no corporate blue. Contrast should be violent — the palette rejects subtlety and tasteful desaturation. Everything either glows or it recedes into black.
+
+**Typography.** Two typefaces in tension. Headings use a bold, condensed, industrial grotesque — something like Neue Haas, Druk, or a wide techno display face — set huge, often uppercase, sometimes stretched or compressed beyond polite proportions. Acid design treats type as a graphic object, not a container for reading: headlines can overlap images, sit sideways, break across lines mid-word. The second face is a monospace — essential here, since the product is literally code. Mono text is used not just for code snippets but for labels, metadata, timestamps, viewer counts: "STREAM_ID: 0x4F2A", "WATCHERS: 1,847", "FORK // 12ms". This blurs UI and content, which is exactly the point. Small text is set in all caps with wide tracking, like system readouts.
+
+**Texture and ornament.** The surface language borrows from degraded digital media: scanlines, dithering, halftone noise, chromatic aberration on hover, CRT flicker, pixelation. Barcode strips, QR-adjacent squares, ASCII-art borders, and wireframe grids appear as decoration. Glitch effects — RGB channel splitting, sliced-and-offset text — should be reserved for moments of emphasis, not constant, or the page becomes unreadable noise. Borders are thin, harsh, often 1px in acid green, framing sections like terminal windows. Rounded corners are mostly rejected; where they appear they should be extremely tight (2–4px) — acid design favors hard geometry. Chrome/metallic gradients and liquid-metal blobs are acceptable as rare accents (the Y2K inheritance), but on a developer-facing page, restraint keeps it credible.
+
+**Layout logic.** Acid design rejects the centered, airy, evenly-spaced SaaS template. Layout should feel like a dense dashboard or a zine: an asymmetric grid with visible rules and dividers, sections that butt against each other, overlapping layers, elements bleeding off the viewport edge. Whitespace exists but it's *black* space — void, not air. Marquee tickers scrolling stream stats, sticky HUD-like headers, and numbered section markers ("01 // WATCH", "02 // FORK") give it a system-manual-meets-rave-flyer rhythm. Content blocks should look like panels in a broadcast control room.
+
+**What it borrows from:** rave flyer maximalism, terminal/TUI interfaces, VHS and CRT decay, early-2000s web experimentation, broadcast graphics (lower-thirds, LIVE badges, timecode).
+
+**What it rejects:** soft shadows, glassmorphism, friendly illustration, pastel gradients, generous padding, centered hero-with-two-buttons symmetry, anything that reads as "trustworthy enterprise SaaS."
+
+**The tension to manage:** the audience is working developers, so underneath the chaos, the information hierarchy must be ruthlessly clear. Acid design gives permission to be loud, but the live demo, the fork button, and the stream schedule must be findable in under a second. Chaos in the texture; discipline in the structure.
+
+---
+
+Want me to proceed to the HTML build on this foundation?

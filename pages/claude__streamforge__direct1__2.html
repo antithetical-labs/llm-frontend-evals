@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAMFORGE — watch software get built, live</title>
+<style>
+    :root{
+        --acid:#c8ff00;
+        --acid-dim:#8fb800;
+        --cyan:#00f0ff;
+        --magenta:#ff00a0;
+        --violet:#7b2bff;
+        --ink:#05060a;
+        --ink2:#0b0d14;
+        --line:rgba(200,255,0,.18);
+        --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+        --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+        background:var(--ink);
+        color:#e8ecf0;
+        font-family:var(--mono);
+        font-size:16px;
+        line-height:1.5;
+        overflow-x:hidden;
+        -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+        content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+        background:
+            linear-gradient(to right,var(--line) 1px,transparent 1px) 0 0/72px 72px,
+            linear-gradient(to bottom,var(--line) 1px,transparent 1px) 0 0/72px 72px;
+        opacity:.35;
+        mask-image:radial-gradient(circle at 50% 20%,#000 0%,transparent 75%);
+        -webkit-mask-image:radial-gradient(circle at 50% 20%,#000 0%,transparent 75%);
+    }
+    body::after{
+        content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
+        background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);
+        mix-blend-mode:overlay;opacity:.5;
+    }
+    .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 24px}
+
+    /* ---------- nav ---------- */
+    nav{
+        position:sticky;top:0;z-index:100;
+        backdrop-filter:blur(14px);
+        background:rgba(5,6,10,.72);
+        border-bottom:1px solid var(--line);
+    }
+    .nav-in{display:flex;align-items:center;gap:28px;height:64px}
+    .logo{
+        font-weight:800;font-size:15px;letter-spacing:.28em;text-transform:uppercase;
+        color:#fff;display:flex;align-items:center;gap:10px;white-space:nowrap;
+    }
+    .logo i{
+        width:11px;height:11px;background:var(--acid);border-radius:50%;
+        box-shadow:0 0 12px var(--acid),0 0 30px var(--acid);
+        animation:pulse 1.4s infinite;font-style:normal;
+    }
+    @keyframes pulse{50%{opacity:.25;transform:scale(.8)}}
+    .nav-links{display:flex;gap:26px;margin-left:auto;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+    .nav-links a{color:#8d95a3;text-decoration:none;transition:color .15s}
+    .nav-links a:hover{color:var(--acid)}
+    .btn{
+        display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;
+        letter-spacing:.16em;text-transform:uppercase;text-decoration:none;
+        padding:13px 22px;border:1px solid var(--acid);color:var(--ink);
+        background:var(--acid);cursor:pointer;
+        transition:transform .12s,box-shadow .18s,background .18s,color .18s;
+    }
+    .btn:hover{box-shadow:0 0 0 1px var(--acid),0 0 28px rgba(200,255,0,.55);transform:translateY(-2px)}
+    .btn.ghost{background:transparent;color:var(--acid)}
+    .btn.ghost:hover{background:rgba(200,255,0,.1)}
+    nav .btn{padding:10px 16px}
+
+    /* ---------- hero ---------- */
+    header{position:relative;padding:96px 0 80px;overflow:hidden}
+    .glow{
+        position:absolute;border-radius:50%;filter:blur(110px);opacity:.5;pointer-events:none;z-index:0;
+    }
+    .g1{width:620px;height:620px;background:var(--violet);top:-220px;left:-160px}
+    .g2{width:520px;height:520px;background:var(--magenta);top:60px;right:-180px;opacity:.35}
+    .g3{width:400px;height:400px;background:var(--cyan);bottom:-240px;left:38%;opacity:.25}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+    .tag{
+        display:inline-flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.2em;
+        text-transform:uppercase;color:var(--acid);border:1px solid var(--line);
+        padding:7px 12px;background:rgba(200,255,0,.05);margin-bottom:26px;
+    }
+    .tag b{color:#fff;font-weight:600}
+    h1{
+        font-family:var(--sans);font-weight:800;font-size:clamp(2.9rem,6.6vw,5.2rem);
+        line-height:.92;letter-spacing:-.035em;text-transform:uppercase;color:#fff;
+    }
+    h1 .acid{
+        background:linear-gradient(96deg,var(--acid),var(--cyan) 55%,var(--magenta));
+        -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    h1 .out{
+        color:transparent;-webkit-text-stroke:1.5px rgba(232,236,240,.6);
+    }
+    .sub{margin-top:26px;max-width:44ch;color:#9aa3b2;font-size:15px;line-height:1.75}
+    .sub b{color:#e8ecf0;font-weight:500}
+    .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+    .stats{display:flex;gap:34px;margin-top:46px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:24px}
+    .stat b{display:block;font-family:var(--sans);font-size:1.7rem;font-weight:800;letter-spacing:-.02em;color:var(--acid)}
+    .stat span{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#69707d}
+
+    /* ---------- fake stream window ---------- */
+    .screen{
+        border:1px solid rgba(200,255,0,.3);background:var(--ink2);
+        box-shadow:0 0 0 1px rgba(0,0,0,.6),0 30px 90px rgba(123,43,255,.28);
+        position:relative;
+    }
+    .screen-bar{
+        display:flex;align-items:center;gap:8px;padding:10px 12px;
+        border-bottom:1px solid var(--line);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#69707d;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:#2a2f3a}
+    .live{
+        margin-left:auto;color:#fff;background:var(--magenta);padding:3px 8px;font-weight:700;
+        letter-spacing:.16em;box-shadow:0 0 18px rgba(255,0,160,.6);
+    }
+    .panes{display:grid;grid-template-columns:1fr 1fr}
+    .pane{padding:16px;font-size:12px;line-height:1.85}
+    .pane+.pane{border-left:1px solid var(--line)}
+    .pane h4{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--acid);margin-bottom:10px;font-weight:700;font-family:var(--mono)}
+    .prompt{color:#c3cad6}
+    .prompt .caret{display:inline-block;width:7px;height:13px;background:var(--acid);vertical-align:-2px;animation:blink .9s steps(1) infinite}
+    @keyframes blink{50%{opacity:0}}
+    code.blk{display:block;white-space:pre;overflow:hidden;font-size:11.5px;line-height:1.75;color:#7f8899}
+    .k{color:var(--magenta)}.s{color:var(--acid)}.f{color:var(--cyan)}.c{color:#4a5160}
+    .diff{border-top:1px solid var(--line);padding:12px 16px;font-size:11.5px;display:flex;gap:18px;color:#69707d;flex-wrap:wrap}
+    .diff .plus{color:var(--acid)}.diff .minus{color:var(--magenta)}
+    .marquee{
+        border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+        background:var(--acid);color:var(--ink);overflow:hidden;white-space:nowrap;margin-top:80px;
+    }
+    .marquee div{display:inline-block;padding:10px 0;animation:slide 28s linear infinite;font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+    .marquee span{padding:0 22px}
+    @keyframes slide{to{transform:translateX(-50%)}}
+
+    /* ---------- sections ---------- */
+    section{padding:100px 0;position:relative}
+    .sec-head{margin-bottom:56px;max-width:60ch}
+    .eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+    h2{
+        font-family:var(--sans);font-weight:800;text-transform:uppercase;letter-spacing:-.03em;
+        font-size:clamp(2rem,4.2vw,3.2rem);line-height:.98;color:#fff;
+    }
+    h2 em{font-style:normal;color:var(--acid)}
+    .sec-head p{margin-top:18px;color:#8d95a3;font-size:14.5px}
+
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+    .step{background:var(--ink);padding:34px 28px 38px;position:relative;transition:background .2s}
+    .step:hover{background:#0e1119}
+    .step-n{
+        font-family:var(--sans);font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:-.05em;
+        color:transparent;-webkit-text-stroke:1.2px var(--acid-dim);margin-bottom:20px;
+    }
+    .step:hover .step-n{-webkit-text-stroke-color:var(--acid);text-shadow:0 0 40px rgba(200,255,0,.35)}
+    .step h3{font-family:var(--sans);font-size:1.15rem;text-transform:uppercase;letter-spacing:-.01em;color:#fff;margin-bottom:10px}
+    .step p{font-size:13px;color:#8d95a3;line-height:1.8}
+
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .card{
+        border:1px solid var(--line);padding:30px 26px 34px;background:
+            linear-gradient(180deg,rgba(200,255,0,.05),transparent 45%);
+        position:relative;overflow:hidden;transition:border-color .2s,transform .2s;
+    }
+    .card:hover{border-color:var(--acid);transform:translateY(-4px)}
+    .card::after{
+        content:"";position:absolute;inset:auto -40% -60% -40%;height:140px;
+        background:radial-gradient(ellipse at center,rgba(0,240,255,.22),transparent 70%);
+        opacity:0;transition:opacity .25s;
+    }
+    .card:hover::after{opacity:1}
+    .icon{
+        width:44px;height:44px;border:1px solid var(--acid);display:grid;place-items:center;
+        margin-bottom:22px;color:var(--acid);font-size:18px;font-weight:700;
+        box-shadow:inset 0 0 20px rgba(200,255,0,.12);
+    }
+    .card h3{font-family:var(--sans);font-size:1.3rem;text-transform:uppercase;color:#fff;margin-bottom:12px;letter-spacing:-.015em}
+    .card p{font-size:13px;color:#8d95a3;line-height:1.8}
+    .card ul{list-style:none;margin-top:18px;font-size:11.5px;letter-spacing:.06em}
+    .card li{padding:7px 0;border-top:1px dashed rgba(200,255,0,.16);color:#69707d}
+    .card li::before{content:"→ ";color:var(--acid)}
+
+    /* ---------- signup ---------- */
+    .signup{
+        border:1px solid var(--acid);padding:60px 48px;position:relative;overflow:hidden;
+        background:radial-gradient(120% 160% at 15% 0%,rgba(123,43,255,.35),transparent 60%),
+                   radial-gradient(100% 140% at 100% 100%,rgba(255,0,160,.28),transparent 60%),
+                   #07080d;
+    }
+    .signup h2{max-width:22ch}
+    .form{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;max-width:620px}
+    .form input{
+        flex:1 1 260px;background:rgba(0,0,0,.55);border:1px solid rgba(200,255,0,.35);
+        color:#fff;font-family:var(--mono);font-size:14px;padding:15px 16px;outline:none;
+    }
+    .form input::placeholder{color:#5d6472}
+    .form input:focus{border-color:var(--acid);box-shadow:0 0 24px rgba(200,255,0,.28)}
+    .fine{margin-top:18px;font-size:11px;color:#69707d;letter-spacing:.08em}
+    .fine b{color:var(--acid)}
+
+    footer{border-top:1px solid var(--line);padding:34px 0;margin-top:100px}
+    .foot{display:flex;gap:20px;justify-content:space-between;flex-wrap:wrap;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5d6472}
+    .foot a{color:#5d6472;text-decoration:none}.foot a:hover{color:var(--acid)}
+
+    @media(max-width:900px){
+        .hero-grid{grid-template-columns:1fr;gap:40px}
+        .steps,.features{grid-template-columns:1fr}
+        .nav-links{display:none}
+        .panes{grid-template-columns:1fr}
+        .pane+.pane{border-left:0;border-top:1px solid var(--line)}
+        .signup{padding:40px 24px}
+        header{padding:60px 0 40px}
+        section{padding:70px 0}
+    }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="wrap nav-in">
+        <div class="logo"><i></i>STREAMFORGE</div>
+        <div class="nav-links">
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#join">Streams</a>
+        </div>
+        <a href="#join" class="btn">Start streaming</a>
+    </div>
+</nav>
+
+<header>
+    <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+    <div class="wrap hero-grid">
+        <div>
+            <div class="tag"><i style="width:7px;height:7px;background:var(--magenta);border-radius:50%;display:block"></i> <b>1,284</b> live builds right now</div>
+            <h1>Watch code<br><span class="acid">get written</span><br><span class="out">in public</span></h1>
+            <p class="sub">Streamforge is live-streaming for people who ship. Broadcast your terminal, your prompts, and your AI assistant's raw output — <b>every token, every diff, every dead end</b>. Viewers fork the repo mid-stream and keep going.</p>
+            <div class="cta-row">
+                <a href="#join" class="btn">Claim your handle</a>
+                <a href="#how" class="btn ghost">See how it works</a>
+            </div>
+            <div class="stats">
+                <div class="stat"><b>42k</b><span>Streamers</span></div>
+                <div class="stat"><b>310k</b><span>Forks shipped</span></div>
+                <div class="stat"><b>18ms</b><span>Token latency</span></div>
+            </div>
+        </div>
+
+        <div class="screen">
+            <div class="screen-bar">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                &nbsp;@nullpointer / rate-limiter-from-scratch
+                <span class="live">● LIVE 2.4K</span>
+            </div>
+            <div class="panes">
+                <div class="pane">
+                    <h4>Prompt stream</h4>
+                    <p class="prompt">&gt; implement a sliding-window limiter,<br>&nbsp;&nbsp;redis-backed, 100 req/min per key<br><br>
+                    <span class="c">// model: claude-sonnet · turn 14</span><br>
+                    &gt; now make it fail open if redis dies<span class="caret"></span></p>
+                </div>
+                <div class="pane">
+                    <h4>Live output</h4>
+<code class="blk"><span class="k">async def</span> <span class="f">allow</span>(key, now):
+    win = now - <span class="s">60</span>
+    <span class="k">try</span>:
+        p = redis.<span class="f">pipeline</span>()
+        p.<span class="f">zremrangebyscore</span>(key,<span class="s">0</span>,win)
+        p.<span class="f">zadd</span>(key, {uuid4(): now})
+        p.<span class="f">zcard</span>(key)
+        <span class="k">return</span> (<span class="k">await</span> p.<span class="f">execute</span>())[-1] &lt;= <span class="s">100</span>
+    <span class="k">except</span> RedisError:
+        <span class="c"># fail open</span>
+        <span class="k">return</span> <span class="k">True</span></code>
+                </div>
+            </div>
+            <div class="diff">
+                <span>commit <span style="color:#c3cad6">a91f0e3</span></span>
+                <span class="plus">+31</span><span class="minus">−7</span>
+                <span>tests <span class="plus">passing</span></span>
+                <span style="margin-left:auto;color:var(--acid)">⑂ fork this stream</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="marquee"><div>
+    <span>PROMPT → DIFF → DEPLOY</span><span>◆</span><span>FORK ANY STREAM</span><span>◆</span><span>NO EDITED TUTORIALS</span><span>◆</span><span>REAL BUGS, REAL TIME</span><span>◆</span>
+    <span>PROMPT → DIFF → DEPLOY</span><span>◆</span><span>FORK ANY STREAM</span><span>◆</span><span>NO EDITED TUTORIALS</span><span>◆</span><span>REAL BUGS, REAL TIME</span><span>◆</span>
+</div></div>
+
+<section id="how">
+    <div class="wrap">
+        <div class="sec-head">
+            <div class="eyebrow">/ 003 steps</div>
+            <h2>Plug in. Broadcast. <em>Get forked.</em></h2>
+            <p>One CLI command wires your editor, your terminal and your assistant into a single synchronized broadcast. No OBS scene graph, no window capture, no leaked API keys.</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-n">01</div>
+                <h3>Pipe your session</h3>
+                <p><code style="color:var(--acid)">npx streamforge go</code> attaches to your repo and your assistant of choice. Prompts, completions, tool calls and file writes are captured as structured events — not pixels.</p>
+            </div>
+            <div class="step">
+                <div class="step-n">02</div>
+                <h3>Viewers see everything</h3>
+                <p>A three-pane player: prompt log, streaming model output, and a live diff of the working tree. Scrub back to any token to find the exact moment a decision was made.</p>
+            </div>
+            <div class="step">
+                <div class="step-n">03</div>
+                <h3>Fork mid-broadcast</h3>
+                <p>Any viewer hits ⑂ and gets the repo at that exact commit, plus the full prompt history as context. Diverge from the stream and ship your own version tonight.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features">
+    <div class="wrap">
+        <div class="sec-head">
+            <div class="eyebrow">/ built for people who ship</div>
+            <h2>Not a screen share.<br>An <em>executable</em> broadcast.</h2>
+        </div>
+        <div class="features">
+            <div class="card">
+                <div class="icon">⑂</div>
+                <h3>Forkable timeline</h3>
+                <p>Every stream is a git history with prompts attached. Clone the state from minute 04:12, before the refactor that broke everything.</p>
+                <ul><li>Commit-accurate snapshots</li><li>Prompt history as context file</li><li>One-click devcontainer</li></ul>
+            </div>
+            <div class="card">
+                <div class="icon">◱</div>
+                <h3>Token-level replay</h3>
+                <p>Scrub the model's output token by token, synced to the diff and the terminal. Watch reasoning land, then watch tests go red.</p>
+                <ul><li>18ms latency edge relay</li><li>Searchable prompt transcript</li><li>Clip &amp; share any 30s</li></ul>
+            </div>
+            <div class="card">
+                <div class="icon">⌘</div>
+                <h3>Secrets-safe capture</h3>
+                <p>Structured capture means <code style="color:var(--acid)">.env</code>, tokens and customer data never hit the wire. Redaction rules run locally before broadcast.</p>
+                <ul><li>Local-first scrubbing</li><li>Per-path allow lists</li><li>Panic-blur hotkey</li></ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="join" style="padding-top:20px">
+    <div class="wrap">
+        <div class="signup">
+            <div class="eyebrow">/ early access · cohort 04</div>
+            <h2>Go live with your <em>next commit</em>.</h2>
+            <p class="sub" style="max-width:52ch">Free while in beta. Bring a repo, an assistant, and a problem you haven't solved yet. Handles are first-come.</p>
+            <form class="form" onsubmit="return false">
+                <input type="email" placeholder="you@yourdomain.dev" required>
+                <input type="text" placeholder="desired handle" style="flex:1 1 180px">
+                <button class="btn" type="submit">Request access →</button>
+            </form>
+            <p class="fine">No spam. <b>2,109</b> developers in the queue ahead of you. Invites go out Thursdays.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap foot">
+        <div class="logo" style="font-size:12px"><i></i>STREAMFORGE</div>
+        <div><a href="#how">Docs</a> &nbsp;·&nbsp; <a href="#features">CLI</a> &nbsp;·&nbsp; <a href="#join">Status</a> &nbsp;·&nbsp; <a href="#join">Privacy</a></div>
+        <div>© 2025 — built live, obviously</div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BACKLOT // Creator Operations</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --acid: #CCFF00;
+            --magenta: #FF00FF;
+            --cyan: #00FFFF;
+            --white: #F4F4F4;
+            --grey: #333333;
+            --font-display: Impact, "Arial Black", "Helvetica Black", sans-serif;
+            --font-mono: "SF Mono", "Roboto Mono", Consolas, "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: var(--font-mono);
+            line-height: 1.5;
+            overflow-x: hidden;
+            background-image: radial-gradient(var(--grey) 1px, transparent 0);
+            background-size: 24px 24px;
+            background-position: -19px -19px;
+        }
+
+        /* Glitch & Acid Typography */
+        h1, h2, h3, .display-text {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-weight: normal;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .glitch {
+            position: relative;
+            color: var(--white);
+        }
+        
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--magenta);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: 2px 0 var(--cyan);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); }
+            20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(40% 0 50% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 70% 0); }
+            100% { clip-path: inset(30% 0 20% 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); }
+            20% { clip-path: inset(30% 0 20% 0); }
+            40% { clip-path: inset(70% 0 10% 0); }
+            60% { clip-path: inset(20% 0 50% 0); }
+            80% { clip-path: inset(50% 0 30% 0); }
+            100% { clip-path: inset(5% 0 80% 0); }
+        }
+
+        .acid-text { color: var(--acid); }
+        .magenta-text { color: var(--magenta); }
+        .cyan-text { color: var(--cyan); }
+
+        /* UI Elements */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--acid);
+            color: var(--bg);
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            padding: 16px 32px;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 2px solid var(--acid);
+            transition: all 0.1s;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--magenta);
+        }
+
+        .btn:hover {
+            background: var(--bg);
+            color: var(--acid);
+            box-shadow: -4px -4px 0 var(--cyan);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--acid);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: var(--acid);
+            color: var(--bg);
+            box-shadow: 0 0 15px var(--acid);
+        }
+
+        .crosshair-box {
+            position: relative;
+            border: 1px solid var(--grey);
+            padding: 40px;
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .crosshair-box::before, .crosshair-box::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .crosshair-box::before {
+            background: 
+                linear-gradient(to right, var(--acid) 2px, transparent 2px) 0 0,
+                linear-gradient(to right, var(--acid) 2px, transparent 2px) 0 100%,
+                linear-gradient(to left, var(--acid) 2px, transparent 2px) 100% 0,
+                linear-gradient(to left, var(--acid) 2px, transparent 2px) 100% 100%,
+                linear-gradient(to bottom, var(--acid) 2px, transparent 2px) 0 0,
+                linear-gradient(to bottom, var(--acid) 2px, transparent 2px) 100% 0,
+                linear-gradient(to top, var(--acid) 2px, transparent 2px) 0 100%,
+                linear-gradient(to top, var(--acid) 2px, transparent 2px) 100% 100%;
+            background-repeat: no-repeat;
+            background-size: 15px 15px;
+        }
+
+        /* Marquee */
+        .marquee-wrapper {
+            width: 100%;
+            background: var(--acid);
+            color: var(--bg);
+            overflow: hidden;
+            padding: 8px 0;
+            border-top: 1px solid var(--white);
+            border-bottom: 1px solid var(--white);
+        }
+
+        .marquee {
+            display: flex;
+            white-space: nowrap;
+            animation: scroll 15s linear infinite;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+        }
+
+        .marquee span {
+            padding: 0 20px;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px dashed var(--grey);
+        }
+
+        .logo {
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        .status {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: var(--acid);
+            box-shadow: 0 0 8px var(--acid);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            margin-bottom: 24px;
+            line-height: 0.9;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+            color: #aaa;
+        }
+
+        /* How it Works */
+        .how-it-works {
+            padding: 80px 0;
+            border-top: 1px solid var(--acid);
+        }
+
+        .hiw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .step {
+            border: 1px dashed var(--magenta);
+            padding: 32px;
+            position: relative;
+        }
+
+        .step-num {
+            position: absolute;
+            top: -16px;
+            left: -16px;
+            background: var(--magenta);
+            color: var(--bg);
+            font-family: var(--font-display);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+        }
+        
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            margin-bottom: 100px;
+        }
+
+        .feature-block:nth-child(even) {
+            grid-template-columns: 1fr 1fr;
+            direction: rtl;
+        }
+
+        .feature-block:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-text h2 {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-text p {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 24px;
+        }
+
+        .ascii-art {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            line-height: 10px;
+            white-space: pre;
+            color: var(--acid);
+            text-align: center;
+            overflow: hidden;
+            text-shadow: 0 0 5px var(--acid);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(204, 255, 0, 0.05),
+                rgba(204, 255, 0, 0.05) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            border-top: 2px solid var(--acid);
+        }
+
+        .cta-section h2 {
+            font-size: 4rem;
+            margin-bottom: 24px;
+        }
+
+        footer {
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid var(--grey);
+            font-size: 0.8rem;
+            color: var(--grey);
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .feature-block, .feature-block:nth-child(even) {
+                grid-template-columns: 1fr;
+            }
+            .ascii-art { font-size: 6px; line-height: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo display-text">BACKLOT<span class="acid-text">_</span></div>
+        <div class="status">SYSTEM ONLINE // SECURE</div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero container">
+            <h1 class="glitch" data-text="STOP PLAYING ACCOUNTANT">STOP PLAYING ACCOUNTANT</h1>
+            <h1 class="acid-text">START CREATING.</h1>
+            <p>> Consolidate brand-deal contracts, invoices, sponsor deadlines, and per-platform payouts in one brutal command center.</p>
+            <a href="#" class="btn">INITIALIZE WORKSPACE</a>
+        </section>
+
+        <!-- Marquee Ticker -->
+        <div class="marquee-wrapper">
+            <div class="marquee">
+                <span>/// YOUTUBE ADSENSE /// TIKTOK CREATOR FUND /// TWITCH SUBS /// SPONSOR WIRE TRANSFERS /// ESCROW RELEASES ///</span>
+                <span>/// YOUTUBE ADSENSE /// TIKTOK CREATOR FUND /// TWITCH SUBS /// SPONSOR WIRE TRANSFERS /// ESCROW RELEASES ///</span>
+            </div>
+        </div>
+
+        <!-- How it Works Section -->
+        <section class="how-it-works container">
+            <h2 class="display-text cyan-text">EXECUTION PROTOCOL</h2>
+            <div class="hiw-grid">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <h3>INGEST</h3>
+                    <p>Drop PDF contracts and term sheets into the void. Backlot's parser extracts deliverables, usage rights, and payment terms instantly.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <h3>TRACK</h3>
+                    <p>A unified timeline aggregates every script-read deadline, video live date, and exclusivity window across all active sponsorships.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <h3>REAP</h3>
+                    <p>Monitor pending invoices alongside automated platform payouts. Know exactly what hits your account and when.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features container">
+            
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2 class="acid-text">CONTRACT REPOSITORY</h2>
+                    <p>> No more hunting through email threads for Net-60 payment terms or exclusivity clauses. Every deal is digitized, indexed, and cross-referenced.</p>
+                    <a href="#" class="btn btn-outline">VIEW SPECS</a>
+                </div>
+                <div class="crosshair-box ascii-art">
+  ___________________
+ |  _______________  |
+ | |   BRAND DEAL  | |
+ | |   [SECURED]   | |
+ | |###############| |
+ | |###############| |
+ | |_______________| |
+ |___________________|
+                </div>
+            </div>
+
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2 class="magenta-text">DEADLINE OVERRIDE</h2>
+                    <p>> Miss a sponsor integration date and you lose the bag. Our high-contrast HUD gives you a unified calendar of drafts, revisions, and go-live dates.</p>
+                    <a href="#" class="btn btn-outline" style="color: var(--magenta); border-color: var(--magenta);">VIEW SPECS</a>
+                </div>
+                <div class="crosshair-box ascii-art" style="color: var(--magenta); text-shadow: 0 0 5px var(--magenta);">
+   [ T-MINUS 48 HOURS ]
+   > INTEGRATION DUE
+   
+  \ \ \ \ \ \ \ \ \ \
+   \ \ \ \ \ \ \ \ \ \
+    ! WARNING !
+                </div>
+            </div>
+
+            <div class="feature-block">
+                <div class="feature-text">
+                    <h2 class="cyan-text">OMNI-CHANNEL PAYOUTS</h2>
+                    <p>> YouTube AdSense. TikTok Creativity Program. Twitch Subs. Direct brand wires. See every revenue stream collide in one brutally honest ledger.</p>
+                    <a href="#" class="btn btn-outline" style="color: var(--cyan); border-color: var(--cyan);">VIEW SPECS</a>
+                </div>
+                <div class="crosshair-box ascii-art" style="color: var(--cyan); text-shadow: 0 0 5px var(--cyan);">
+     $$$$$$$$$$$$$$
+   $$$$$$$$$$$$$$$$$$
+  $$$$$        $$$$$$$
+  $$$$$   $$$$$$$$$$$$
+   $$$$$$$$$$$$$$$$$$
+     $$$$$$$$$$$$$$
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container">
+                <h2 class="glitch" data-text="TAKE CONTROL OF THE FEED">TAKE CONTROL OF THE FEED</h2>
+                <p style="margin-bottom: 40px; font-size: 1.2rem;">> The creator economy is chaos. Establish order.</p>
+                <a href="#" class="btn">DEPLOY BACKLOT NOW</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 BACKLOT SYSTEMS // ALL RIGHTS RESERVED // END OF LINE_
+    </footer>
+
+</body>
+</html>

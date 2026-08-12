@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is the live-streaming platform where developers build software with AI, share every prompt, and let viewers fork the code.">
+  <title>Streamforge — Build in public. Fork the future.</title>
+  <style>
+    :root {
+      --ink: #0b0b0b;
+      --paper: #f2f0e9;
+      --acid: #c6ff00;
+      --pink: #ff3db8;
+      --cyan: #25e9ff;
+      --orange: #ff5c20;
+      --violet: #7c5cff;
+      --white: #ffffff;
+      --muted: #a7a7a7;
+      --line: 3px solid var(--ink);
+      --shadow: 8px 8px 0 var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(11, 11, 11, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(11, 11, 11, 0.055) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .nav-wrap {
+      position: relative;
+      z-index: 20;
+      padding-top: 20px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 10px 12px 10px 18px;
+      border: var(--line);
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 1.1rem;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: var(--acid);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+    }
+
+    .brand-mark::before {
+      inset: 5px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .brand-mark::after {
+      top: 8px;
+      left: 11px;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 7px solid var(--acid);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .nav-links a:not(.nav-button):hover {
+      box-shadow: inset 0 -8px 0 var(--acid);
+    }
+
+    .button,
+    .nav-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border: 3px solid var(--ink);
+      background: var(--acid);
+      box-shadow: 5px 5px 0 var(--ink);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      font-weight: 950;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .button:hover,
+    .nav-button:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .hero {
+      position: relative;
+      padding: 92px 0 96px;
+    }
+
+    .hero::before {
+      position: absolute;
+      top: 50px;
+      right: -110px;
+      width: 340px;
+      height: 110px;
+      border: 3px solid var(--ink);
+      background: var(--pink);
+      content: "";
+      transform: rotate(-12deg);
+      z-index: -1;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(520px, 1.08fr);
+      align-items: center;
+      gap: 72px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 23px;
+      padding: 8px 11px;
+      border: 2px solid var(--ink);
+      background: var(--cyan);
+      box-shadow: 4px 4px 0 var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 3px var(--white);
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(3.6rem, 7.4vw, 7rem);
+      font-weight: 1000;
+      letter-spacing: -0.085em;
+      line-height: 0.83;
+      text-transform: uppercase;
+    }
+
+    h1 .highlight {
+      display: inline-block;
+      padding: 0.02em 0.1em 0.1em;
+      background: var(--acid);
+      box-shadow: inset 0 -0.08em 0 var(--pink);
+      transform: rotate(-1.5deg);
+    }
+
+    .hero-copy {
+      max-width: 600px;
+      margin: 29px 0 0;
+      font-size: clamp(1.05rem, 1.7vw, 1.28rem);
+      font-weight: 590;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      margin-top: 32px;
+    }
+
+    .button.large {
+      min-height: 58px;
+      padding-inline: 27px;
+      font-size: 0.92rem;
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .button.dark {
+      background: var(--ink);
+      box-shadow: 7px 7px 0 var(--pink);
+      color: var(--white);
+    }
+
+    .button.dark:hover {
+      box-shadow: 3px 3px 0 var(--pink);
+    }
+
+    .micro-proof {
+      margin-top: 27px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .micro-proof span {
+      padding: 2px 5px;
+      background: var(--ink);
+      color: var(--acid);
+    }
+
+    .stream-card {
+      position: relative;
+      border: 4px solid var(--ink);
+      background: var(--ink);
+      box-shadow: 14px 14px 0 var(--pink), -10px -10px 0 var(--acid);
+      transform: rotate(1.1deg);
+    }
+
+    .stream-card::after {
+      position: absolute;
+      right: -28px;
+      bottom: -43px;
+      padding: 8px 14px;
+      border: 3px solid var(--ink);
+      background: var(--cyan);
+      content: "FORKABLE ↗";
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.76rem;
+      font-weight: 950;
+      transform: rotate(-5deg);
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 47px;
+      padding: 0 13px;
+      border-bottom: 3px solid var(--ink);
+      background: var(--white);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.69rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots i {
+      width: 11px;
+      height: 11px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .window-dots i:nth-child(2) {
+      background: var(--acid);
+    }
+
+    .window-dots i:nth-child(3) {
+      background: var(--cyan);
+    }
+
+    .viewer-count {
+      padding: 4px 7px;
+      background: var(--pink);
+    }
+
+    .stream-body {
+      display: grid;
+      grid-template-columns: 42% 58%;
+      min-height: 390px;
+      color: var(--white);
+    }
+
+    .video-pane {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 16px;
+      border-right: 2px solid #414141;
+      background:
+        radial-gradient(circle at 70% 25%, rgba(198, 255, 0, 0.2), transparent 30%),
+        linear-gradient(135deg, #221832, #080808 65%);
+    }
+
+    .live-label {
+      align-self: flex-start;
+      padding: 5px 8px;
+      border: 2px solid var(--white);
+      background: var(--pink);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.67rem;
+      font-weight: 950;
+    }
+
+    .avatar-scene {
+      align-self: center;
+      width: 116px;
+      text-align: center;
+    }
+
+    .avatar {
+      position: relative;
+      width: 79px;
+      height: 79px;
+      margin: auto;
+      border: 3px solid var(--white);
+      border-radius: 45% 45% 42% 42%;
+      background: var(--violet);
+      box-shadow: 8px 6px 0 var(--acid);
+    }
+
+    .avatar::before {
+      position: absolute;
+      top: 25px;
+      left: 20px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 30px 0 0 var(--white);
+      content: "";
+    }
+
+    .avatar::after {
+      position: absolute;
+      bottom: 17px;
+      left: 29px;
+      width: 20px;
+      height: 7px;
+      border-bottom: 3px solid var(--white);
+      content: "";
+    }
+
+    .avatar-scene p {
+      margin: 16px 0 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.66rem;
+      font-weight: 700;
+    }
+
+    .stream-title {
+      font-size: 0.74rem;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
+    .work-pane {
+      display: grid;
+      grid-template-rows: 48% 52%;
+      min-width: 0;
+    }
+
+    .prompt-panel,
+    .code-panel {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .prompt-panel {
+      border-bottom: 2px solid #414141;
+      background: #151515;
+    }
+
+    .panel-title {
+      padding: 8px 10px;
+      border-bottom: 1px solid #414141;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .prompt {
+      margin: 12px;
+      padding: 11px;
+      border-left: 4px solid var(--acid);
+      background: #252525;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.64rem;
+      line-height: 1.55;
+    }
+
+    .model-line {
+      margin: 10px 12px;
+      color: var(--cyan);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.59rem;
+    }
+
+    pre {
+      margin: 0;
+      padding: 11px 13px;
+      overflow: hidden;
+      color: #d8d8d8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.59rem;
+      line-height: 1.55;
+    }
+
+    .c-pink { color: var(--pink); }
+    .c-acid { color: var(--acid); }
+    .c-cyan { color: var(--cyan); }
+    .c-gray { color: #777; }
+
+    .ticker {
+      overflow: hidden;
+      border-block: 3px solid var(--ink);
+      background: var(--ink);
+      color: var(--acid);
+      transform: rotate(-1deg) scale(1.02);
+    }
+
+    .ticker-track {
+      width: max-content;
+      padding: 12px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      font-weight: 950;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      word-spacing: 0.6em;
+    }
+
+    .section {
+      padding: 112px 0;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 1fr 0.8fr;
+      gap: 48px;
+      align-items: end;
+      margin-bottom: 56px;
+    }
+
+    .section-kicker {
+      margin: 0 0 10px;
+      color: var(--pink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2.6rem, 5vw, 5.3rem);
+      font-weight: 1000;
+      letter-spacing: -0.07em;
+      line-height: 0.92;
+      text-transform: uppercase;
+    }
+
+    .section-intro {
+      margin: 0;
+      max-width: 520px;
+      font-size: 1.08rem;
+      font-weight: 580;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      counter-reset: steps;
+    }
+
+    .step {
+      position: relative;
+      min-height: 265px;
+      padding: 75px 26px 25px;
+      border: var(--line);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      counter-increment: steps;
+    }
+
+    .step:nth-child(2) {
+      background: var(--acid);
+      transform: translateY(18px) rotate(-1deg);
+    }
+
+    .step:nth-child(3) {
+      background: var(--cyan);
+      transform: rotate(1deg);
+    }
+
+    .step::before {
+      position: absolute;
+      top: 18px;
+      left: 22px;
+      content: "0" counter(steps);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 1.6rem;
+      font-weight: 950;
+    }
+
+    .step::after {
+      position: absolute;
+      top: 22px;
+      right: 22px;
+      width: 38px;
+      height: 14px;
+      border-block: 3px solid var(--ink);
+      content: "";
+      transform: skew(-25deg);
+    }
+
+    .step h3 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 570;
+    }
+
+    .features {
+      padding-top: 120px;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .features .section-heading {
+      margin-bottom: 68px;
+    }
+
+    .features .section-kicker {
+      color: var(--acid);
+    }
+
+    .feature-stack {
+      display: grid;
+      gap: 42px;
+      padding-bottom: 120px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      min-height: 355px;
+      border: 3px solid var(--white);
+      background: #111;
+      box-shadow: 10px 10px 0 var(--pink);
+    }
+
+    .feature:nth-child(2) {
+      grid-template-columns: 1.15fr 0.85fr;
+      box-shadow: 10px 10px 0 var(--acid);
+    }
+
+    .feature:nth-child(2) .feature-copy {
+      order: 2;
+    }
+
+    .feature:nth-child(2) .visual {
+      order: 1;
+    }
+
+    .feature:nth-child(3) {
+      box-shadow: 10px 10px 0 var(--cyan);
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(30px, 5vw, 62px);
+    }
+
+    .feature-number {
+      color: var(--pink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.75rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .feature:nth-child(2) .feature-number {
+      color: var(--acid);
+    }
+
+    .feature:nth-child(3) .feature-number {
+      color: var(--cyan);
+    }
+
+    .feature h3 {
+      margin: 13px 0 18px;
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      font-weight: 1000;
+      letter-spacing: -0.06em;
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    .feature p {
+      max-width: 510px;
+      margin: 0;
+      color: #c6c6c6;
+      font-size: 1rem;
+    }
+
+    .visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 330px;
+      overflow: hidden;
+      border-left: 3px solid var(--white);
+      background:
+        linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px),
+        var(--violet);
+      background-size: 24px 24px;
+    }
+
+    .feature:nth-child(2) .visual {
+      border-right: 3px solid var(--white);
+      border-left: 0;
+      background-color: var(--pink);
+    }
+
+    .feature:nth-child(3) .visual {
+      background-color: var(--cyan);
+    }
+
+    .prompt-cards {
+      position: relative;
+      width: min(340px, 80%);
+      height: 210px;
+    }
+
+    .prompt-card {
+      position: absolute;
+      width: 88%;
+      padding: 17px;
+      border: 3px solid var(--ink);
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .prompt-card:nth-child(1) {
+      top: 4px;
+      left: 0;
+      transform: rotate(-4deg);
+    }
+
+    .prompt-card:nth-child(2) {
+      top: 74px;
+      right: 0;
+      background: var(--acid);
+      transform: rotate(3deg);
+    }
+
+    .prompt-card:nth-child(3) {
+      right: 18px;
+      bottom: 0;
+      background: var(--cyan);
+      transform: rotate(-2deg);
+    }
+
+    .timeline {
+      width: min(410px, 84%);
+      padding: 22px;
+      border: 3px solid var(--ink);
+      background: var(--white);
+      box-shadow: 8px 8px 0 var(--ink);
+      color: var(--ink);
+    }
+
+    .timeline-bar {
+      position: relative;
+      height: 9px;
+      margin: 26px 0;
+      background: var(--ink);
+    }
+
+    .timeline-bar i {
+      position: absolute;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: var(--acid);
+      transform: translate(-50%, -50%);
+    }
+
+    .timeline-bar i:nth-child(1) { left: 10%; }
+    .timeline-bar i:nth-child(2) { left: 43%; background: var(--cyan); }
+    .timeline-bar i:nth-child(3) { left: 74%; background: var(--pink); }
+    .timeline-bar i:nth-child(4) { left: 100%; background: var(--orange); }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.61rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .fork-window {
+      width: min(390px, 82%);
+      border: 3px solid var(--ink);
+      background: var(--ink);
+      box-shadow: 9px 9px 0 var(--white);
+      transform: rotate(-2deg);
+    }
+
+    .fork-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 11px;
+      background: var(--acid);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.7rem;
+      font-weight: 950;
+    }
+
+    .fork-code {
+      padding: 22px;
+      color: var(--cyan);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.71rem;
+      line-height: 1.8;
+    }
+
+    .fork-button {
+      display: block;
+      margin: 0 22px 22px auto;
+      padding: 8px 14px;
+      border: 2px solid var(--white);
+      background: var(--pink);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.7rem;
+      font-weight: 950;
+    }
+
+    .cta-section {
+      position: relative;
+      padding: 120px 0;
+      overflow: hidden;
+      background: var(--acid);
+    }
+
+    .cta-section::before,
+    .cta-section::after {
+      position: absolute;
+      content: "";
+      border: 4px solid var(--ink);
+    }
+
+    .cta-section::before {
+      top: 45px;
+      left: -90px;
+      width: 300px;
+      height: 90px;
+      background: var(--pink);
+      transform: rotate(17deg);
+    }
+
+    .cta-section::after {
+      right: -50px;
+      bottom: 40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .cta-box {
+      position: relative;
+      z-index: 2;
+      padding: clamp(36px, 7vw, 80px);
+      border: 4px solid var(--ink);
+      background: var(--paper);
+      box-shadow: 14px 14px 0 var(--ink);
+      text-align: center;
+    }
+
+    .cta-box h2 {
+      max-width: 850px;
+      margin-inline: auto;
+    }
+
+    .cta-box p {
+      max-width: 620px;
+      margin: 25px auto 30px;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .signup-form {
+      display: flex;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      min-height: 59px;
+      padding: 0 18px;
+      border: 3px solid var(--ink);
+      border-right: 0;
+      border-radius: 0;
+      outline: 0;
+      background: var(--white);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      font-weight: 750;
+    }
+
+    .signup-form input:focus {
+      box-shadow: inset 0 0 0 4px var(--cyan);
+    }
+
+    .signup-form .button {
+      min-height: 59px;
+      box-shadow: none;
+      background: var(--pink);
+    }
+
+    .form-note {
+      margin-top: 15px !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.68rem !important;
+      font-weight: 850 !important;
+      text-transform: uppercase;
+    }
+
+    footer {
+      padding: 28px 0;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    .footer-links a:hover {
+      color: var(--acid);
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 65px;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+      }
+
+      .stream-card {
+        width: min(680px, 96%);
+        margin-inline: auto;
+      }
+
+      .section-heading {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step:nth-child(2),
+      .step:nth-child(3) {
+        transform: none;
+      }
+
+      .feature,
+      .feature:nth-child(2) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature:nth-child(2) .feature-copy,
+      .feature:nth-child(2) .visual {
+        order: initial;
+      }
+
+      .visual,
+      .feature:nth-child(2) .visual {
+        border: 0;
+        border-top: 3px solid var(--white);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      nav {
+        min-height: 60px;
+      }
+
+      .nav-links > a:not(.nav-button) {
+        display: none;
+      }
+
+      .nav-button {
+        min-height: 40px;
+        padding-inline: 12px;
+        font-size: 0.7rem;
+      }
+
+      .hero {
+        padding: 70px 0 75px;
+      }
+
+      h1 {
+        font-size: clamp(3.25rem, 18vw, 5rem);
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .stream-card {
+        width: calc(100% - 10px);
+        box-shadow: 8px 8px 0 var(--pink), -6px -6px 0 var(--acid);
+      }
+
+      .stream-card::after {
+        right: -6px;
+        bottom: -39px;
+      }
+
+      .window-bar {
+        font-size: 0.56rem;
+      }
+
+      .stream-body {
+        grid-template-columns: 1fr;
+      }
+
+      .video-pane {
+        min-height: 230px;
+        border-right: 0;
+        border-bottom: 2px solid #414141;
+      }
+
+      .work-pane {
+        min-height: 330px;
+      }
+
+      .section {
+        padding: 88px 0;
+      }
+
+      .steps {
+        gap: 18px;
+      }
+
+      .step {
+        min-height: 230px;
+      }
+
+      .features {
+        padding-top: 88px;
+      }
+
+      .feature-stack {
+        padding-bottom: 88px;
+      }
+
+      .feature-copy {
+        padding: 34px 25px;
+      }
+
+      .visual {
+        min-height: 285px;
+      }
+
+      .signup-form {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .signup-form input {
+        border-right: 3px solid var(--ink);
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .button,
+      .nav-button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav-wrap shell">
+    <nav aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Streamforge
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-button" href="#signup">Get early access ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <div class="eyebrow"><span class="live-dot"></span> Developers are building now</div>
+          <h1>Build live.<br><span class="highlight">Fork fast.</span></h1>
+          <p class="hero-copy">
+            The live-streaming platform for developers building software with AI. Watch every prompt, response, and commit unfold—then fork the repo and make it yours.
+          </p>
+          <div class="hero-actions">
+            <a class="button large" href="#signup">Claim your handle ↗</a>
+            <a class="button large dark" href="#how">See how it works ↓</a>
+          </div>
+          <p class="micro-proof"><span>Zero black boxes</span> · prompts + output + code, synced live</p>
+        </div>
+
+        <div class="stream-card" aria-label="Example Streamforge live stream interface">
+          <div class="window-bar">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span>streamforge.live / maya-builds</span>
+            <span class="viewer-count">● 1,284 live</span>
+          </div>
+          <div class="stream-body">
+            <div class="video-pane">
+              <span class="live-label">● LIVE 01:47:22</span>
+              <div class="avatar-scene">
+                <div class="avatar" aria-hidden="true"></div>
+                <p>@maya_dev<br>building an AI issue triager</p>
+              </div>
+              <div class="stream-title">“Can we ship this before lunch?”<br>#typescript #agents</div>
+            </div>
+            <div class="work-pane">
+              <div class="prompt-panel">
+                <div class="panel-title">Assistant · prompt stream</div>
+                <div class="prompt">Add a confidence score and route low-confidence issues to a human review queue.</div>
+                <div class="model-line">◆ Editing src/triage/router.ts…</div>
+              </div>
+              <div class="code-panel">
+                <div class="panel-title">Repository · live diff +18 −3</div>
+                <pre><span class="c-pink">export async function</span> routeIssue(issue) {
+  <span class="c-pink">const</span> result = <span class="c-pink">await</span> classify(issue);
+
+  <span class="c-pink">if</span> (result.confidence &lt; <span class="c-acid">0.78</span>) {
+    <span class="c-gray">// keep humans in the loop</span>
+    <span class="c-pink">return</span> reviewQueue.add({
+      issue,
+      reason: <span class="c-cyan">"low_confidence"</span>
+    });
+  }
+
+  <span class="c-pink">return</span> autoRoute(result);
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        PROMPTS IN THE OPEN ✦ CODE IN MOTION ✦ REPOS READY TO FORK ✦ PROMPTS IN THE OPEN ✦ CODE IN MOTION ✦ REPOS READY TO FORK ✦
+      </div>
+    </div>
+
+    <section class="section" id="how">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">// How it works</p>
+            <h2>From blank repo<br>to live software.</h2>
+          </div>
+          <p class="section-intro">
+            Streamforge captures the whole build loop—not just your screen. Go live with your editor and AI assistant connected, and turn every session into something others can learn from and extend.
+          </p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <h3>Connect your stack</h3>
+            <p>Link your repository, editor, and preferred AI assistant. Streamforge keeps the conversation and code timeline synchronized.</p>
+          </article>
+          <article class="step">
+            <h3>Build in public</h3>
+            <p>Broadcast your process live. Viewers see what you ask, what the model returns, and exactly how the code changes.</p>
+          </article>
+          <article class="step">
+            <h3>Fork the outcome</h3>
+            <p>Every public stream stays attached to a working repository. Viewers can branch from any checkpoint and keep building.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">// Not another screen share</p>
+            <h2>The build is<br>the broadcast.</h2>
+          </div>
+          <p class="section-intro">
+            Made for developers who care about the decisions behind the diff—not polished tutorials recorded after the interesting part is over.
+          </p>
+        </div>
+
+        <div class="feature-stack">
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-number">Feature 01 / Full context</span>
+              <h3>See the prompt behind the code.</h3>
+              <p>Prompts, model responses, terminal output, and file edits appear together in real time. Follow the reasoning, catch the wrong turns, and understand why each line exists.</p>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="prompt-cards">
+                <div class="prompt-card">YOU → Refactor this into a streaming endpoint.</div>
+                <div class="prompt-card">AI → I’ll preserve backpressure and add cancellation.</div>
+                <div class="prompt-card">DIFF → api/stream.ts +42 −17</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-number">Feature 02 / Time travel</span>
+              <h3>Replay every decision.</h3>
+              <p>Jump to any prompt, response, or commit and watch the codebase rebuild itself from that moment. No scrubbing through a two-hour video to find the useful thirty seconds.</p>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="timeline">
+                <div class="timeline-labels"><span>Prompt</span><span>Diff</span><span>Test</span><span>Ship</span></div>
+                <div class="timeline-bar"><i></i><i></i><i></i><i></i></div>
+                <div class="timeline-labels"><span>00:04</span><span>00:19</span><span>00:31</span><span>00:48</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-number">Feature 03 / Instant ownership</span>
+              <h3>Fork while it’s still hot.</h3>
+              <p>Clone the exact repository state from any point in the stream. Keep the history, prompts, and setup notes—then remix the idea in your own environment.</p>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="fork-window">
+                <div class="fork-head"><span>maya-dev/issue-agent</span><span>MIT</span></div>
+                <div class="fork-code">
+                  $ sf fork stream/8Q2A<br>
+                  ✓ repository cloned<br>
+                  ✓ checkpoint restored<br>
+                  ✓ prompt history attached
+                </div>
+                <span class="fork-button">OPEN IN EDITOR ↗</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+      <div class="shell">
+        <div class="cta-box">
+          <p class="section-kicker">// Your next commit has an audience</p>
+          <h2>Stop posting demos.<br>Stream the making.</h2>
+          <p>Join the early-access list for creator tools, founding member perks, and first pick of developer handles.</p>
+          <form class="signup-form" action="#" method="post">
+            <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.dev" required>
+            <button class="button" type="submit">Join Streamforge ↗</button>
+          </form>
+          <p class="form-note">No spam. Just launch access and useful build signals.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <span>© 2025 Streamforge // Built for builders</span>
+      <div class="footer-links">
+        <a href="#">X / Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

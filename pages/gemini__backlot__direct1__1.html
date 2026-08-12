@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BACKLOT | Creator Ops</title>
+    <style>
+        /* CSS Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #050505;
+            --neon-green: #39ff14;
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-yellow: #fefe33;
+            --text: #ffffff;
+            --font-head: 'Impact', 'Arial Black', sans-serif;
+            --font-body: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(var(--neon-green) 1px, transparent 1px),
+                linear-gradient(90deg, var(--neon-green) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+
+        /* Overlay to dim the grid */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: -1;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Typography & Acid FX */
+        h1, h2, h3, .brand {
+            font-family: var(--font-head);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .glitch {
+            position: relative;
+            text-shadow: 3px 0 var(--neon-pink), -3px 0 var(--neon-blue);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { text-shadow: 3px 0 var(--neon-pink), -3px 0 var(--neon-blue); }
+            20% { text-shadow: -3px 0 var(--neon-pink), 3px 0 var(--neon-blue); }
+            40% { text-shadow: 3px 0 var(--neon-pink), -3px 0 var(--neon-blue); }
+            60% { text-shadow: -3px 0 var(--neon-pink), 3px 0 var(--neon-blue); }
+            80% { text-shadow: 3px 0 var(--neon-pink), -3px 0 var(--neon-blue); }
+            100% { text-shadow: -3px 0 var(--neon-pink), 3px 0 var(--neon-blue); }
+        }
+
+        /* UI Elements */
+        .btn {
+            display: inline-block;
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            color: var(--bg);
+            background: var(--neon-green);
+            border: 4px solid var(--text);
+            box-shadow: 8px 8px 0px var(--neon-pink);
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px var(--neon-pink);
+            background: var(--neon-pink);
+            color: var(--text);
+            border-color: var(--neon-blue);
+        }
+
+        /* Layout */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            border-bottom: 2px solid var(--neon-green);
+            background: #000;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--neon-yellow);
+            text-shadow: 2px 2px 0 var(--neon-pink);
+        }
+
+        section {
+            padding: 100px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 150px 5% 100px;
+        }
+
+        .hero h1 {
+            font-size: 6rem;
+            line-height: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            background: #000;
+            padding: 10px;
+            border-left: 5px solid var(--neon-blue);
+            border-right: 5px solid var(--neon-blue);
+        }
+
+        /* How it works */
+        .how-it-works {
+            background: #000;
+            border: 2px solid var(--neon-pink);
+            box-shadow: 15px 15px 0 var(--neon-blue);
+            padding: 60px 5%;
+            margin-bottom: 100px;
+        }
+
+        .how-it-works h2 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            color: var(--neon-pink);
+            text-align: center;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .step-card {
+            border: 2px dashed var(--text);
+            padding: 30px;
+            position: relative;
+        }
+
+        .step-num {
+            position: absolute;
+            top: -25px;
+            left: -20px;
+            font-family: var(--font-head);
+            font-size: 4rem;
+            color: var(--bg);
+            -webkit-text-stroke: 2px var(--neon-green);
+            text-shadow: 4px 4px 0 var(--neon-blue);
+        }
+
+        .step-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--neon-yellow);
+        }
+
+        /* Features */
+        .feature-block {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 150px;
+        }
+
+        .feature-block:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-text h2 {
+            font-size: 4rem;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .feature-text p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            background: #000;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+
+        .feature-visual {
+            flex: 1;
+            height: 400px;
+            background: #000;
+            border: 5px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .f1-vis { border-color: var(--neon-pink); box-shadow: -15px 15px 0 var(--neon-green); }
+        .f2-vis { border-color: var(--neon-yellow); box-shadow: 15px 15px 0 var(--neon-pink); }
+        .f3-vis { border-color: var(--neon-blue); box-shadow: -15px -15px 0 var(--neon-yellow); }
+
+        .abstract-ui {
+            font-family: var(--font-head);
+            font-size: 3rem;
+            text-align: center;
+            mix-blend-mode: exclusion;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 100px 5%;
+            background: var(--neon-green);
+            color: var(--bg);
+            border-top: 10px solid var(--text);
+            border-bottom: 10px solid var(--text);
+        }
+
+        .cta-section h2 {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            color: var(--bg);
+        }
+
+        .cta-form {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 4px solid var(--bg);
+            box-shadow: 10px 10px 0 var(--neon-pink);
+            background: #000;
+        }
+
+        .cta-form input {
+            flex: 1;
+            padding: 20px;
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            background: #000;
+            color: var(--text);
+            border: none;
+            outline: none;
+        }
+
+        .cta-form button {
+            border: none;
+            background: var(--neon-blue);
+            color: var(--bg);
+            padding: 0 40px;
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cta-form button:hover {
+            background: var(--neon-pink);
+            color: #fff;
+        }
+
+        /* Marquee */
+        .marquee-wrapper {
+            background: var(--neon-yellow);
+            color: #000;
+            padding: 15px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 2px solid var(--text);
+            border-bottom: 2px solid var(--text);
+        }
+        
+        .marquee-content {
+            display: inline-block;
+            font-family: var(--font-head);
+            font-size: 2rem;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero h1 { font-size: 4rem; }
+            .feature-block, .feature-block:nth-child(even) {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .cta-section h2 { font-size: 3rem; }
+            .cta-form { flex-direction: column; box-shadow: 5px 5px 0 var(--neon-pink); }
+            .cta-form button { padding: 20px; border-top: 4px solid var(--bg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+
+    <header>
+        <div class="logo brand">BACKLOT_</div>
+        <a href="#" class="btn" style="padding: 10px 20px; font-size: 1.2rem;">SYSTEM.LOGIN</a>
+    </header>
+
+    <section class="hero">
+        <h1 class="glitch">STOP SWEATING THE SPREADSHEETS.<br>START SHOOTING.</h1>
+        <p>You’re a video creator, not a finance bro. BACKLOT consolidates your brand-deal contracts, invoices, sponsor deadlines, and per-platform payouts into one high-voltage dashboard.</p>
+        <a href="#signup" class="btn">INITIALIZE DASHBOARD</a>
+    </section>
+
+    <div class="marquee-wrapper">
+        <div class="marquee-content">
+            /// KILL THE SPREADSHEET /// TRACK EVERY PAYOUT /// NEVER MISS A DEADLINE /// SECURE THE BAG /// KILL THE SPREADSHEET /// TRACK EVERY PAYOUT /// NEVER MISS A DEADLINE /// SECURE THE BAG ///
+        </div>
+    </div>
+
+    <section>
+        <div class="how-it-works">
+            <h2>OPERATIONAL PROTOCOL</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <h3>UPLOAD CONTRACTS</h3>
+                    <p>Drop your brand deal PDFs into the engine. We auto-extract deliverables, rates, and terms.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <h3>SYNC PLATFORMS</h3>
+                    <p>Connect your socials. Track AdSense, sponsorships, and affiliate revenue in one terminal.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <h3>AUTO-INVOICE</h3>
+                    <p>When the video goes live, the system generates and fires the invoice. You get paid.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h2 style="color: var(--neon-pink);">BRAND DEALS<br>& CONTRACTS</h2>
+                <p>No more digging through email threads. Every deliverable, usage right, and exclusivity clause is parsed, tagged, and tracked. You dictate the terms.</p>
+            </div>
+            <div class="feature-visual f1-vis">
+                <div class="abstract-ui" style="color: var(--neon-green);">
+                    [AGREEMENT_LOCKED]<br>
+                    > STATUS: ACTIVE
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h2 style="color: var(--neon-yellow);">SPONSOR<br>DEADLINES</h2>
+                <p>A brutalist timeline for your script approvals, draft submissions, and publish dates. We ping you before you breach contract. Keep the sponsors addicted to your workflow.</p>
+            </div>
+            <div class="feature-visual f2-vis">
+                <div class="abstract-ui" style="color: var(--neon-blue);">
+                    COUNTDOWN_T-MINUS<br>
+                    48:00:00
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h2 style="color: var(--neon-blue);">PER-PLATFORM<br>PAYOUTS</h2>
+                <p>YouTube, TikTok, Patreon, and direct sponsors. See exactly where your liquidity is flowing from. One dashboard to rule your entire creator economy.</p>
+            </div>
+            <div class="feature-visual f3-vis">
+                <div class="abstract-ui" style="color: var(--neon-pink);">
+                    $$ REVENUE_STREAM $$<br>
+                    >> INCOMING
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+        <h2>READY TO UPGRADE YOUR OPS?</h2>
+        <div class="cta-form">
+            <input type="email" placeholder="ENTER_EMAIL_ADDRESS..." required>
+            <button type="submit">GET EARLY ACCESS</button>
+        </div>
+    </section>
+
+</body>
+</html>

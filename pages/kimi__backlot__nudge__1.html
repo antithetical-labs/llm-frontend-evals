@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot — The business side of being a creator</title>
+<style>
+  :root{
+    --ink:#1a1712;
+    --paper:#f4efe4;
+    --paper-dark:#e9e2d2;
+    --cream:#faf6ec;
+    --red:#e0432b;
+    --blue:#2b5ce0;
+    --green:#1e7a4a;
+    --yellow:#f2b83b;
+    --serif:"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono:"SF Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--yellow);color:var(--ink)}
+
+  /* ---------- top strip ---------- */
+  .topstrip{
+    background:var(--ink);
+    color:var(--cream);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:8px 20px;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .topstrip span{opacity:.75}
+  .topstrip b{color:var(--yellow);font-weight:600}
+
+  /* ---------- nav ---------- */
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 28px;
+    border-bottom:2px solid var(--ink);
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .logo{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:24px;
+    letter-spacing:-.02em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .clapper{
+    width:30px;height:24px;
+    background:var(--ink);
+    border-radius:3px;
+    position:relative;
+    flex:none;
+  }
+  .clapper::before{
+    content:"";
+    position:absolute;
+    top:-7px;left:0;right:0;height:9px;
+    background:repeating-linear-gradient(-55deg, var(--ink) 0 7px, var(--paper) 7px 14px);
+    border-radius:3px 3px 0 0;
+    transform:rotate(-7deg);
+    transform-origin:left bottom;
+  }
+  .navlinks{display:flex;gap:26px;align-items:center}
+  .navlinks a{
+    color:var(--ink);
+    text-decoration:none;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .navlinks a:hover{color:var(--red)}
+  .btn{
+    display:inline-block;
+    background:var(--ink);
+    color:var(--cream) !important;
+    padding:11px 22px;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border:2px solid var(--ink);
+    box-shadow:4px 4px 0 var(--red);
+    transition:transform .12s ease, box-shadow .12s ease;
+    cursor:pointer;
+  }
+  .btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--red)}
+  .btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--red)}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:70px 28px 90px;
+    border-bottom:2px solid var(--ink);
+    overflow:hidden;
+    background:
+      linear-gradient(rgba(26,23,18,.035) 1px, transparent 1px) 0 0/100% 34px,
+      var(--paper);
+  }
+  .hero-inner{
+    max-width:1100px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:60px;
+    align-items:center;
+  }
+  .kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    border:2px solid var(--ink);
+    padding:6px 14px;
+    background:var(--yellow);
+    margin-bottom:26px;
+    transform:rotate(-1deg);
+  }
+  .kicker::before{
+    content:"";
+    width:9px;height:9px;
+    background:var(--red);
+    border-radius:50%;
+    animation:blink 1.6s infinite;
+  }
+  @keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.2}}
+  h1{
+    font-family:var(--serif);
+    font-size:clamp(42px, 5.4vw, 68px);
+    line-height:1.02;
+    letter-spacing:-.025em;
+    font-weight:700;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--red);
+  }
+  .hero p.lede{
+    margin:26px 0 34px;
+    font-size:18px;
+    max-width:46ch;
+    color:#3c362c;
+  }
+  .hero-cta{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .link-plain{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink);
+    border-bottom:2px solid var(--red);
+    text-decoration:none;
+    padding-bottom:2px;
+  }
+  .link-plain:hover{color:var(--red)}
+
+  /* hero "board" card */
+  .board{
+    background:var(--cream);
+    border:2px solid var(--ink);
+    box-shadow:8px 8px 0 var(--ink);
+    transform:rotate(1.2deg);
+  }
+  .board-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px;
+    border-bottom:2px solid var(--ink);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    background:var(--paper-dark);
+  }
+  .board-head .dot{width:10px;height:10px;border-radius:50%;background:var(--green)}
+  .board-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    padding:13px 16px;
+    border-bottom:1px dashed #b8ae97;
+    font-size:14px;
+  }
+  .board-row:last-child{border-bottom:none}
+  .board-row .name{font-weight:600}
+  .board-row .sub{font-family:var(--mono);font-size:11px;color:#7a7260;display:block;margin-top:2px}
+  .tag{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border:1.5px solid var(--ink);
+    white-space:nowrap;
+  }
+  .tag.paid{background:#d7ecd9;color:var(--green);border-color:var(--green)}
+  .tag.due{background:#fbe4df;color:var(--red);border-color:var(--red)}
+  .tag.soon{background:#fdf0d2;color:#8a6a12;border-color:#8a6a12}
+  .board-foot{
+    padding:12px 16px;
+    border-top:2px solid var(--ink);
+    font-family:var(--mono);
+    font-size:12px;
+    display:flex;
+    justify-content:space-between;
+    background:var(--ink);
+    color:var(--cream);
+  }
+  .board-foot b{color:var(--yellow)}
+
+  .marquee{
+    border-top:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);
+    background:var(--ink);
+    color:var(--cream);
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .marquee-inner{
+    display:inline-block;
+    padding:12px 0;
+    animation:scroll 26s linear infinite;
+  }
+  .marquee-inner span{margin:0 28px}
+  .marquee-inner .y{color:var(--yellow)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- sections ---------- */
+  section{padding:80px 28px}
+  .wrap{max-width:1100px;margin:0 auto}
+  .section-label{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:14px;
+  }
+  .section-label::before{content:"— ";color:var(--ink)}
+  h2{
+    font-family:var(--serif);
+    font-size:clamp(30px,3.6vw,44px);
+    letter-spacing:-.02em;
+    line-height:1.1;
+    font-weight:700;
+    max-width:20ch;
+  }
+
+  /* how it works */
+  .how{background:var(--cream);border-bottom:2px solid var(--ink)}
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0;
+    margin-top:48px;
+    border:2px solid var(--ink);
+    background:var(--paper);
+  }
+  .step{
+    padding:34px 30px 40px;
+    border-right:2px solid var(--ink);
+    position:relative;
+  }
+  .step:last-child{border-right:none}
+  .step-num{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:52px;
+    color:var(--red);
+    line-height:1;
+  }
+  .step h3{
+    font-family:var(--serif);
+    font-size:21px;
+    margin:14px 0 10px;
+  }
+  .step p{font-size:15px;color:#4a4436}
+  .step .stamp{
+    position:absolute;
+    top:26px;right:22px;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--blue);
+    border:2px solid var(--blue);
+    border-radius:4px;
+    padding:3px 8px;
+    transform:rotate(6deg);
+    opacity:.85;
+  }
+
+  /* features */
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:28px;
+    margin-top:52px;
+  }
+  .feature{
+    border:2px solid var(--ink);
+    background:var(--cream);
+    padding:32px 28px 36px;
+    position:relative;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .feature:hover{
+    transform:translate(-3px,-3px);
+    box-shadow:6px 6px 0 var(--ink);
+  }
+  .feature:nth-child(1){border-top:8px solid var(--red)}
+  .feature:nth-child(2){border-top:8px solid var(--blue)}
+  .feature:nth-child(3){border-top:8px solid var(--green)}
+  .feature h3{
+    font-family:var(--serif);
+    font-size:23px;
+    margin-bottom:12px;
+    letter-spacing:-.01em;
+  }
+  .feature p{font-size:15px;color:#4a4436}
+  .feature .glyph{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    display:inline-block;
+    margin-bottom:18px;
+    padding:5px 10px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+  }
+  .feature ul{
+    list-style:none;
+    margin-top:18px;
+    font-size:14px;
+  }
+  .feature ul li{
+    padding:7px 0 7px 24px;
+    border-top:1px dashed #c9c0aa;
+    position:relative;
+  }
+  .feature ul li::before{
+    content:"✓";
+    position:absolute;
+    left:2px;
+    color:var(--green);
+    font-weight:700;
+  }
+
+  /* quote band */
+  .quote-band{
+    background:var(--ink);
+    color:var(--cream);
+    border-top:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);
+    padding:70px 28px;
+    text-align:center;
+  }
+  .quote-band blockquote{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(22px,2.8vw,32px);
+    max-width:34ch;
+    margin:0 auto 20px;
+    line-height:1.3;
+  }
+  .quote-band blockquote b{color:var(--yellow);font-style:normal}
+  .quote-band cite{
+    font-family:var(--mono);
+    font-style:normal;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    opacity:.7;
+  }
+
+  /* CTA */
+  .cta{padding:100px 28px 110px;text-align:center;position:relative}
+  .cta h2{margin:0 auto 18px;max-width:22ch}
+  .cta p.sub{max-width:48ch;margin:0 auto 38px;color:#4a4436;font-size:17px}
+  .signup{
+    display:flex;
+    max-width:520px;
+    margin:0 auto;
+    border:2px solid var(--ink);
+    background:var(--cream);
+    box-shadow:6px 6px 0 var(--ink);
+  }
+  .signup input{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:16px 18px;
+    font-family:var(--mono);
+    font-size:14px;
+    color:var(--ink);
+    outline:none;
+    min-width:0;
+  }
+  .signup input::placeholder{color:#9a917c}
+  .signup button{
+    border:none;
+    border-left:2px solid var(--ink);
+    background:var(--red);
+    color:var(--cream);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:0 26px;
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .signup button:hover{background:#c53320}
+  .cta .fineprint{
+    margin-top:20px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    color:#8a8168;
+  }
+  .cta .stamp-big{
+    position:absolute;
+    right:8%;
+    top:60px;
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--red);
+    border:3px solid var(--red);
+    border-radius:6px;
+    padding:10px 18px;
+    transform:rotate(9deg);
+    opacity:.8;
+    pointer-events:none;
+  }
+
+  footer{
+    border-top:2px solid var(--ink);
+    background:var(--ink);
+    color:var(--cream);
+    padding:34px 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.1em;
+  }
+  footer .logo{font-size:18px;color:var(--cream)}
+  footer .clapper{background:var(--cream)}
+  footer .clapper::before{background:repeating-linear-gradient(-55deg, var(--cream) 0 7px, var(--ink) 7px 14px)}
+  footer a{color:var(--cream);text-decoration:none;opacity:.7;margin-left:20px}
+  footer a:hover{opacity:1;color:var(--yellow)}
+
+  @media (max-width:900px){
+    .hero-inner{grid-template-columns:1fr;gap:48px}
+    .board{transform:rotate(0)}
+    .steps{grid-template-columns:1fr}
+    .step{border-right:none;border-bottom:2px solid var(--ink)}
+    .step:last-child{border-bottom:none}
+    .features-grid{grid-template-columns:1fr}
+    .navlinks a:not(.btn){display:none}
+    .cta .stamp-big{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topstrip">
+  <span>SCENE 01 &nbsp;·&nbsp; TAKE 01 &nbsp;·&nbsp; ROLL A</span>
+  <span><b>BACKLOT</b> — BUSINESS OPS FOR WORKING CREATORS</span>
+  <span>DIR: YOU &nbsp;·&nbsp; PROD: ALSO YOU</span>
+</div>
+
+<nav>
+  <div class="logo"><span class="clapper"></span>Backlot</div>
+  <div class="navlinks">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#signup" class="btn">Get early access</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="kicker">Now boarding: creators who get paid</span>
+      <h1>You make the videos.<br>Backlot chases <em>the money.</em></h1>
+      <p class="lede">Brand contracts, invoices, sponsor deadlines, and payout tracking for every platform — finally in one place, in plain English. Built for creators, not accountants.</p>
+      <div class="hero-cta">
+        <a href="#signup" class="btn">Start free — no card</a>
+        <a href="#how" class="link-plain">See how it works ↓</a>
+      </div>
+    </div>
+
+    <div class="board" aria-label="Preview of the Backlot dashboard">
+      <div class="board-head">
+        <span>DEALS BOARD — JUNE</span>
+        <span class="dot" title="All synced"></span>
+      </div>
+      <div class="board-row">
+        <div><span class="name">NordVPN — 60s integration</span><span class="sub">Contract signed · Invoice #1042 sent</span></div>
+        <span class="tag due">Due in 3d</span>
+      </div>
+      <div class="board-row">
+        <div><span class="name">Squarespace — dedicated video</span><span class="sub">Draft approved · Net-30 terms</span></div>
+        <span class="tag soon">Filming</span>
+      </div>
+      <div class="board-row">
+        <div><span class="name">HelloFresh — 3 Shorts</span><span class="sub">Delivered May 28 · Payment received</span></div>
+        <span class="tag paid">Paid $4,200</span>
+      </div>
+      <div class="board-row">
+        <div><span class="name">YouTube AdSense — May</span><span class="sub">Auto-imported · 21st of month</span></div>
+        <span class="tag paid">Paid $2,811</span>
+      </div>
+      <div class="board-foot">
+        <span>JUNE RECEIVABLES</span>
+        <b>$13,450 tracked</b>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-inner">
+    <span>Contracts</span><span class="y">●</span><span>Invoices</span><span class="y">●</span><span>Deadlines</span><span class="y">●</span><span>Payouts</span><span class="y">●</span><span>Net-30, handled</span><span class="y">●</span><span>No more spreadsheets</span><span class="y">●</span>
+    <span>Contracts</span><span class="y">●</span><span>Invoices</span><span class="y">●</span><span>Deadlines</span><span class="y">●</span><span>Payouts</span><span class="y">●</span><span>Net-30, handled</span><span class="y">●</span><span>No more spreadsheets</span><span class="y">●</span>
+  </div>
+</div>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-label">How it works</div>
+    <h2>Three steps. Zero accounting degree required.</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="stamp">Step 01</span>
+        <div class="step-num">1.</div>
+        <h3>Drop in your deals</h3>
+        <p>Forward a contract or paste the details. Backlot reads the fine print — rates, usage rights, payment terms — and turns it into a plain-English summary.</p>
+      </div>
+      <div class="step">
+        <span class="stamp">Step 02</span>
+        <div class="step-num">2.</div>
+        <h3>Connect your platforms</h3>
+        <p>Link YouTube, TikTok, Twitch, and Patreon. Payouts sync automatically, so you always know what actually hit your account — and what's still missing.</p>
+      </div>
+      <div class="step">
+        <span class="stamp">Step 03</span>
+        <div class="step-num">3.</div>
+        <h3>Never chase alone again</h3>
+        <p>Backlot nags you before deadlines, drafts the invoice, and flags late payments with a polite-but-firm follow-up email ready to send.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-label">The toolkit</div>
+    <h2>Everything the brand sees. Finally on your side of the table.</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <span class="glyph">◉ Deals &amp; Contracts</span>
+        <h3>One board for every brand deal</h3>
+        <p>Every sponsorship from first DM to final payment, on a single board you'll actually understand.</p>
+        <ul>
+          <li>Plain-English contract summaries</li>
+          <li>Usage rights &amp; exclusivity flags</li>
+          <li>Rate history per brand, per format</li>
+        </ul>
+      </div>
+      <div class="feature">
+        <span class="glyph">◉ Invoices &amp; Chasing</span>
+        <h3>Invoices that send themselves</h3>
+        <p>Generate a professional invoice in two clicks. If Net-30 turns into Net-47, Backlot notices before you do.</p>
+        <ul>
+          <li>Auto-drafted, branded invoices</li>
+          <li>Late-payment detection &amp; reminders</li>
+          <li>Ready-to-send follow-up emails</li>
+        </ul>
+      </div>
+      <div class="feature">
+        <span class="glyph">◉ Payout Tracking</span>
+        <h3>Every platform, one total</h3>
+        <p>AdSense, TikTok Creator Rewards, Twitch subs, affiliate cuts — reconciled into a single monthly number.</p>
+        <ul>
+          <li>Automatic payout imports</li>
+          <li>Month-over-month income view</li>
+          <li>Tax-time export in one click</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="quote-band">
+  <blockquote>"I found <b>$6,300 in unpaid invoices</b> in my first week. I'd just… forgotten about them."</blockquote>
+  <cite>— Maya R., 412K subscribers, early access member</cite>
+</div>
+
+<section class="cta" id="signup">
+  <span class="stamp-big">Free while in beta</span>
+  <div class="wrap">
+    <div class="section-label" style="text-align:center">Final call</div>
+    <h2>Quit running your career out of a spreadsheet.</h2>
+    <p class="sub">Join the early access list. We'll onboard you personally, import your existing deals, and have your board running in under an hour.</p>
+    <form class="signup" onsubmit="return false">
+      <input type="email" placeholder="you@yourchannel.com" aria-label="Email address" required>
+      <button type="submit">Claim my spot →</button>
+    </form>
+    <p class="fineprint">FREE FOR YOUR FIRST 5 DEALS &nbsp;·&nbsp; NO CREDIT CARD &nbsp;·&nbsp; CANCEL BY DELETING US (WE'LL CRY, BUT FINE)</p>
+  </div>
+</section>
+
+<footer>
+  <div class="logo"><span class="clapper"></span>Backlot</div>
+  <div>
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#signup">Early access</a>
+  </div>
+  <span>© BACKLOT — THAT'S A WRAP.</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot | The Operations Tool for Creators</title>
+<style>
+    /* RESET & BASE */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f2f2eb;
+        color: #111;
+        line-height: 1.5;
+        overflow-x: hidden;
+    }
+    h1, h2, h3, h4, .brand-font {
+        font-family: "Courier New", Courier, monospace;
+        text-transform: uppercase;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+    p {
+        font-size: 1.125rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    /* UTILITIES */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+    .btn {
+        display: inline-block;
+        background-color: #ff3c00;
+        color: #fff;
+        font-family: "Courier New", Courier, monospace;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 1.25rem;
+        padding: 1rem 2rem;
+        border: 4px solid #111;
+        box-shadow: 6px 6px 0px #111;
+        cursor: pointer;
+        transition: all 0.1s ease;
+    }
+    .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0px #111;
+    }
+    .btn:active {
+        transform: translate(4px, 4px);
+        box-shadow: 2px 2px 0px #111;
+    }
+
+    /* NAV */
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-bottom: 4px solid #111;
+        margin-bottom: 4rem;
+    }
+    .logo {
+        font-size: 2rem;
+        letter-spacing: -2px;
+        background: #111;
+        color: #f2f2eb;
+        padding: 0.25rem 0.75rem;
+        display: inline-block;
+    }
+
+    /* HERO */
+    .hero {
+        text-align: center;
+        padding: 2rem 0 6rem;
+    }
+    .hero h1 {
+        font-size: clamp(3rem, 8vw, 6rem);
+        letter-spacing: -3px;
+        margin-bottom: 1.5rem;
+    }
+    .hero p {
+        font-size: clamp(1.25rem, 2vw, 1.5rem);
+        max-width: 700px;
+        margin: 0 auto 2.5rem;
+    }
+    .hero-badge {
+        display: inline-block;
+        background: #ffea00;
+        border: 2px solid #111;
+        padding: 0.5rem 1rem;
+        font-family: "Courier New", Courier, monospace;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        transform: rotate(-2deg);
+    }
+
+    /* HOW IT WORKS */
+    .how-it-works {
+        background-color: #111;
+        color: #f2f2eb;
+        padding: 6rem 0;
+        border-top: 4px solid #111;
+        border-bottom: 4px solid #111;
+    }
+    .how-it-works h2 {
+        text-align: center;
+        font-size: 3rem;
+        margin-bottom: 4rem;
+        color: #ffea00;
+    }
+    .how-it-works p {
+        color: #ccc;
+    }
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    .step-card {
+        border: 2px dashed #444;
+        padding: 2rem;
+        position: relative;
+    }
+    .step-num {
+        font-size: 4rem;
+        font-family: "Courier New", Courier, monospace;
+        font-weight: 900;
+        color: #ff3c00;
+        position: absolute;
+        top: -30px;
+        left: 20px;
+        background: #111;
+        padding: 0 10px;
+    }
+    .step-card h3 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    /* FEATURES */
+    .features {
+        padding: 6rem 0;
+    }
+    .feature-block {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        margin-bottom: 6rem;
+    }
+    .feature-block:nth-child(even) {
+        direction: rtl;
+    }
+    .feature-block:nth-child(even) > * {
+        direction: ltr;
+    }
+    .feature-content h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .feature-visual {
+        background: #fff;
+        border: 4px solid #111;
+        box-shadow: 12px 12px 0px #111;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        position: relative;
+    }
+    .visual-header {
+        border-bottom: 2px solid #111;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        font-family: "Courier New", Courier, monospace;
+        font-weight: bold;
+    }
+    .mock-item {
+        background: #f2f2eb;
+        border: 2px solid #111;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        font-family: monospace;
+    }
+    .tag-yellow { background: #ffea00; padding: 2px 6px; border: 1px solid #111;}
+    .tag-red { background: #ff3c00; color: #fff; padding: 2px 6px; border: 1px solid #111;}
+    .tag-green { background: #00e676; padding: 2px 6px; border: 1px solid #111;}
+
+    /* CTA */
+    .cta-section {
+        background-color: #ffea00;
+        text-align: center;
+        padding: 8rem 2rem;
+        border-top: 4px solid #111;
+    }
+    .cta-section h2 {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        margin-bottom: 2rem;
+    }
+
+    /* FOOTER */
+    footer {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 3rem;
+        font-family: "Courier New", Courier, monospace;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .feature-block {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        .feature-block:nth-child(even) {
+            direction: ltr;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <nav>
+        <div class="logo">BACKLOT</div>
+        <a href="#cta" class="brand-font" style="font-weight: bold; text-decoration: underline;">Login</a>
+    </nav>
+</div>
+
+<section class="hero container">
+    <div class="hero-badge">Not a Finance Bro? Good.</div>
+    <h1>Stop digging through DMs to run your channel.</h1>
+    <p>Backlot is the operating system for full-time video creators. Contracts, sponsor deadlines, invoicing, and cross-platform payout tracking—all in one place.</p>
+    <a href="#cta" class="btn">Get Early Access</a>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2>How It Works</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <h3>Forward Your Docs</h3>
+                <p>Send your brand contracts and messy email threads to a dedicated Backlot email. We parse the deliverables and dates automatically.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <h3>Connect Platforms</h3>
+                <p>Link your YouTube and TikTok accounts. We securely pull in your ad-sense and creator fund earnings so you see your total income.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <h3>Get Paid On Time</h3>
+                <p>One-click generate invoices from your contracts. Backlot tracks net-30 terms and warns you when a brand is late on payment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features container">
+    <div class="feature-block">
+        <div class="feature-content">
+            <h2>Never miss a sponsor deadline.</h2>
+            <p>Managing three different sponsors across four videos? Stop using a messy spreadsheet. Backlot creates a visual timeline of draft due dates, revision windows, and go-live dates.</p>
+        </div>
+        <div class="feature-visual">
+            <div class="visual-header">UPCOMING DELIVERABLES</div>
+            <div class="mock-item">
+                <span>NordVPN Integration</span>
+                <span class="tag-red">DUE: TODAY</span>
+            </div>
+            <div class="mock-item">
+                <span>Squarespace Dedicated</span>
+                <span class="tag-yellow">DRAFT: THURS</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-block">
+        <div class="feature-content">
+            <h2>Track every single dollar.</h2>
+            <p>Combine your platform payouts with direct brand deal revenue. See exactly what is pending, what has hit your bank account, and what is severely overdue.</p>
+        </div>
+        <div class="feature-visual">
+            <div class="visual-header">REVENUE TRACKER</div>
+            <div class="mock-item">
+                <span>YouTube AdSense</span>
+                <span class="tag-green">$4,250 PAID</span>
+            </div>
+            <div class="mock-item">
+                <span>Brand Deal: SeatGeek</span>
+                <span class="tag-yellow">$2,500 PENDING</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-block">
+        <div class="feature-content">
+            <h2>One-click invoicing.</h2>
+            <p>You make videos, not balance sheets. Turn a finalized brand contract into a professional, trackable PDF invoice in 3 seconds flat. No accounting degree required.</p>
+        </div>
+        <div class="feature-visual" style="align-items: center; justify-content: center; background: #ff3c00; border-color: #111;">
+            <div style="background: #fff; padding: 1.5rem; border: 2px solid #111; text-align: center; font-family: monospace;">
+                <h3>INVOICE #0042</h3>
+                <p style="margin: 1rem 0; font-size: 0.9rem;">To: Generic Tech Brand</p>
+                <div style="background: #111; color: #fff; padding: 0.5rem; display: inline-block; cursor: pointer;">SEND INVOICE</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="cta" class="cta-section">
+    <div class="container">
+        <h2>Ready to treat your channel like a business?</h2>
+        <p style="max-width: 600px; margin: 0 auto 2rem; color: #111;">Join hundreds of full-time creators who have stopped using spreadsheets and started using Backlot.</p>
+        <a href="#" class="btn">Create Your Account</a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2024 Backlot OS. Built for Creators.</p>
+    </div>
+</footer>
+
+</body>
+</html>

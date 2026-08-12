@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backlot — the paperwork side of your channel, in one place</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS  (Backlot)
+   Subject well: film production paperwork — call sheets, camera
+   slates, manila envelopes, gaffer/camera tape labels.
+   Signature element: the SLATE (hero card with clapper stripes
+   and filled monospace fields). Everything else stays quiet.
+   Anti-references: indigo SaaS gradient hero, Inter + purple,
+   glassmorphism, cream/terracotta editorial.
+   ============================================================ */
+:root{
+  /* color — manila paper base, ink, camera-tape red, slate grey */
+  --paper:        #E7DDC7;
+  --paper-2:      #F0E8D6;
+  --paper-3:      #DBCFB4;
+  --rule:         #C0B393;
+  --ink:          #1B1A17;
+  --ink-2:        #4A463C;
+  --tape:         #B3301C;
+  --tape-dark:    #8E2313;
+  --slate:        #23282A;
+  --slate-2:      #2E3436;
+  --slate-ink:    #EDE6D6;
+  --ok:           #2F5D3A;
+  --err:          #8E2313;
+
+  /* type — condensed grotesk / monospace data / serif prose */
+  --f-head: "Arial Narrow","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-mono: ui-monospace,"SFMono-Regular","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --f-body: Georgia,"Iowan Old Style","Times New Roman",Times,serif;
+
+  --t-1: 0.75rem;   /* labels */
+  --t-2: 0.9375rem;
+  --t-3: 1.0625rem; /* body 17px */
+  --t-4: 1.5rem;
+  --t-5: 2.25rem;
+  --t-6: 3.75rem;   /* hero, ratio ~1.5 condensed */
+
+  /* space — 4pt scale */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
+  --s6:32px; --s7:48px; --s8:64px; --s9:96px;
+
+  --r: 2px;         /* printed-form corners, never pill cards */
+  --lift: 3px 3px 0 var(--rule);       /* elevation 1: paste-up offset */
+  --lift-2: 5px 5px 0 var(--ink);      /* elevation 2: the slate only */
+
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --fast: 120ms; --mid: 240ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:var(--t-3)/1.6 var(--f-body);
+}
+body::before{ /* faint paper tooth, no gradient blobs */
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(90deg,rgba(27,26,23,.028) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(0deg,rgba(27,26,23,.02) 0 1px,transparent 1px 4px);
+}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 var(--s5)}
+h1,h2,h3{font-family:var(--f-head);font-weight:700;text-transform:uppercase;
+  letter-spacing:.01em;line-height:1.05;margin:0}
+p{margin:0}
+a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--tape)}
+:focus-visible{outline:2px solid var(--tape);outline-offset:3px}
+
+.lab{font:600 var(--t-1)/1.2 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.measure{max-width:60ch}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--rule)}
+.bar{display:flex;align-items:baseline;gap:var(--s5);padding:var(--s4) 0}
+.mark{font-family:var(--f-head);font-weight:700;font-size:1.5rem;letter-spacing:.14em;text-transform:uppercase}
+.mark span{color:var(--tape)}
+.bar .lab{margin-right:auto}
+.bar nav{display:flex;gap:var(--s5);font:var(--t-1)/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--s8);
+  padding:var(--s9) 0 var(--s8);align-items:start}
+.hero h1{font-size:var(--t-6)}
+.hero h1 em{font-style:normal;display:block;color:var(--tape)}
+.hero .measure{margin-top:var(--s5);font-size:1.125rem;color:var(--ink-2)}
+.hero .cta-row{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s6)}
+.hero footer{margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--rule)}
+
+/* SIGNATURE: the slate */
+.slate{background:var(--slate);color:var(--slate-ink);border-radius:var(--r);
+  box-shadow:var(--lift-2);overflow:hidden}
+.slate .clap{height:26px;background:
+  repeating-linear-gradient(115deg,var(--slate-ink) 0 22px,var(--slate) 22px 44px)}
+.slate .body{padding:var(--s5)}
+.slate .row{display:grid;grid-template-columns:auto 1fr;gap:var(--s3) var(--s4);
+  align-items:baseline;padding:var(--s3) 0;border-bottom:1px dashed rgba(237,230,214,.22)}
+.slate .row:last-child{border-bottom:0}
+.slate .k{font:600 var(--t-1)/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(237,230,214,.62);min-width:9ch}
+.slate .v{font:var(--t-2)/1.4 var(--f-mono);color:var(--slate-ink)}
+.slate .v b{color:#F2C14E;font-weight:600}
+.slate .v .late{color:#F09B84}
+.slate .foot{background:var(--slate-2);padding:var(--s3) var(--s5);
+  font:var(--t-1)/1.4 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(237,230,214,.66);display:flex;justify-content:space-between;gap:var(--s4)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  min-height:44px;padding:var(--s3) var(--s5);border:1px solid var(--ink);
+  border-radius:var(--r);background:var(--tape);color:var(--paper-2);
+  font:600 var(--t-2)/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;box-shadow:var(--lift);
+  transition:transform var(--fast) var(--ease),box-shadow var(--fast) var(--ease),background var(--fast) var(--ease)}
+.btn:hover{background:var(--tape-dark)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--rule)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--paper-3);color:var(--ink)}
+.btn[disabled]{background:var(--paper-3);color:#8A8271;border-color:var(--rule);
+  box-shadow:none;cursor:not-allowed}
+.btn.loading{color:transparent;position:relative}
+.btn.loading::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(240,232,214,.45);border-top-color:var(--paper-2);
+  animation:spin 700ms linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- tape strip divider ---------- */
+.strip{background:var(--tape);color:var(--paper-2);border-block:1px solid var(--ink)}
+.strip .wrap{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s6);padding:var(--s3) var(--s5)}
+.strip span{font:600 var(--t-1)/1.4 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+
+/* ---------- sections ---------- */
+section{padding:var(--s9) 0}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--s4);
+  padding-bottom:var(--s4);border-bottom:2px solid var(--ink);margin-bottom:var(--s7)}
+.head h2{font-size:var(--t-5);margin-right:auto}
+
+/* how it works — order genuinely matters, so it is numbered */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2)}
+ol.steps li{display:grid;grid-template-columns:5.5rem 14rem 1fr;gap:var(--s5);
+  padding:var(--s5);border-bottom:1px solid var(--rule)}
+ol.steps li:last-child{border-bottom:0}
+ol.steps .n{font-family:var(--f-head);font-size:var(--t-5);line-height:.9;color:var(--tape)}
+ol.steps h3{font-size:1.25rem}
+ol.steps p{color:var(--ink-2);font-size:var(--t-2)}
+
+/* features — deliberately unequal blocks, not a card grid */
+.feat{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--s7) var(--s6)}
+.feat article{border-top:2px solid var(--ink);padding-top:var(--s4)}
+.feat article:first-child{grid-row:span 2;border-top-width:6px}
+.feat h3{font-size:var(--t-4);margin:var(--s3) 0 var(--s3)}
+.feat p{color:var(--ink-2)}
+.ledger{margin-top:var(--s5);border:1px solid var(--rule);background:var(--paper-2);border-radius:var(--r)}
+.ledger div{display:flex;justify-content:space-between;gap:var(--s4);
+  padding:var(--s3) var(--s4);border-bottom:1px solid var(--rule);
+  font:var(--t-2)/1.4 var(--f-mono)}
+.ledger div:last-child{border-bottom:0}
+.ledger .st{font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase}
+.ledger .paid{color:var(--ok)}
+.ledger .due{color:var(--err)}
+.feat ul{margin:var(--s4) 0 0;padding:0;list-style:none}
+.feat ul li{padding:var(--s2) 0 var(--s2) var(--s5);border-bottom:1px dotted var(--rule);
+  font:var(--t-2)/1.5 var(--f-mono);position:relative}
+.feat ul li::before{content:"↳";position:absolute;left:0;color:var(--tape)}
+
+/* ---------- sign up ---------- */
+.signup{background:var(--slate);color:var(--slate-ink);border-block:1px solid var(--ink)}
+.signup .wrap{display:grid;grid-template-columns:1fr 1fr;gap:var(--s8);padding:var(--s9) var(--s5)}
+.signup h2{font-size:var(--t-5)}
+.signup .lab{color:rgba(237,230,214,.6)}
+.signup p{color:rgba(237,230,214,.8);margin-top:var(--s4)}
+form{background:var(--paper-2);color:var(--ink);border-radius:var(--r);
+  padding:var(--s6);box-shadow:var(--lift-2)}
+.field{margin-bottom:var(--s5)}
+label{display:block;font:600 var(--t-1)/1.3 var(--f-mono);letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:var(--s2)}
+input,select{width:100%;min-height:44px;padding:var(--s3);border:1px solid var(--ink);
+  border-radius:var(--r);background:#FFFDF6;color:var(--ink);
+  font:var(--t-3)/1.4 var(--f-mono)}
+input:hover,select:hover{background:#fff}
+input:focus-visible,select:focus-visible{outline:2px solid var(--tape);outline-offset:2px}
+input[disabled]{background:var(--paper-3);color:#8A8271;cursor:not-allowed}
+.hint{margin-top:var(--s2);font:var(--t-1)/1.5 var(--f-mono);color:var(--ink-2)}
+.err{border-color:var(--err);background:#FCF1EC}
+.msg-err{margin-top:var(--s2);font:600 var(--t-1)/1.5 var(--f-mono);color:var(--err)}
+.msg-ok{margin-top:var(--s2);font:600 var(--t-1)/1.5 var(--f-mono);color:var(--ok)}
+form .btn{width:100%}
+
+/* ---------- footer ---------- */
+.site-foot{border-top:1px solid var(--rule)}
+.site-foot .wrap{display:flex;flex-wrap:wrap;gap:var(--s5);justify-content:space-between;
+  padding:var(--s6) var(--s5);font:var(--t-1)/1.6 var(--f-mono);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+
+@media (max-width:860px){
+  .hero,.feat,.signup .wrap{grid-template-columns:1fr;gap:var(--s7)}
+  .hero{padding-top:var(--s7)}
+  .hero h1{font-size:2.75rem}
+  .feat article:first-child{grid-row:auto}
+  ol.steps li{grid-template-columns:3.5rem 1fr;gap:var(--s3) var(--s4)}
+  ol.steps li h3{grid-column:2}
+  ol.steps li p{grid-column:2}
+  section{padding:var(--s8) 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="mark">Back<span>lot</span></div>
+    <div class="lab">Production office for one-person channels</div>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#work">What it tracks</a>
+      <a href="#start">Get set up</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="lab">Roll 01 &nbsp;/&nbsp; Slate 14 &nbsp;/&nbsp; Take 3</p>
+      <h1>Every brand deal<em>has paperwork</em></h1>
+      <p class="measure">Backlot keeps your contracts, invoices, sponsor deadlines and
+        platform payouts on one board, so you can answer "when does this money land"
+        without opening nine tabs and a group chat. Built for people who shoot for a
+        living and do the admin at midnight.</p>
+      <div class="cta-row">
+        <a class="btn" href="#start">Set up my board</a>
+        <a class="btn ghost" href="#how">See a sample week</a>
+      </div>
+      <footer>
+        <p class="lab">No spreadsheet import required. Cancel from the settings page in two clicks.</p>
+      </footer>
+    </div>
+
+    <!-- signature element: the slate -->
+    <div class="slate" aria-label="Sample Backlot deal slate">
+      <div class="clap" aria-hidden="true"></div>
+      <div class="body">
+        <div class="row"><div class="k">Sponsor</div><div class="v">Ridgeline Coffee Co.</div></div>
+        <div class="row"><div class="k">Deliver</div><div class="v">60s integration + 1 Short<br>Cut 2 due <b>Fri 14 Mar</b></div></div>
+        <div class="row"><div class="k">Fee</div><div class="v">$4,800 &nbsp;·&nbsp; net 45 &nbsp;·&nbsp; <b>invoice sent</b></div></div>
+        <div class="row"><div class="k">Usage</div><div class="v">Paid social, 6 months, expires 12 Sep</div></div>
+        <div class="row"><div class="k">Exclusive</div><div class="v">No coffee brands until 30 Apr</div></div>
+        <div class="row"><div class="k">Flag</div><div class="v"><span class="late">Payment 9 days past terms</span></div></div>
+      </div>
+      <div class="foot"><span>Status: in post</span><span>Next action: chase AP contact</span></div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="wrap">
+      <span>Contracts</span><span>Invoices</span><span>Sponsor deadlines</span>
+      <span>Usage windows</span><span>Exclusivity clocks</span><span>Platform payouts</span>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="head">
+        <h2>How it works</h2>
+        <p class="lab">Three steps, in order. About twenty minutes.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <div class="n">01</div>
+          <h3>Drop in the deal</h3>
+          <p>Upload the contract PDF or paste the email thread. Backlot pulls out the fee,
+             the payment terms, the deliverable list, the usage window and the exclusivity
+             clause, then shows you what it found so you can correct it.</p>
+        </li>
+        <li>
+          <div class="n">02</div>
+          <h3>Connect where the money lands</h3>
+          <p>Link your YouTube, TikTok, Twitch and Patreon payout accounts once. Ad
+             revenue, tips and platform bonuses land on the same calendar as your
+             sponsor invoices, in the currency you actually get paid in.</p>
+        </li>
+        <li>
+          <div class="n">03</div>
+          <h3>Work the board</h3>
+          <p>Each morning you get one list: what ships today, what invoice to send,
+             what payment is late and who to email about it. Nothing else asks for
+             your attention.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="head">
+        <h2>What it tracks for you</h2>
+        <p class="lab">Three things that cost creators real money</p>
+      </div>
+      <div class="feat">
+        <article>
+          <p class="lab">Money in</p>
+          <h3>Invoices that chase themselves</h3>
+          <p>Backlot writes the invoice from the contract terms, sends it on the date the
+             agreement allows, and follows up on day 7, 14 and 30 if the payment does not
+             arrive. You see one number: what you are owed and how late it is.</p>
+          <div class="ledger">
+            <div><span>Ridgeline Coffee</span><span class="st due">14 days late</span></div>
+            <div><span>Northgate Audio</span><span class="st due">Due in 5 days</span></div>
+            <div><span>Fable Games</span><span class="st paid">Paid 3 Mar</span></div>
+            <div><span>YouTube · Feb ads</span><span class="st paid">Paid 21 Mar</span></div>
+          </div>
+        </article>
+        <article>
+          <p class="lab">Obligations</p>
+          <h3>Deadlines with the clause attached</h3>
+          <p>Every due date carries the sentence from the contract that created it, so you
+             know whether a slip costs you goodwill or a percentage of the fee.</p>
+          <ul>
+            <li>Cut 2 revision window closes in 3 days</li>
+            <li>Exclusivity ends 30 Apr</li>
+            <li>Usage rights expire 12 Sep</li>
+          </ul>
+        </article>
+        <article>
+          <p class="lab">Records</p>
+          <h3>Tax season without the shoebox</h3>
+          <p>Signed contracts, invoices, receipts and per platform payout statements sit in
+             one folder per year. Export the whole thing as a single PDF and a CSV your
+             accountant can read.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="signup" id="start">
+  <div class="wrap">
+    <div>
+      <p class="lab">Get set up</p>
+      <h2>Start with your next deal</h2>
+      <p>Add one contract and connect one payout account. If Backlot has not caught a
+         deadline or a late payment for you inside 30 days, write in and we refund the
+         month. $18 a month after the first deal, one plan, no seat count.</p>
+      <p class="lab" style="margin-top:24px">Questions go to hello@backlot.studio and a person answers.</p>
+    </div>
+
+    <form action="#" method="post" novalidate>
+      <div class="field">
+        <label for="email">Email you actually read</label>
+        <input id="email" name="email" type="email" autocomplete="email"
+               placeholder="you@channel.tv" required>
+        <p class="hint" id="email-hint">Used for your login and deadline digest. Nothing else.</p>
+      </div>
+
+      <div class="field">
+        <label for="channel">Channel or handle</label>
+        <input id="channel" name="channel" type="text" class="err"
+               value="youtube.com" aria-describedby="channel-err" aria-invalid="true">
+        <p class="msg-err" id="channel-err">Add the full channel URL or your @handle.</p>
+      </div>
+
+      <div class="field">
+        <label for="deals">Brand deals in the last 12 months</label>
+        <select id="deals" name="deals">
+          <option>1 to 3</option>
+          <option selected>4 to 10</option>
+          <option>11 to 25</option>
+          <option>More than 25</option>
+        </select>
+        <p class="hint">Sets up your board layout. You can change it later.</p>
+      </div>
+
+      <button class="btn" type="submit">Create my board</button>
+      <p class="msg-ok">Free while you add your first deal. Card asked for on day 14.</p>
+    </form>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Backlot &nbsp;·&nbsp; Production office for one-person channels</span>
+    <span><a href="#work">What it tracks</a> &nbsp;·&nbsp; <a href="#how">How it works</a> &nbsp;·&nbsp; <a href="#start">Pricing</a></span>
+    <span>hello@backlot.studio</span>
+  </div>
+</footer>
+
+</body>
+</html>

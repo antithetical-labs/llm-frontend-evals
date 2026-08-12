@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamforge | Live-streaming for AI-assisted Development</title>
+    <style>
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-surface: #141417;
+            --bg-panel: #1c1c21;
+            --text-main: #f0f0f5;
+            --text-muted: #8b8b99;
+            --accent: #ff4500;
+            --accent-hover: #ff5e22;
+            --code-prompt: #4facfe;
+            --code-ai: #00ff66;
+            --border: #33333d;
+            
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image: 
+                linear-gradient(var(--bg-surface) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bg-surface) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Nav */
+        header {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-base);
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo::before {
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-terminal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-align: left;
+            margin-top: 60px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: var(--bg-panel);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .terminal-header .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+        .terminal-header .dot.red { background: #ff5f56; }
+        .terminal-header .dot.yellow { background: #ffbd2e; }
+        .terminal-header .dot.green { background: #27c93f; }
+
+        .terminal-header .title {
+            margin-left: 12px;
+        }
+
+        .terminal-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 400px;
+        }
+
+        .pane {
+            padding: 24px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+
+        .pane-left {
+            border-right: 1px solid var(--border);
+        }
+
+        .prompt-block { margin-bottom: 24px; }
+        .prompt-label { color: var(--code-prompt); margin-bottom: 8px; font-weight: bold; }
+        .ai-label { color: var(--code-ai); margin-bottom: 8px; font-weight: bold; }
+        .text-dim { color: var(--text-muted); }
+
+        /* How it works */
+        .how-it-works {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-base);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .step {
+            position: relative;
+        }
+
+        .step-number {
+            font-family: var(--font-mono);
+            font-size: 4rem;
+            color: var(--bg-panel);
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: -20px;
+            position: relative;
+            z-index: 0;
+        }
+
+        .step-content {
+            position: relative;
+            z-index: 1;
+            background: var(--bg-surface);
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+        }
+
+        .step h3 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .step p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Features */
+        .features {
+            padding: 100px 0;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            padding: 40px 32px;
+            border-radius: 2px;
+        }
+
+        .feature-icon {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 16px;
+            font-size: 1.25rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* CTA */
+        .cta {
+            padding: 120px 0;
+            text-align: center;
+            background: var(--bg-base);
+        }
+
+        .cta h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .cta-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+
+        .cta-form input {
+            flex: 1;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 16px 20px;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            border-radius: 2px;
+        }
+
+        .cta-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--bg-base);
+        }
+
+        @media (max-width: 768px) {
+            .terminal-body {
+                grid-template-columns: 1fr;
+            }
+            .pane-left {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .cta-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; width: 100%;">
+            <a href="#" class="logo">STREAMFORGE</a>
+            <nav>
+                <a href="#how-it-works" class="btn" style="border: none;">Docs</a>
+                <a href="#cta" class="btn btn-primary">Start Streaming</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero container">
+        <h1>Watch code evolve.<br>Fork the result.</h1>
+        <p>The first live-streaming platform built for AI-assisted development. See the prompts, watch the models write, and fork the live repository with one click.</p>
+        
+        <div class="hero-terminal">
+            <div class="terminal-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <div class="title">streamforge-live-session // viewer: 1,492</div>
+            </div>
+            <div class="terminal-body">
+                <div class="pane pane-left">
+                    <div class="prompt-block">
+                        <div class="prompt-label">USER PROMPT</div>
+                        <div class="text-dim">> Build a high-performance Redis cache wrapper in Go. It needs to handle connection pooling and auto-retries on timeout.</div>
+                    </div>
+                    <div class="prompt-block">
+                        <div class="ai-label">CLAUDE-3.5-SONNET IS TYPING...</div>
+                        <div class="text-dim">I'll create a robust Redis wrapper using `go-redis/redis/v8`. I will implement a custom connection pool strategy and an exponential backoff retry mechanism.</div>
+                    </div>
+                </div>
+                <div class="pane pane-right">
+                    <div style="color: var(--text-muted); margin-bottom: 16px;">// cache/redis.go</div>
+                    <div style="color: #c678dd;">package <span style="color: var(--text-main);">cache</span></div>
+                    <br>
+                    <div style="color: #c678dd;">import <span style="color: var(--text-main);">(</span></div>
+                    <div style="color: #98c379; margin-left: 16px;">"context"</div>
+                    <div style="color: #98c379; margin-left: 16px;">"time"</div>
+                    <div style="color: #98c379; margin-left: 16px;">"github.com/go-redis/redis/v8"</div>
+                    <div style="color: var(--text-main);">)</div>
+                    <br>
+                    <div style="color: var(--text-muted);">// AI generating implementation... █</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Connect your IDE</h3>
+                        <p>Install the Streamforge plugin for VS Code or JetBrains. It hooks into your AI extensions (Copilot, Cursor, Codeium) and captures your prompt telemetry automatically.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Stream your workflow</h3>
+                        <p>Go live. Streamforge renders a split-screen view for your audience natively on the web. No OBS required. Viewers see your editor state and your AI chats simultaneously.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>The Audience Forks</h3>
+                        <p>Your workspace is synced to a temporary cloud environment. Viewers can click "Fork Current State" at any second of the broadcast to grab your exact code and prompt history.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">{ }</div>
+                    <h3>Real-time Prompt Telemetry</h3>
+                    <p>Stop answering "what prompt did you use?" in chat. Viewers see every keystroke of your prompt, the context you provided to the model, and the raw output.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&lt;/&gt;</div>
+                    <h3>Multi-LLM Native</h3>
+                    <p>Whether you're using GPT-4o, Claude 3.5 Sonnet, or a local Llama 3 instance, Streamforge parses the engine and displays model-specific badges to your viewers.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">git branch</div>
+                    <h3>Time-travel Forking</h3>
+                    <p>Viewers don't just watch; they build. Our platform tracks file changes locally and allows viewers to instantly spawn a Codespace or download a zip of your code at any timestamp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta" class="cta container">
+        <h2>Ready to forge?</h2>
+        <p>Join the waitlist to get early access to the developer streaming revolution.</p>
+        <form class="cta-form" onsubmit="event.preventDefault(); alert('Subscribed to Streamforge!');">
+            <input type="email" placeholder="dev@example.com" required>
+            <button type="submit" class="btn btn-primary">Request Access</button>
+        </form>
+    </section>
+
+    <footer>
+        <div class="container">
+            &copy; 2023 Streamforge Inc. All rights reserved. Built for developers, by developers.
+        </div>
+    </footer>
+
+</body>
+</html>

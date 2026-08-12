@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streamforge — watch software get built, prompt by prompt</title>
+<style>
+  :root{
+    --ink:#14130f;
+    --paper:#e8e4da;
+    --paper2:#dcd7c9;
+    --signal:#e8410b;
+    --phos:#7ce49a;
+    --dim:#6d6a5f;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, "Segoe UI", system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.55;
+  }
+  a{color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+
+  /* ---------- ticker ---------- */
+  .ticker{
+    background:var(--ink);color:var(--paper);
+    border-bottom:2px solid var(--ink);
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    overflow:hidden;white-space:nowrap;padding:7px 0;
+  }
+  .ticker span{display:inline-block;padding-left:100%;animation:slide 34s linear infinite}
+  .ticker b{color:var(--phos);font-weight:400}
+  .ticker i{color:var(--signal);font-style:normal}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+  @media (prefers-reduced-motion:reduce){.ticker span{animation:none;padding-left:0}}
+
+  /* ---------- nav ---------- */
+  nav{
+    border-bottom:2px solid var(--ink);
+    display:flex;align-items:stretch;justify-content:space-between;
+    background:var(--paper);
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 24px;border-right:2px solid var(--ink);
+    font-weight:700;letter-spacing:-.02em;font-size:17px;
+  }
+  .mark{
+    width:20px;height:20px;background:var(--signal);
+    display:inline-block;position:relative;flex:none;
+  }
+  .mark::after{content:"";position:absolute;inset:6px 6px auto auto;width:8px;height:8px;background:var(--paper)}
+  nav ul{display:flex;list-style:none;margin:0;padding:0}
+  nav ul li a{
+    display:flex;align-items:center;height:100%;padding:14px 18px;
+    border-left:2px solid var(--ink);text-decoration:none;
+    font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  }
+  nav ul li a:hover{background:var(--ink);color:var(--phos)}
+  .nav-live{color:var(--signal)}
+  .nav-live b{font-weight:400}
+  @media (max-width:760px){ .nav-hide{display:none} }
+
+  /* ---------- hero ---------- */
+  header.hero{
+    background:var(--ink);color:var(--paper);
+    border-bottom:2px solid var(--ink);
+    background-image:
+      linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size:32px 32px;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:0;align-items:stretch}
+  .hero-copy{padding:64px 40px 56px 24px}
+  .kicker{
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--phos);
+    display:flex;align-items:center;gap:9px;margin:0 0 26px;
+  }
+  .dot{width:8px;height:8px;background:var(--signal);border-radius:50%;box-shadow:0 0 0 4px rgba(232,65,11,.22)}
+  h1{
+    font-family:var(--sans);
+    font-size:clamp(38px,5.6vw,66px);
+    line-height:.98;letter-spacing:-.035em;font-weight:700;
+    margin:0 0 22px;
+  }
+  h1 em{font-style:normal;color:var(--signal)}
+  h1 u{text-decoration:none;border-bottom:6px solid var(--phos);padding-bottom:2px}
+  .lede{font-size:15.5px;max-width:46ch;color:#c9c4b6;margin:0 0 30px}
+  .lede strong{color:var(--paper);font-weight:400;background:rgba(124,228,154,.14);padding:1px 3px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn{
+    display:inline-block;text-decoration:none;font-family:var(--mono);
+    font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+    padding:14px 22px;border:2px solid var(--paper);
+  }
+  .btn-primary{background:var(--signal);border-color:var(--signal);color:#fff;box-shadow:5px 5px 0 var(--phos)}
+  .btn-primary:hover{box-shadow:0 0 0 var(--phos);transform:translate(4px,4px)}
+  .btn-primary{transition:transform .12s, box-shadow .12s}
+  .btn-ghost:hover{background:var(--paper);color:var(--ink)}
+  .hero-meta{margin-top:34px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border-top:1px dashed #3a382f;padding-top:14px}
+
+  /* console panel */
+  .console{
+    border-left:2px solid #3a382f;
+    background:#0c0c09;
+    font-size:12.5px;
+    display:flex;flex-direction:column;
+  }
+  .console-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 14px;border-bottom:1px solid #2a2924;
+    color:#8e8a7c;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .console-bar .rec{color:var(--signal)}
+  .console-body{padding:16px 14px;flex:1;overflow:hidden}
+  .line{display:flex;gap:10px;margin-bottom:9px}
+  .gut{color:#4d4b42;user-select:none;flex:none;width:20px;text-align:right}
+  .role{flex:none;font-size:10px;letter-spacing:.1em;padding:1px 5px;height:16px;line-height:14px;text-transform:uppercase}
+  .r-you{background:var(--phos);color:#0c0c09}
+  .r-ai{background:#3b6ee0;color:#fff}
+  .txt{color:#b9b5a6}
+  .txt .k{color:#e8b04b}
+  .txt .s{color:var(--phos)}
+  .txt .c{color:#5f5d52}
+  .diff-add{color:var(--phos)}
+  .diff-del{color:#e8410b}
+  .console-foot{
+    border-top:1px solid #2a2924;padding:10px 14px;
+    display:flex;justify-content:space-between;gap:8px;
+    color:#8e8a7c;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap;
+  }
+  .caret{display:inline-block;width:8px;height:14px;background:var(--phos);vertical-align:-2px;animation:blink 1.1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr}
+    .hero-copy{padding:44px 24px 40px}
+    .console{border-left:0;border-top:2px solid #3a382f}
+  }
+
+  /* ---------- section chrome ---------- */
+  section{border-bottom:2px solid var(--ink)}
+  .sec-head{
+    display:flex;align-items:baseline;gap:16px;
+    padding:16px 0;border-bottom:2px solid var(--ink);
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  }
+  .sec-head .num{background:var(--ink);color:var(--paper);padding:3px 8px}
+  .sec-head .fill{flex:1;border-bottom:1px dotted #a8a294}
+  h2{
+    font-family:var(--sans);font-weight:700;letter-spacing:-.03em;
+    font-size:clamp(26px,3.6vw,40px);line-height:1.02;margin:34px 0 12px;max-width:22ch;
+  }
+  .sec-lede{max-width:60ch;color:#4b483f;margin:0 0 40px}
+
+  /* ---------- how it works ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);background:var(--paper2);margin-bottom:52px}
+  .step{padding:26px 22px 28px;border-right:2px solid var(--ink)}
+  .step:last-child{border-right:0}
+  .step .idx{font-family:var(--sans);font-size:44px;font-weight:700;letter-spacing:-.05em;line-height:1;color:var(--signal)}
+  .step h3{font-family:var(--sans);font-size:18px;letter-spacing:-.02em;margin:12px 0 8px}
+  .step p{margin:0;color:#4b483f;font-size:14px}
+  .step:nth-child(2){background:#d3cebf}
+  .step:nth-child(3){background:#c9c3b2}
+  @media (max-width:800px){.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:2px solid var(--ink)}.step:last-child{border-bottom:0}}
+
+  /* ---------- features ---------- */
+  .feat{display:grid;grid-template-columns:110px 1fr 1fr;gap:0;border-top:2px solid var(--ink)}
+  .features{border-bottom:2px solid var(--ink)}
+  .feat-tag{
+    padding:26px 16px;border-right:2px solid var(--ink);
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  }
+  .feat-main{padding:26px 30px 30px 26px;border-right:2px solid var(--ink)}
+  .feat-main h3{font-family:var(--sans);font-size:clamp(20px,2.4vw,27px);letter-spacing:-.025em;margin:0 0 12px;max-width:22ch}
+  .feat-main p{margin:0 0 14px;color:#4b483f;max-width:48ch}
+  .feat-main ul{margin:0;padding:0;list-style:none;font-size:13px}
+  .feat-main li{padding:6px 0;border-top:1px dotted #a8a294;display:flex;gap:10px}
+  .feat-main li::before{content:"→";color:var(--signal)}
+  .feat-art{
+    padding:22px;background:var(--ink);color:#b9b5a6;font-size:12px;
+    display:flex;flex-direction:column;justify-content:center;gap:8px;
+  }
+  .feat-art .hd{color:var(--phos);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+  .bar{display:flex;align-items:center;gap:10px}
+  .bar span:first-child{width:96px;flex:none;color:#8e8a7c;font-size:11px}
+  .track{flex:1;height:9px;background:#26251f;position:relative}
+  .track i{position:absolute;inset:0 auto 0 0;background:var(--phos)}
+  .track i.o{background:var(--signal)}
+  .chip{display:inline-block;border:1px solid #4d4b42;padding:2px 7px;margin:0 4px 4px 0;font-size:11px}
+  .chip.on{border-color:var(--phos);color:var(--phos)}
+  @media (max-width:920px){
+    .feat{grid-template-columns:1fr}
+    .feat-tag{border-right:0;border-bottom:2px solid var(--ink);padding:14px 18px}
+    .feat-main{border-right:0;padding:24px 20px}
+  }
+
+  /* ---------- CTA ---------- */
+  .cta{background:var(--signal);color:#fff;border-bottom:2px solid var(--ink)}
+  .cta-inner{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .cta-left{padding:60px 40px 60px 24px}
+  .cta-left h2{color:#fff;margin-top:0}
+  .cta-left p{max-width:42ch;color:#ffe0d6}
+  .cta-right{border-left:2px solid var(--ink);background:var(--ink);padding:44px 24px}
+  form{display:flex;flex-direction:column;gap:14px;max-width:420px}
+  label{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8e8a7c}
+  input[type=email],input[type=text],select{
+    width:100%;font-family:var(--mono);font-size:14px;
+    padding:13px 14px;background:#0c0c09;color:var(--paper);
+    border:2px solid #3a382f;border-radius:0;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--phos)}
+  .radio-row{display:flex;flex-wrap:wrap;gap:8px}
+  .radio-row label{
+    display:flex;gap:7px;align-items:center;border:2px solid #3a382f;
+    padding:9px 12px;color:#b9b5a6;cursor:pointer;letter-spacing:.08em;
+  }
+  .radio-row input{accent-color:var(--signal);margin:0}
+  .radio-row label:hover{border-color:#5f5d52}
+  button{
+    font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+    padding:15px 20px;background:var(--phos);color:#0c0c09;border:2px solid var(--phos);
+    cursor:pointer;box-shadow:5px 5px 0 var(--signal);transition:transform .12s,box-shadow .12s;
+  }
+  button:hover{transform:translate(4px,4px);box-shadow:0 0 0 var(--signal)}
+  .fine{font-size:11px;color:#6d6a5f;letter-spacing:.04em}
+  @media (max-width:900px){
+    .cta-inner{grid-template-columns:1fr}
+    .cta-left{padding:44px 24px 36px}
+    .cta-right{border-left:0;border-top:2px solid var(--ink)}
+  }
+
+  /* ---------- footer ---------- */
+  footer{background:var(--paper2);font-size:12px}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:34px;justify-content:space-between;padding:34px 0}
+  footer h4{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:400}
+  footer ul{list-style:none;margin:0;padding:0}
+  footer li{padding:3px 0}
+  footer a{text-decoration:none;border-bottom:1px solid transparent}
+  footer a:hover{border-bottom-color:var(--signal);color:var(--signal)}
+  .foot-bar{border-top:2px solid var(--ink);padding:14px 0;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true">
+  <span>
+    <b>LIVE</b> maren/rust-raytracer — 412 watching &nbsp;·&nbsp;
+    <i>FORKED</i> okonkwo/pg-query-planner → 38 forks today &nbsp;·&nbsp;
+    <b>LIVE</b> tsu/ffmpeg-wasm-pipeline — prompt #91 &nbsp;·&nbsp;
+    <i>SHIPPED</i> danah/auth-rewrite closed 14 tickets on stream &nbsp;·&nbsp;
+    <b>LIVE</b> jvk/kafka-consumer-lag — 1,206 watching &nbsp;·&nbsp;
+    <i>NEW</i> replay diffs now scrub prompt-by-prompt &nbsp;·&nbsp;
+  </span>
+</div>
+
+<nav>
+  <div class="brand"><span class="mark"></span>STREAMFORGE</div>
+  <ul>
+    <li class="nav-hide"><a href="#how">How it works</a></li>
+    <li class="nav-hide"><a href="#features">Features</a></li>
+    <li class="nav-hide"><a href="#signup">Pricing</a></li>
+    <li><a href="#signup" class="nav-live"><b>●</b>&nbsp;347 live</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="kicker"><span class="dot"></span>on air — 347 builds in progress</p>
+      <h1>Watch the <em>prompt</em>.<br>Watch the <u>diff</u>.<br>Fork the repo.</h1>
+      <p class="lede">Streamforge is live-streaming for people who build software with AI. Every keystroke, every prompt, every hallucinated import and the fix that followed — broadcast as it happens. <strong>One click clones the repo at any second of the timeline.</strong></p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#signup">Start broadcasting →</a>
+        <a class="btn btn-ghost" href="#how">Browse live builds</a>
+      </div>
+      <p class="hero-meta">No editing. No tutorials. No screen-record-then-upload. Just the work.</p>
+    </div>
+
+    <div class="console" role="img" aria-label="Illustration of a live Streamforge session showing prompts, model output and a code diff.">
+      <div class="console-bar">
+        <span>maren / rust-raytracer</span>
+        <span class="rec">● REC 01:42:07</span>
+      </div>
+      <div class="console-body">
+        <div class="line"><span class="gut">88</span><span class="role r-you">you</span><span class="txt">the BVH build is O(n²). rewrite split() to use a surface-area heuristic, keep the existing Aabb API</span></div>
+        <div class="line"><span class="gut">89</span><span class="role r-ai">gpt</span><span class="txt"><span class="c">// bvh.rs — replacing midpoint split</span><br>
+          <span class="k">fn</span> split(&amp;<span class="k">mut self</span>, prims: &amp;<span class="k">mut</span> [Prim]) -&gt; <span class="s">usize</span> {</span></div>
+        <div class="line"><span class="gut">90</span><span class="role r-ai">gpt</span><span class="txt"><span class="diff-del">- let mid = prims.len() / 2;</span><br>
+          <span class="diff-add">+ let (axis, cost) = self.sah_best(prims);</span><br>
+          <span class="diff-add">+ prims.select_nth_unstable_by(...)</span></span></div>
+        <div class="line"><span class="gut">91</span><span class="role r-you">you</span><span class="txt">cargo bench — 4.9s → 1.3s. keeping it<span class="caret"></span></span></div>
+      </div>
+      <div class="console-foot">
+        <span>412 watching</span><span>fork @ prompt 91</span><span>MIT · rust 1.79</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><span>How it works</span><span class="fill"></span><span>3 steps</span></div>
+    <h2>Point it at your repo. Everything else is automatic.</h2>
+    <p class="sec-lede">Streamforge hooks into your editor and your assistant, not a webcam and a mixer. You keep working; the timeline records itself.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="idx">01</div>
+        <h3>Attach the agent</h3>
+        <p>Install the CLI, run <code>forge live</code> in your project. It captures your prompt stream, the model's response, and the resulting git diff as three synced tracks.</p>
+      </div>
+      <div class="step">
+        <div class="idx">02</div>
+        <h3>Build in the open</h3>
+        <p>Viewers see the prompt panel, the model output, and the file tree side by side. Chat threads pin to a specific prompt, so feedback lands where it's relevant.</p>
+      </div>
+      <div class="step">
+        <div class="idx">03</div>
+        <h3>Anyone forks the moment</h3>
+        <p>Every commit is a public checkpoint. Scrub to minute 42, hit fork, and get the repo exactly as it stood — plus the prompt history that produced it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><span>What you get</span><span class="fill"></span><span>Built for working devs</span></div>
+  </div>
+
+  <div class="feat">
+    <div class="feat-tag">Forkable<br>timeline</div>
+    <div class="feat-main">
+      <h3>Fork any stream at any second, not just at the end</h3>
+      <p>The stream <em>is</em> the repository. Drag the scrubber to the commit before the refactor went sideways and branch from there. You inherit the code, the prompt log, the model config, and the test results.</p>
+      <ul>
+        <li>Checkpoint per prompt, not per session</li>
+        <li>Prompt history exports as a replayable <code>.forge</code> file</li>
+        <li>Works with your own remote — GitHub, GitLab, self-hosted</li>
+      </ul>
+    </div>
+    <div class="feat-art">
+      <div class="hd">Timeline · 01:42:07</div>
+      <div class="bar"><span>prompts</span><div class="track"><i style="width:78%"></i></div></div>
+      <div class="bar"><span>diff churn</span><div class="track"><i class="o" style="width:46%"></i></div></div>
+      <div class="bar"><span>tests green</span><div class="track"><i style="width:91%"></i></div></div>
+      <div style="margin-top:8px">fork points: <span class="chip">#12</span><span class="chip on">#47</span><span class="chip">#63</span><span class="chip on">#91</span></div>
+    </div>
+  </div>
+
+  <div class="feat">
+    <div class="feat-tag">Three-track<br>player</div>
+    <div class="feat-main">
+      <h3>Prompt, output, and code — synced frame for frame</h3>
+      <p>Most screencasts hide the interesting part. Streamforge splits the session into tracks you can read independently: what was asked, what the model returned, and what actually shipped into the file after the human edited it.</p>
+      <ul>
+        <li>Side-by-side prompt ↔ diff view, keyboard navigable</li>
+        <li>Search a stream's full prompt text like a transcript</li>
+        <li>Failed attempts stay visible — deleted branches included</li>
+      </ul>
+    </div>
+    <div class="feat-art">
+      <div class="hd">Track sync</div>
+      <div class="txt" style="line-height:1.7">
+        <span class="role r-you">you</span> &nbsp;prompt&nbsp;#63 &nbsp;<span class="c">14:02:11</span><br>
+        <span class="role r-ai">gpt</span> &nbsp;387 tok &nbsp;<span class="c">14:02:14</span><br>
+        <span class="diff-add">+ 61</span> &nbsp;<span class="diff-del">− 24</span> &nbsp;<span class="c">src/bvh.rs</span><br>
+        <span class="s">✓ 118 tests</span> &nbsp;<span class="c">14:02:39</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat">
+    <div class="feat-tag">Signal,<br>not vibes</div>
+    <div class="feat-main">
+      <h3>Chat that's pinned to code, and secrets that never leave</h3>
+      <p>Comments attach to a line and a prompt, so a good suggestion becomes a reviewable patch instead of scrolling away. Meanwhile the redaction layer scrubs <code>.env</code>, tokens, and clipboard contents before a single frame goes out.</p>
+      <ul>
+        <li>Viewer suggestions arrive as real pull requests</li>
+        <li>Regex + entropy redaction, plus a 7-second panic delay</li>
+        <li>Private streams for teams; same player, invite-only</li>
+      </ul>
+    </div>
+    <div class="feat-art">
+      <div class="hd">Redaction · active</div>
+      <div class="txt" style="line-height:1.8">
+        <span class="c">AWS_SECRET=</span><span class="diff-del">████████████</span><br>
+        <span class="c">.env</span> <span class="diff-del">blocked</span> &nbsp; <span class="c">clipboard</span> <span class="diff-del">masked</span><br>
+        <span class="s">delay 7s</span> &nbsp; <span class="s">2 patches from chat merged</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="signup">
+  <div class="cta-inner">
+    <div class="cta-left wrap" style="max-width:none">
+      <div style="max-width:560px;margin-left:auto;padding-right:20px">
+        <div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#ffd0c2;margin-bottom:18px">03 — Get on air</div>
+        <h2>Your next Tuesday afternoon is somebody's favourite tutorial.</h2>
+        <p>Broadcasting is free while we're in beta. Bring a repo you're already stuck on — the debugging is the content. First 2,000 accounts keep unlimited archive storage for life.</p>
+        <p style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#ffd0c2;border-top:1px dashed #ff9d80;padding-top:14px;margin-top:26px">Beta seats remaining: 613 · macOS · Linux · Windows (WSL)</p>
+      </div>
+    </div>
+    <div class="cta-right">
+      <form onsubmit="return false">
+        <div>
+          <label for="email">Work email</label>
+          <input id="email" type="email" placeholder="you@company.dev" required>
+        </div>
+        <div>
+          <label for="stack">Primary stack &amp; assistant</label>
+          <input id="stack" type="text" placeholder="TypeScript / Claude Code">
+        </div>
+        <div>
+          <label>I'm here to</label>
+          <div class="radio-row">
+            <label><input type="radio" name="intent" checked> Broadcast</label>
+            <label><input type="radio" name="intent"> Watch &amp; fork</label>
+            <label><input type="radio" name="intent"> Team streams</label>
+          </div>
+        </div>
+        <button type="submit">Claim a beta seat →</button>
+        <p class="fine">No newsletter. One email when your CLI key is ready, one when the beta ends.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="border:0;padding:0 0 8px;font-size:15px"><span class="mark"></span>STREAMFORGE</div>
+        <div style="color:var(--dim);max-width:26ch">Live-streaming for people who build software with AI assistants. Est. 2024, distributed.</div>
+      </div>
+      <div><h4>Platform</h4><ul><li><a href="#how">Live now</a></li><li><a href="#features">Archive</a></li><li><a href="#signup">Forks &amp; leaderboard</a></li><li><a href="#signup">CLI docs</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#signup">Changelog</a></li><li><a href="#signup">Redaction policy</a></li><li><a href="#signup">Creator payouts</a></li><li><a href="#signup">Status</a></li></ul></div>
+      <div><h4>Elsewhere</h4><ul><li><a href="#signup">GitHub</a></li><li><a href="#signup">Discord</a></li><li><a href="#signup">RSS</a></li></ul></div>
+    </div>
+    <div class="foot-bar"><span>© 2024 Streamforge Labs</span><span>Terms · Privacy · DMCA</span><span>Built on stream — replay #001</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

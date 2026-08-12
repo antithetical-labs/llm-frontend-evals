@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streamforge — Watch software get built, prompt by prompt</title>
+<style>
+  :root{
+    --paper:#f4f1ea;
+    --card:#fffdf8;
+    --ink:#16181a;
+    --ink-soft:#4b5157;
+    --rule:#d6d0c2;
+    --amber:#c8641a;
+    --teal:#116b63;
+    --plum:#7a2f55;
+    --blue:#20489b;
+    --mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans:"Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.6;
+  }
+  a{color:inherit}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+
+  /* ---------- top bar ---------- */
+  header{
+    border-bottom:1px solid var(--rule);
+    background:var(--card);
+  }
+  .bar{display:flex;align-items:center;gap:28px;height:66px}
+  .logo{
+    font-family:var(--mono);
+    font-weight:700;
+    letter-spacing:-.02em;
+    font-size:19px;
+    display:flex;align-items:center;gap:9px;
+    text-decoration:none;
+  }
+  .logo .mark{
+    width:20px;height:20px;
+    background:var(--amber);
+    display:inline-block;
+    position:relative;
+  }
+  .logo .mark::after{
+    content:"";position:absolute;left:7px;top:7px;
+    width:13px;height:13px;background:var(--teal);
+  }
+  nav{margin-left:auto;display:flex;align-items:center;gap:26px}
+  nav a{font-size:15px;text-decoration:none;color:var(--ink-soft)}
+  nav a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+  .btn{
+    display:inline-block;
+    font-family:var(--sans);
+    font-size:15px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:4px;
+    border:1.5px solid var(--ink);
+    text-decoration:none;
+    cursor:pointer;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:#fbf8f1;
+    box-shadow:4px 4px 0 var(--amber);
+  }
+  .btn-primary:hover{box-shadow:2px 2px 0 var(--amber);}
+  .btn-ghost:hover{background:#eae5d9}
+  .btn-lg{font-size:17px;padding:14px 26px}
+
+  /* ---------- hero ---------- */
+  .hero{border-bottom:1px solid var(--rule);padding:70px 0 64px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+  .kicker{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin:0 0 18px;
+  }
+  h1{
+    font-size:52px;
+    line-height:1.06;
+    letter-spacing:-.025em;
+    margin:0 0 20px;
+    font-weight:700;
+  }
+  h1 em{font-style:normal;border-bottom:5px solid var(--amber)}
+  .lede{font-size:19px;color:var(--ink-soft);margin:0 0 30px;max-width:33em}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .cta-note{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+  .stats{
+    display:flex;gap:34px;flex-wrap:wrap;
+    margin-top:38px;padding-top:26px;border-top:1px solid var(--rule);
+  }
+  .stat b{display:block;font-family:var(--mono);font-size:24px;letter-spacing:-.02em}
+  .stat span{font-size:13.5px;color:var(--ink-soft)}
+
+  /* ---------- fake stream window ---------- */
+  .window{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    box-shadow:8px 8px 0 #e2dccd;
+    overflow:hidden;
+  }
+  .window-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border-bottom:1px solid var(--rule);
+    font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);
+    background:#efeade;
+  }
+  .live{
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.1em;color:#fff;background:var(--plum);
+    padding:3px 7px;border-radius:3px;
+  }
+  .window-bar .right{margin-left:auto}
+  .panes{display:grid;grid-template-columns:1fr 1fr}
+  .pane{padding:14px 15px;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+  .pane + .pane{border-left:1px solid var(--rule)}
+  .pane h4{
+    margin:0 0 10px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;
+  }
+  .prompt{background:#f0ece0;border-left:3px solid var(--teal);padding:9px 10px;border-radius:0 3px 3px 0}
+  .prompt + .prompt{margin-top:10px}
+  .prompt .who{color:var(--teal);font-weight:700}
+  .prompt.model{border-left-color:var(--amber)}
+  .prompt.model .who{color:var(--amber)}
+  code span.k{color:var(--blue)}
+  code span.s{color:var(--plum)}
+  code span.c{color:#7d8288}
+  pre{margin:0;white-space:pre-wrap;font-size:12.5px;line-height:1.75}
+  .diff-add{background:#e6efe4;display:block}
+  .diff-del{background:#f4e4e4;display:block;color:#8a4040}
+  .window-foot{
+    border-top:1px solid var(--rule);padding:10px 14px;
+    display:flex;align-items:center;gap:12px;
+    font-family:var(--mono);font-size:12px;color:var(--ink-soft);
+    background:#efeade;
+  }
+  .fork{
+    margin-left:auto;font-family:var(--sans);font-weight:600;font-size:13px;
+    border:1.5px solid var(--ink);border-radius:4px;padding:5px 12px;background:var(--card);color:var(--ink);
+    text-decoration:none;
+  }
+
+  /* ---------- section shell ---------- */
+  section{padding:72px 0;border-bottom:1px solid var(--rule)}
+  .sec-head{max-width:38em;margin-bottom:44px}
+  .sec-head .kicker{color:var(--plum)}
+  h2{font-size:34px;line-height:1.15;letter-spacing:-.02em;margin:0 0 12px;font-weight:700}
+  .sec-head p{margin:0;color:var(--ink-soft);font-size:18px}
+
+  /* ---------- how it works ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);overflow:hidden}
+  .step{padding:28px 26px}
+  .step + .step{border-left:1px solid var(--rule)}
+  .step .num{
+    font-family:var(--mono);font-size:13px;font-weight:700;
+    width:30px;height:30px;border-radius:4px;display:grid;place-items:center;
+    color:#fff;margin-bottom:16px;
+  }
+  .step:nth-child(1) .num{background:var(--teal)}
+  .step:nth-child(2) .num{background:var(--amber)}
+  .step:nth-child(3) .num{background:var(--blue)}
+  .step h3{margin:0 0 8px;font-size:19px;letter-spacing:-.01em}
+  .step p{margin:0;color:var(--ink-soft);font-size:15.5px}
+
+  /* ---------- features ---------- */
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .feature{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:26px 24px 28px;
+    box-shadow:5px 5px 0 #e2dccd;
+  }
+  .tag{
+    display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;padding:4px 8px;border-radius:3px;margin-bottom:16px;font-weight:700;
+  }
+  .t-teal{background:#dceceb;color:var(--teal)}
+  .t-amber{background:#f6e5d5;color:var(--amber)}
+  .t-blue{background:#dde3f3;color:var(--blue)}
+  .feature h3{margin:0 0 10px;font-size:21px;letter-spacing:-.015em}
+  .feature p{margin:0 0 16px;color:var(--ink-soft);font-size:15.5px}
+  .feature ul{margin:0;padding-left:0;list-style:none;font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+  .feature li{padding:6px 0;border-top:1px solid var(--rule)}
+  .feature li::before{content:"→ ";color:var(--ink)}
+
+  /* ---------- signup ---------- */
+  .signup{background:var(--card);border-bottom:none}
+  .signup-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  form{margin-top:22px}
+  .field{display:flex;gap:12px;flex-wrap:wrap}
+  input[type=email]{
+    flex:1 1 260px;
+    font-family:var(--mono);font-size:15px;
+    padding:13px 14px;
+    border:1.5px solid var(--ink);
+    border-radius:4px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  input[type=email]:focus{outline:3px solid #f0d0b0;outline-offset:1px}
+  .fine{font-size:13.5px;color:var(--ink-soft);margin:14px 0 0}
+  .quote{
+    border-left:4px solid var(--teal);
+    padding:4px 0 4px 20px;
+    font-size:18px;
+  }
+  .quote footer{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:12px}
+
+  footer.site{background:var(--paper);border-top:1px solid var(--rule);padding:34px 0}
+  .foot{display:flex;gap:26px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--ink-soft)}
+  .foot a{text-decoration:none}
+  .foot a:hover{text-decoration:underline}
+  .foot .end{margin-left:auto;font-family:var(--mono);font-size:12.5px}
+
+  @media (max-width:900px){
+    .hero-grid,.signup-grid{grid-template-columns:1fr;gap:38px}
+    h1{font-size:40px}
+    .steps,.features{grid-template-columns:1fr}
+    .step + .step{border-left:none;border-top:1px solid var(--rule)}
+    nav a.hide{display:none}
+  }
+  @media (max-width:560px){
+    .panes{grid-template-columns:1fr}
+    .pane + .pane{border-left:none;border-top:1px solid var(--rule)}
+    h1{font-size:33px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#"><span class="mark"></span>streamforge</a>
+    <nav>
+      <a class="hide" href="#how">How it works</a>
+      <a class="hide" href="#features">Features</a>
+      <a href="#signup">Browse streams</a>
+      <a class="btn btn-ghost" href="#signup">Sign in</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">Live · 1,204 streams building right now</p>
+      <h1>Watch real software get built, <em>prompt by prompt</em>.</h1>
+      <p class="lede">Streamforge is a live-streaming platform for developers working alongside AI assistants. You see the prompt, the model's response, and the diff land in the repo — all in the same frame. Like what you see? Fork the stream's repository at any commit.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="#signup">Create a free account</a>
+        <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+      </div>
+      <p class="cta-note">No card required · Stream from your terminal in 2 commands</p>
+
+      <div class="stats">
+        <div class="stat"><b>41,900</b><span>Streams archived</span></div>
+        <div class="stat"><b>128k</b><span>Repos forked from streams</span></div>
+        <div class="stat"><b>7 min</b><span>Median time to first fork</span></div>
+      </div>
+    </div>
+
+    <div class="window" aria-label="Example Streamforge stream">
+      <div class="window-bar">
+        <span class="live">● LIVE</span>
+        <span>@rina_dev — rate-limiter-rs</span>
+        <span class="right">2,318 watching</span>
+      </div>
+      <div class="panes">
+        <div class="pane">
+          <h4>Prompt feed</h4>
+          <div class="prompt">
+            <span class="who">rina ›</span> the token bucket refills on read, which drifts under load. switch to a monotonic clock and make refill lazy.
+          </div>
+          <div class="prompt model">
+            <span class="who">assistant ›</span> Using <code>Instant</code> instead of <code>SystemTime</code> and computing elapsed tokens on <code>try_acquire</code>. Patch below — 1 file, 14 insertions.
+          </div>
+          <div class="prompt">
+            <span class="who">rina ›</span> ship it, then add a test for 10k concurrent acquires.
+          </div>
+        </div>
+        <div class="pane">
+          <h4>src/bucket.rs</h4>
+<pre><code><span class="c">// refill lazily, monotonic</span>
+<span class="diff-del">- let now = SystemTime::now();</span>
+<span class="diff-add">+ let now = Instant::now();</span>
+<span class="diff-add">+ let dt = now - self.last;</span>
+<span class="diff-add">+ self.tokens = (self.tokens</span>
+<span class="diff-add">+   + dt.as_secs_f64() * self.rate)</span>
+<span class="diff-add">+   .min(self.cap);</span>
+<span class="k">if</span> self.tokens &gt;= <span class="s">1.0</span> {
+  self.tokens -= <span class="s">1.0</span>;
+  <span class="k">return</span> Ok(());
+}</code></pre>
+        </div>
+      </div>
+      <div class="window-foot">
+        <span>commit 9c1f2ae · +14 −3 · tests passing</span>
+        <a class="fork" href="#signup">Fork this repo</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">How it works</p>
+      <h2>Three moving parts, one synchronized timeline.</h2>
+      <p>Streamforge captures the assistant session and the git working tree together, so nothing about a build is a black box.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>A developer goes live</h3>
+        <p>Run <code>forge go</code> in your project directory. The CLI attaches to your AI assistant session and your local repo — no screen capture, no OBS scene to configure.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Viewers read along</h3>
+        <p>Prompts, model output, tool calls, and file diffs stream as structured events. Scrub backwards to any moment; the code pane rewinds with you.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Anyone forks the result</h3>
+        <p>Every stream is a real repository. Fork at the live head or at any earlier commit, and the full prompt history comes along as annotated notes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Built for working developers</p>
+      <h2>Not a screencast. A readable, forkable record.</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <span class="tag t-teal">Prompt transcript</span>
+        <h3>Searchable prompt history</h3>
+        <p>Every prompt and completion is indexed as text, not baked into pixels. Search across all streams for the phrasing that actually got a model to write a working migration.</p>
+        <ul>
+          <li>Full-text search across 41,900 sessions</li>
+          <li>Filter by model, language, framework</li>
+          <li>Copy any prompt in one click</li>
+        </ul>
+      </div>
+      <div class="feature">
+        <span class="tag t-amber">Live diffs</span>
+        <h3>The repo pane, in real time</h3>
+        <p>Watch the working tree change as the assistant writes. Test output, type errors, and failed tool calls appear inline — including the ones the streamer has to talk their way out of.</p>
+        <ul>
+          <li>File tree + diff view, synced to the timeline</li>
+          <li>Test and build status per commit</li>
+          <li>Jump straight to a line from chat</li>
+        </ul>
+      </div>
+      <div class="feature">
+        <span class="tag t-blue">One-click fork</span>
+        <h3>Fork at any commit</h3>
+        <p>Take the code home. Forks include the branch, the commit graph, and the prompt log attached to each change, so your future self knows why that abstraction exists.</p>
+        <ul>
+          <li>Push to GitHub, GitLab, or a bare remote</li>
+          <li>Prompt history as git notes</li>
+          <li>Licence and attribution carried over</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="signup" id="signup">
+  <div class="wrap signup-grid">
+    <div>
+      <p class="kicker">Get started</p>
+      <h2>Start watching. Or go live tonight.</h2>
+      <p style="color:var(--ink-soft);margin:0">Free accounts get unlimited viewing, unlimited forks, and 10 hours of streaming a month. Bring your own assistant and your own keys.</p>
+      <form onsubmit="return false">
+        <div class="field">
+          <input type="email" placeholder="you@company.dev" aria-label="Email address" required>
+          <button class="btn btn-primary btn-lg" type="submit">Claim your handle</button>
+        </div>
+        <p class="fine">We'll send one email with your CLI token. No newsletter unless you ask for it.</p>
+      </form>
+    </div>
+    <blockquote class="quote">
+      “I stopped writing blog posts about our refactors. I just stream them. The fork count tells me more than any analytics dashboard did.”
+      <footer>— Devin O., staff engineer, streaming Thursdays</footer>
+    </blockquote>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap foot">
+    <a href="#">Docs</a>
+    <a href="#">CLI</a>
+    <a href="#">Status</a>
+    <a href="#">Privacy</a>
+    <a href="#">Careers</a>
+    <span class="end">© 2025 Streamforge Labs</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BACKLOT — Ops System for Full-Time Creators</title>
+<style>
+  :root{
+    --acid:#C8FF00;
+    --magenta:#FF2ED1;
+    --violet:#7B3BFF;
+    --cyan:#00E5FF;
+    --bg:#0A0A0B;
+    --bg2:#101013;
+    --line:#26262a;
+    --txt:#F2F2EF;
+    --dim:#9a9a93;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+    --disp:"Arial Black","Helvetica Neue",Helvetica,Arial,sans-serif;
+    --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:var(--body);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--acid);color:#000;}
+  .mono{font-family:var(--mono);}
+
+  /* ---------- global texture ---------- */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.16) 2px 4px);
+    opacity:.55;
+  }
+
+  /* ---------- crosshair marks ---------- */
+  .crosshair{position:relative;}
+  .crosshair::before,.crosshair::after{
+    content:"+";position:absolute;font-family:var(--mono);
+    color:var(--acid);font-size:14px;line-height:1;z-index:5;
+  }
+  .crosshair::before{top:-7px;left:-6px;}
+  .crosshair::after{bottom:-7px;right:-6px;}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;height:60px;
+    background:rgba(10,10,11,.85);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-size:20px;letter-spacing:-.5px;text-transform:uppercase;}
+  .logo .dot{width:12px;height:12px;background:var(--acid);border-radius:50%;box-shadow:0 0 14px var(--acid);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 6px var(--acid);}50%{box-shadow:0 0 20px var(--acid);}}
+  .nav-links{display:flex;gap:26px;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:1px;}
+  .nav-links a{color:var(--dim);text-decoration:none;transition:color .2s;}
+  .nav-links a:hover{color:var(--acid);}
+  @media(max-width:760px){.nav-links{display:none;}}
+
+  .btn{
+    font-family:var(--mono);font-size:13px;font-weight:700;text-transform:uppercase;
+    letter-spacing:1px;text-decoration:none;cursor:pointer;border:none;
+    padding:12px 24px;background:var(--acid);color:#000;
+    clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+    transition:transform .15s,background .2s,box-shadow .2s;display:inline-block;
+  }
+  .btn:hover{transform:translate(-2px,-2px);background:#dfff5c;box-shadow:4px 4px 0 var(--magenta);}
+  .btn.ghost{background:transparent;color:var(--acid);outline:1px solid var(--acid);outline-offset:-1px;}
+  .btn.ghost:hover{background:rgba(200,255,0,.08);box-shadow:4px 4px 0 var(--violet);}
+
+  /* ---------- hero ---------- */
+  header{
+    min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+    padding:130px 5vw 60px;position:relative;overflow:hidden;
+  }
+  .hero-grid-bg{
+    position:absolute;inset:0;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:80px 80px;
+    opacity:.5;
+  }
+  .hero-fade{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 85% 75% at 50% 40%,transparent 25%,var(--bg) 78%);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--acid);border:1px solid var(--acid);padding:7px 14px;width:fit-content;
+    background:rgba(200,255,0,.05);margin-bottom:34px;position:relative;z-index:2;
+  }
+  .eyebrow .blink{width:8px;height:8px;background:var(--acid);animation:blink 1s steps(2) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  h1{
+    font-family:var(--disp);text-transform:uppercase;
+    font-size:clamp(42px,9vw,120px);line-height:.95;letter-spacing:-.02em;
+    position:relative;z-index:2;
+  }
+  h1 .acid{color:var(--acid);text-shadow:0 0 40px rgba(200,255,0,.4);}
+  h1 .stroke{color:transparent;-webkit-text-stroke:2px var(--txt);}
+  h1 .glitch{position:relative;display:inline-block;}
+  h1 .glitch::before,h1 .glitch::after{
+    content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden;
+  }
+  h1 .glitch::before{color:var(--magenta);animation:gl1 3s infinite steps(1);clip-path:inset(0 0 60% 0);}
+  h1 .glitch::after{color:var(--cyan);animation:gl2 3.7s infinite steps(1);clip-path:inset(65% 0 0 0);}
+  @keyframes gl1{0%,92%{transform:none;opacity:0;}93%{transform:translate(-4px,2px);opacity:.9;}96%{transform:translate(3px,-1px);opacity:.9;}98%,100%{transform:none;opacity:0;}}
+  @keyframes gl2{0%,88%{transform:none;opacity:0;}89%{transform:translate(4px,1px);opacity:.9;}93%{transform:translate(-3px,2px);opacity:.9;}95%,100%{transform:none;opacity:0;}}
+  .hero-sub{
+    max-width:560px;margin-top:34px;font-size:18px;line-height:1.55;color:var(--dim);
+    position:relative;z-index:2;
+  }
+  .hero-sub b{color:var(--txt);}
+  .hero-cta{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;position:relative;z-index:2;align-items:center;}
+  .hero-note{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px;}
+  .hero-stats{
+    display:flex;gap:40px;flex-wrap:wrap;margin-top:70px;position:relative;z-index:2;
+    font-family:var(--mono);
+  }
+  .hstat .n{font-size:30px;font-weight:700;color:var(--acid);letter-spacing:-1px;}
+  .hstat .k{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+
+  /* ---------- marquee ---------- */
+  .marquee{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:var(--acid);overflow:hidden;white-space:nowrap;position:relative;z-index:3;
+  }
+  .marquee-track{display:inline-block;padding:12px 0;animation:scroll 24s linear infinite;}
+  .marquee span{
+    font-family:var(--disp);font-size:15px;text-transform:uppercase;
+    color:#000;margin:0 22px;letter-spacing:1px;
+  }
+  .marquee span.alt{-webkit-text-stroke:1.2px #000;color:transparent;}
+  @keyframes scroll{to{transform:translateX(-50%);}}
+
+  /* ---------- sections ---------- */
+  section{padding:110px 5vw;position:relative;border-bottom:1px solid var(--line);}
+  .sec-label{
+    font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--magenta);margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .sec-label::after{content:"";flex:1;max-width:120px;height:1px;background:var(--magenta);}
+  h2{
+    font-family:var(--disp);text-transform:uppercase;
+    font-size:clamp(30px,5vw,60px);line-height:1;letter-spacing:-.01em;margin-bottom:18px;
+  }
+  h2 .acid{color:var(--acid);}
+  .sec-sub{color:var(--dim);max-width:540px;font-size:17px;line-height:1.5;}
+
+  /* ---------- how it works ---------- */
+  .steps{margin-top:60px;border-top:1px solid var(--line);}
+  .step{
+    display:grid;grid-template-columns:110px 1fr auto;gap:28px;align-items:center;
+    padding:32px 10px;border-bottom:1px solid var(--line);transition:background .2s;
+  }
+  .step:hover{background:rgba(200,255,0,.03);}
+  .step .n{
+    font-family:var(--disp);font-size:44px;color:transparent;
+    -webkit-text-stroke:1.5px var(--acid);
+  }
+  .step h3{font-family:var(--disp);font-size:20px;text-transform:uppercase;margin-bottom:8px;letter-spacing:.5px;}
+  .step p{color:var(--dim);font-size:15px;line-height:1.55;max-width:620px;}
+  .step .arr{font-family:var(--mono);color:var(--acid);font-size:22px;opacity:0;transform:translateX(-10px);transition:.25s;}
+  .step:hover .arr{opacity:1;transform:none;}
+  @media(max-width:700px){
+    .step{grid-template-columns:70px 1fr;}
+    .step .arr{display:none;}
+    .step .n{font-size:32px;}
+  }
+
+  /* ---------- features / receipts ---------- */
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:28px;margin-top:60px;}
+  .receipt{
+    background:var(--bg2);border:1px solid var(--line);padding:32px 26px 36px;position:relative;
+    transition:transform .25s,border-color .25s;
+  }
+  .receipt:hover{transform:translateY(-8px) rotate(-.6deg);border-color:var(--acid);}
+  .receipt::after{
+    content:"";position:absolute;left:0;right:0;bottom:-9px;height:9px;
+    background:radial-gradient(circle at 8px -2px,transparent 7px,var(--bg2) 7px);
+    background-size:16px 9px;
+  }
+  .receipt .r-icon{
+    width:46px;height:46px;border:1px solid var(--acid);display:grid;place-items:center;
+    margin-bottom:22px;background:rgba(200,255,0,.06);
+    font-family:var(--mono);color:var(--acid);font-size:20px;font-weight:700;
+  }
+  .receipt h3{font-family:var(--disp);font-size:18px;text-transform:uppercase;margin-bottom:12px;letter-spacing:.5px;}
+  .receipt p{color:var(--dim);font-size:14.5px;line-height:1.6;}
+  .receipt .r-code{
+    margin-top:24px;font-family:var(--mono);font-size:10px;color:var(--dim);
+    letter-spacing:3px;border-top:1px dashed var(--line);padding-top:14px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .barcode{height:22px;width:90px;background:repeating-linear-gradient(90deg,var(--txt) 0 2px,transparent 2px 5px,var(--txt) 5px 6px,transparent 6px 10px);opacity:.7;}
+
+  /* ---------- mini dashboard strip ---------- */
+  .demo-wrap{margin-top:70px;border:1px solid var(--line);background:var(--bg2);position:relative;}
+  .demo-bar{
+    display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px;
+  }
+  .demo-bar .lights{display:flex;gap:6px;}
+  .demo-bar .lights i{width:10px;height:10px;border-radius:50%;background:var(--line);}
+  .demo-bar .lights i:first-child{background:var(--magenta);}
+  .demo-bar .lights i:nth-child(2){background:var(--acid);}
+  .demo-bar .lights i:last-child{background:var(--cyan);}
+  .demo-body{display:grid;grid-template-columns:1.2fr 1fr;}
+  @media(max-width:860px){.demo-body{grid-template-columns:1fr;}}
+  .demo-left{padding:30px;border-right:1px solid var(--line);}
+  @media(max-width:860px){.demo-left{border-right:none;border-bottom:1px solid var(--line);}}
+  .demo-h{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:20px;display:flex;justify-content:space-between;}
+  .deal{
+    border:1px solid var(--line);padding:15px 18px;margin-bottom:12px;display:flex;
+    justify-content:space-between;align-items:center;gap:14px;background:var(--bg);
+    transition:border-color .2s,transform .2s;
+  }
+  .deal:hover{border-color:var(--acid);transform:translateX(6px);}
+  .deal .brand{font-weight:700;font-size:15px;}
+  .deal .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px;}
+  .deal .amt{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--acid);white-space:nowrap;}
+  .pill{font-family:var(--mono);font-size:10px;padding:3px 9px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+  .pill.signed{color:var(--acid);border:1px solid var(--acid);}
+  .pill.due{color:var(--magenta);border:1px solid var(--magenta);animation:blink 1.4s steps(2) infinite;}
+  .pill.paid{color:var(--dim);border:1px solid var(--line);}
+  .demo-right{
+    padding:30px;
+    background:repeating-linear-gradient(0deg,transparent 0 39px,rgba(38,38,42,.5) 39px 40px);
+  }
+  .big-num{
+    font-family:var(--mono);font-size:clamp(36px,4.5vw,54px);font-weight:700;
+    color:var(--acid);text-shadow:0 0 30px rgba(200,255,0,.35);letter-spacing:-2px;
+  }
+  .stat-row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px dashed var(--line);padding:14px 0;font-family:var(--mono);font-size:13px;}
+  .stat-row .k{color:var(--dim);}
+  .stat-row .v{font-weight:700;}
+  .stat-row .v.up{color:var(--cyan);}
+  .progress{height:8px;background:var(--line);margin-top:8px;position:relative;overflow:hidden;}
+  .progress i{position:absolute;top:0;bottom:0;left:0;background:var(--acid);}
+  .progress.mag i{background:var(--magenta);}
+
+  /* ---------- signup cta ---------- */
+  .signup{
+    text-align:center;padding:130px 5vw;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 60% 55% at 50% 55%,rgba(123,59,255,.18),transparent 70%);
+  }
+  .signup .sec-label{justify-content:center;}
+  .signup .sec-label::after{display:none;}
+  .signup h2{font-size:clamp(38px,6.5vw,88px);}
+  .signup .sec-sub{margin:22px auto 44px;}
+  .signup-form{
+    display:flex;gap:0;justify-content:center;flex-wrap:wrap;max-width:560px;margin:0 auto;
+  }
+  .signup-form input{
+    flex:1;min-width:240px;background:var(--bg2);border:1px solid var(--acid);
+    color:var(--txt);font-family:var(--mono);font-size:14px;padding:16px 18px;
+    outline:none;letter-spacing:1px;
+  }
+  .signup-form input::placeholder{color:var(--dim);}
+  .signup-form input:focus{background:rgba(200,255,0,.06);}
+  .signup-form .btn{font-size:14px;padding:16px 32px;}
+  .signup-note{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px;margin-top:22px;}
+  .ascii{
+    font-family:var(--mono);font-size:11px;color:var(--violet);opacity:.85;
+    line-height:1.35;margin-top:56px;white-space:pre;letter-spacing:1px;display:inline-block;text-align:left;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    padding:40px 5vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;
+    font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px;
+  }
+  footer a{color:var(--dim);text-decoration:none;margin-left:20px;}
+  footer a:hover{color:var(--acid);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="dot"></span>BACKLOT</div>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="#signup">Sign Up</a>
+  </div>
+  <a href="#signup" class="btn">Get Access</a>
+</nav>
+
+<!-- HERO -->
+<header>
+  <div class="hero-grid-bg"></div>
+  <div class="hero-fade"></div>
+  <div class="eyebrow"><span class="blink"></span> V1.0 // OPS SYSTEM FOR FULL-TIME CREATORS</div>
+  <h1>
+    <span class="stroke">YOU MAKE</span><br>
+    <span class="acid">THE VIDEOS.</span><br>
+    <span class="glitch" data-t="WE RUN THE">WE RUN THE</span><br>
+    BACK OFFICE.
+  </h1>
+  <p class="hero-sub">
+    Brand-deal contracts, invoices, sponsor deadlines, and per-platform payouts —
+    consolidated into one command center. <b>Built for creators, not accountants.</b>
+    No spreadsheets. No missed invoices. No "wait, did that brand ever pay me?"
+  </p>
+  <div class="hero-cta">
+    <a href="#signup" class="btn">Start Free →</a>
+    <a href="#how" class="btn ghost">How it works</a>
+    <span class="hero-note mono">// 5 MIN SETUP. NO FINANCE DEGREE REQUIRED.</span>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="n">$2.1M+</div><div class="k">Invoices Tracked</div></div>
+    <div class="hstat"><div class="n">4,000+</div><div class="k">Creators Onboard</div></div>
+    <div class="hstat"><div class="n">0</div><div class="k">Spreadsheets Needed</div></div>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Contracts ✶</span><span class="alt">Invoices ✶</span><span>Sponsor Deadlines ✶</span><span class="alt">Payout Tracking ✶</span><span>YouTube ✶</span><span class="alt">Twitch ✶</span><span>TikTok ✶</span><span class="alt">Get Paid On Time ✶</span><span>Contracts ✶</span><span class="alt">Invoices ✶</span><span>Sponsor Deadlines ✶</span><span class="alt">Payout Tracking ✶</span><span>YouTube ✶</span><span class="alt">Twitch ✶</span><span>TikTok ✶</span><span class="alt">Get Paid On Time ✶</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="sec-label">01 / SEQUENCE</div>
+  <h2>Live in <span class="acid">five minutes.</span></h2>
+  <p class="sec-sub">Three steps between you and a business that runs itself.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="n">01</div>
+      <div>
+        <h3>Connect your platforms</h3>
+        <p>Link YouTube, Twitch, TikTok, and Stripe. Your payout history syncs automatically — no CSV uploads, no manual entry, no digging through five dashboards.</p>
+      </div>
+      <div class="arr">→→</div>
+    </div>
+    <div class="step">
+      <div class="n">02</div>
+      <div>
+        <h3>Drop in your deals</h3>
+        <p>Forward a contract or paste the details. Backlot extracts the deadline, deliverables, and payment terms — and translates the legalese into plain English.</p>
+      </div>
+      <div class="arr">→→</div>
+    </div>
+    <div class="step">
+      <div class="n">03</div>
+      <div>
+        <h3>Never think about it again</h3>
+        <p>Invoices go out on time, late payers get chased automatically, deadlines ping your phone. You just make videos and watch the dashboard fill up.</p>
+      </div>
+      <div class="arr">→→</div>
+    </div>
+  </div>
+
+  <!-- MINI DASHBOARD -->
+  <div class="demo-wrap crosshair">
+    <div class="demo-bar">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <span>BACKLOT://DASHBOARD — SYNCED 12 SEC AGO</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-left">
+        <div class="demo-h"><span>ACTIVE DEALS</span><span>Q3 // 2025</span></div>
+        <div class="deal">
+          <div>
+            <div class="brand">Nova Energy Drink</div>
+            <div class="meta">60s integration · due in 4 days · invoice sent</div>
+          </div>
+          <div style="text-align:right"><div class="amt">$4,500</div><span class="pill due">FILMING</span></div>
+        </div>
+        <div class="deal">
+          <div>
+            <div class="brand">Keychron</div>
+            <div class="meta">Dedicated video · countersigned · Net-30</div>
+          </div>
+          <div style="text-align:right"><div class="amt">$7,200</div><span class="pill signed">SIGNED</span></div>
+        </div>
+        <div class="deal">
+          <div>
+            <div class="brand">HelloFresh</div>
+            <div class="meta">Shorts package · auto-chaser sent</div>
+          </div>
+          <div style="text-align:right"><div class="amt" style="color:var(--magenta)">$1,850</div><span class="pill due">CHASE</span></div>
+        </div>
+      </div>
+      <div class="demo-right">
+        <div class="demo-h"><span>THIS MONTH // ALL PLATFORMS</span></div>
+        <div class="big-num">$25,602</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);margin:6px 0 26px;">▲ +18.4% VS LAST MONTH</div>
+        <div class="stat-row"><span class="k">BRAND DEALS</span><span class="v">$16,550</span></div>
+        <div class="progress"><i style="width:82%"></i></div>
+        <div class="stat-row"><span class="k">YOUTUBE ADSENSE</span><span class="v">$5,940</span></div>
+        <div class="progress"><i style="width:40%"></i></div>
+        <div class="stat-row"><span class="k">TWITCH + TIKTOK</span><span class="v up">$3,112</span></div>
+        <div class="progress mag"><i style="width:26%"></i></div>
+        <div class="stat-row"><span class="k">OUTSTANDING</span><span class="v" style="color:var(--magenta)">$1,850</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="sec-label">02 / MODULES</div>
+  <h2>Everything you avoid doing,<br><span class="acid">done.</span></h2>
+  <p class="sec-sub">The boring parts of being a full-time creator, handled by a system that never forgets.</p>
+  <div class="feat-grid">
+    <div class="receipt">
+      <div class="r-icon">§</div>
+      <h3>Deal Vault</h3>
+      <p>Every brand contract in one place, translated to plain English. Backlot flags usage rights, exclusivity windows, and payment terms — so you know what you actually signed before you sign it.</p>
+      <div class="r-code"><span>MOD_01</span><span class="barcode"></span></div>
+    </div>
+    <div class="receipt">
+      <div class="r-icon">$</div>
+      <h3>Invoice Autopilot</h3>
+      <p>Generate an invoice from any deal in two clicks. Backlot tracks when it's opened, nags late payers automatically, and celebrates when the money lands. Never chase a brand in your own DMs again.</p>
+      <div class="r-code"><span>MOD_02</span><span class="barcode"></span></div>
+    </div>
+    <div class="receipt">
+      <div class="r-icon">◷</div>
+      <h3>Deadline Radar + Payouts</h3>
+      <p>Sponsor deliverables on a live countdown, plus per-platform income from YouTube, Twitch, and TikTok in one readout. Know what's due, what's owed, and which content actually pays.</p>
+      <div class="r-code"><span>MOD_03</span><span class="barcode"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGN UP CTA -->
+<section id="signup" class="signup">
+  <div class="sec-label">03 / EXECUTE</div>
+  <h2>Stop losing money<br>to <span class="acid">your inbox.</span></h2>
+  <p class="sec-sub">Join 4,000+ full-time creators who know exactly what they're owed, what's due, and what's next. Free to start — costs less than one forgotten invoice.</p>
+  <form class="signup-form" action="#" method="post">
+    <input type="email" name="email" placeholder="YOUR@EMAIL.COM" required aria-label="Email address">
+    <button type="submit" class="btn">Claim Access →</button>
+  </form>
+  <div class="signup-note">// FREE PLAN. NO CREDIT CARD. CANCEL ANYTIME.</div>
+  <div class="ascii">╔══════════════════════════════╗
+  STATUS: OPERATIONAL ▓▓▓▓▓ 100%
+  SPREADSHEETS FOUND: 0
+╚══════════════════════════════╝</div>
+</section>
+
+<footer>
+  <span>© 2025 BACKLOT SYSTEMS // BUILT BY CREATORS, FOR CREATORS</span>
+  <span><a href="#">TERMS</a><a href="#">PRIVACY</a><a href="#">CONTACT</a></span>
+</footer>
+
+</body>
+</html>

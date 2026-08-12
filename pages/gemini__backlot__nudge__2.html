@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | The OS for Full-Time Creators</title>
+    <style>
+        :root {
+            --bg-color: #f4f0ea;
+            --text-color: #1a1a1a;
+            --accent-color: #ff4a1c;
+            --accent-hover: #e03a12;
+            --card-bg: #ffffff;
+            --border-color: #1a1a1a;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        h1 { font-size: clamp(3rem, 8vw, 6rem); text-transform: uppercase; }
+        h2 { font-size: clamp(2rem, 5vw, 4rem); }
+        h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .mono { font-family: var(--font-mono); }
+
+        /* Neo-Brutalist UI Elements */
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.125rem;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border: 3px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--border-color);
+            transition: all 0.1s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px var(--border-color);
+            background-color: var(--accent-hover);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 3px solid var(--border-color);
+            box-shadow: 8px 8px 0px var(--border-color);
+            padding: 2rem;
+            border-radius: 0;
+        }
+
+        /* Layout */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 3px solid var(--border-color);
+            background-color: var(--card-bg);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+        }
+
+        section {
+            padding: 6rem 5%;
+        }
+
+        /* Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            border-bottom: 3px solid var(--border-color);
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e3dac9 100%);
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            max-width: 500px;
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .fake-ui {
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: 12px 12px 0px var(--accent-color);
+            transform: rotate(2deg);
+        }
+
+        .fake-ui-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .fake-ui-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            font-weight: bold;
+        }
+
+        .tag {
+            background: #eee;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+        }
+        .tag.green { background: #d4edda; }
+        .tag.yellow { background: #fff3cd; }
+
+        /* How it works */
+        .how-it-works {
+            background-color: var(--card-bg);
+            border-bottom: 3px solid var(--border-color);
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+        }
+
+        /* Features */
+        .features {
+            background-color: var(--bg-color);
+        }
+        
+        .features-header {
+            margin-bottom: 4rem;
+        }
+
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .feature-block:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature-block:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-text h3 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* CTA */
+        .cta {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            text-align: center;
+            padding: 8rem 5%;
+        }
+
+        .cta p {
+            color: #ccc;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .cta-form {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cta-form input {
+            flex: 1;
+            padding: 1rem;
+            font-size: 1.125rem;
+            border: 3px solid var(--border-color);
+            font-family: var(--font-stack);
+        }
+
+        footer {
+            background-color: var(--card-bg);
+            text-align: center;
+            padding: 2rem;
+            border-top: 3px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+            .feature-block {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                margin-bottom: 4rem;
+            }
+            .feature-block:nth-child(even) {
+                direction: ltr;
+            }
+            .fake-ui {
+                transform: none;
+                box-shadow: 8px 8px 0px var(--accent-color);
+            }
+            .cta-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Backlot</div>
+        <a href="#signup" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Join Waitlist</a>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Stop playing CFO.</h1>
+            <p>You make videos for a living. Let Backlot handle the brand-deal contracts, sponsor deadlines, invoices, and YouTube payouts.</p>
+            <a href="#signup" class="btn">Get Early Access</a>
+        </div>
+        <div class="hero-visual">
+            <div class="fake-ui">
+                <div class="fake-ui-header">
+                    <span>UPCOMING DELIVERABLES</span>
+                    <span>Q3 - AUG</span>
+                </div>
+                <div class="fake-ui-row">
+                    <span>NordVPN Integration</span>
+                    <span class="tag yellow">Due in 3 days</span>
+                </div>
+                <div class="fake-ui-row">
+                    <span>Squarespace Dedicated</span>
+                    <span class="tag green">Draft Approved</span>
+                </div>
+                <div class="fake-ui-row">
+                    <span>July AdSense Payout</span>
+                    <span class="mono">$4,291.50</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <h2>Operations, simplified.</h2>
+        <div class="steps-grid">
+            <div class="card">
+                <div class="step-number">01.</div>
+                <h3>Forward the emails</h3>
+                <p>Send your brand deal contracts and platform payout notices to your custom Backlot inbox. We extract the details automatically.</p>
+            </div>
+            <div class="card">
+                <div class="step-number">02.</div>
+                <h3>Do the work</h3>
+                <p>Check your Backlot dashboard to see exactly what script is due today and what needs to go live tomorrow. No more calendar chaos.</p>
+            </div>
+            <div class="card">
+                <div class="step-number">03.</div>
+                <h3>Get paid</h3>
+                <p>We track who owes you money, automatically generate invoices, and nag sponsors who are late on Net-30 terms.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-header">
+            <h2>Built for the solo creator.</h2>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Sponsor Deadlines & Contracts</h3>
+                <p>Stop searching through email threads to figure out if you get one revision or two. Backlot logs your contracted deliverables, usage rights, and draft due dates in a single dashboard.</p>
+            </div>
+            <div class="card">
+                <div style="border-left: 4px solid var(--accent-color); padding-left: 1rem; margin-bottom: 1rem;">
+                    <strong>Deliverable:</strong> 60s Integration<br>
+                    <strong>Brand:</strong> Raycon<br>
+                    <strong>Exclusivity:</strong> 30 Days (Tech)
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Automated Invoicing</h3>
+                <p>You shouldn't have to remember to send an invoice when a video goes live. Tell us the deal terms once, and we'll generate and send the invoice the minute you hit publish.</p>
+            </div>
+            <div class="card" style="background: #111; color: #fff;">
+                <div class="mono" style="margin-bottom: 1rem;">> INVOICE #1042 GENERATED</div>
+                <div class="mono" style="color: #4ade80;">> SENT TO: accounts@brand.com</div>
+                <div class="mono" style="margin-top: 1rem;">STATUS: AWAITING PAYMENT (NET-30)</div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Per-Platform Payout Tracking</h3>
+                <p>YouTube AdSense, TikTok Creator Fund, Patreon, and Twitch. See exactly what hit your bank account and which platform it came from, without needing a degree in accounting.</p>
+            </div>
+            <div class="card" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;"><span>YouTube</span> <strong class="mono">$8,420.00</strong></div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;"><span>Patreon</span> <strong class="mono">$1,250.00</strong></div>
+                <div style="display: flex; justify-content: space-between; padding-top: 0.5rem;"><span>Twitch</span> <strong class="mono">$430.00</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta" id="signup">
+        <h2>Ready to run a real business?</h2>
+        <p>Backlot is currently in private beta for full-time creators. Drop your email below to get on the waitlist.</p>
+        <form class="cta-form" onsubmit="event.preventDefault(); alert('Thanks for joining the waitlist!');">
+            <input type="email" placeholder="your@email.com" required>
+            <button type="submit" class="btn" style="box-shadow: 6px 6px 0px #fff; border-color: #fff;">Join Waitlist</button>
+        </form>
+    </section>
+
+    <footer>
+        &copy; 2023 Backlot Operations. No finance degrees required.
+    </footer>
+
+</body>
+</html>

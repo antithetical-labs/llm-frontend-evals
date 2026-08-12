@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is where developers live-stream software being built with AI assistants. Watch every prompt, inspect the code, and fork any repository.">
+  <title>Streamforge | Watch software get built</title>
+  <style>
+    :root {
+      color-scheme: dark;
+
+      --ink-950: #071012;
+      --ink-900: #0b1719;
+      --ink-850: #102024;
+      --ink-800: #16292d;
+      --ink-700: #274047;
+      --ink-500: #71898e;
+      --ink-300: #a9bdc0;
+      --ink-100: #e3eceb;
+      --paper: #f2f4ed;
+
+      --ember-500: #ff6b35;
+      --ember-400: #ff865c;
+      --ember-300: #ffad90;
+      --cyan-500: #2ac5b3;
+      --cyan-300: #7ce2d5;
+      --gold-500: #e6b84a;
+      --error-500: #ff6f7d;
+      --success-500: #55d69d;
+
+      --font-sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.25rem;
+      --text-xl: 1.563rem;
+      --text-2xl: 2.441rem;
+      --text-3xl: clamp(3rem, 8vw, 6.5rem);
+
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-24: 6rem;
+
+      --radius-sm: 0.375rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+
+      --shadow-panel: 0 1.5rem 4rem rgba(0, 0, 0, 0.32);
+      --shadow-button: 0 0.5rem 1.5rem rgba(255, 107, 53, 0.18);
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast: 120ms;
+      --duration-medium: 260ms;
+      --duration-slow: 480ms;
+
+      --content-width: 76rem;
+      --reading-width: 66ch;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--ink-950);
+    }
+
+    body {
+      margin: 0;
+      min-width: 20rem;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(42, 197, 179, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(42, 197, 179, 0.035) 1px, transparent 1px),
+        var(--ink-950);
+      background-size: 4rem 4rem;
+      color: var(--ink-100);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    a,
+    input {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    svg {
+      display: block;
+    }
+
+    .shell {
+      width: min(calc(100% - 2rem), var(--content-width));
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: var(--space-4);
+      left: var(--space-4);
+      z-index: 100;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      color: var(--ink-950);
+      transform: translateY(-200%);
+      transition: transform var(--duration-fast) var(--ease-out);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(169, 189, 192, 0.14);
+      background: rgba(7, 16, 18, 0.88);
+    }
+
+    .nav {
+      min-height: 4.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .brand {
+      display: inline-flex;
+      min-height: 2.75rem;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 1.75rem;
+      height: 1.75rem;
+      flex: 0 0 auto;
+      background: var(--ember-500);
+      clip-path: polygon(0 12%, 100% 0, 78% 45%, 100% 100%, 0 86%, 23% 48%);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 0.48rem 0.58rem;
+      background: var(--ink-950);
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .nav-link {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      padding-inline: var(--space-4);
+      border-radius: var(--radius-sm);
+      color: var(--ink-300);
+      font-size: var(--text-sm);
+      font-weight: 650;
+      transition:
+        color var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    }
+
+    .nav-link:hover {
+      color: var(--paper);
+      background: var(--ink-850);
+    }
+
+    .nav-link:active {
+      color: var(--ember-300);
+    }
+
+    .nav-link:focus-visible,
+    .button:focus-visible,
+    .text-link:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--cyan-500);
+      outline-offset: 3px;
+    }
+
+    .button {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      border: 0;
+      border-radius: var(--radius-sm);
+      padding: var(--space-3) var(--space-6);
+      background: var(--ember-500);
+      color: var(--ink-950);
+      cursor: pointer;
+      font-weight: 750;
+      line-height: 1.2;
+      box-shadow: var(--shadow-button);
+      transition:
+        transform var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    .button:hover {
+      background: var(--ember-400);
+      transform: translateY(-2px);
+      box-shadow: 0 0.75rem 2rem rgba(255, 107, 53, 0.24);
+    }
+
+    .button:active {
+      background: var(--ember-300);
+      transform: translateY(0);
+    }
+
+    .button:disabled,
+    .button[aria-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .button.is-loading {
+      cursor: wait;
+      color: transparent;
+      pointer-events: none;
+    }
+
+    .button.is-loading::after {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(7, 16, 18, 0.35);
+      border-top-color: var(--ink-950);
+      border-radius: 50%;
+      animation: spin 700ms linear infinite;
+    }
+
+    .button.is-success {
+      background: var(--success-500);
+    }
+
+    .button.is-error {
+      background: var(--error-500);
+    }
+
+    .button-secondary {
+      background: transparent;
+      color: var(--ink-100);
+      box-shadow: inset 0 0 0 1px var(--ink-700);
+    }
+
+    .button-secondary:hover {
+      background: var(--ink-850);
+      box-shadow: inset 0 0 0 1px var(--ink-500);
+    }
+
+    .hero {
+      position: relative;
+      padding-block: var(--space-16) var(--space-24);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: calc(50% - 1px);
+      width: 1px;
+      height: 7rem;
+      background: var(--ember-500);
+      opacity: 0.5;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(34rem, 1.18fr);
+      gap: var(--space-12);
+      align-items: center;
+    }
+
+    .hero-copy {
+      padding-top: var(--space-8);
+    }
+
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin: 0 0 var(--space-6);
+      color: var(--cyan-300);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.04em;
+    }
+
+    .live-dot {
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+      background: var(--ember-500);
+      box-shadow: 0 0 0 0.3rem rgba(255, 107, 53, 0.15);
+      animation: pulse 2s var(--ease-out) infinite;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 8ch;
+      margin-bottom: var(--space-6);
+      color: var(--paper);
+      font-size: var(--text-3xl);
+      font-weight: 760;
+      letter-spacing: -0.07em;
+      line-height: 0.92;
+    }
+
+    h1 .cut {
+      color: var(--ember-500);
+      font-family: var(--font-mono);
+      font-weight: 650;
+      letter-spacing: -0.09em;
+    }
+
+    .hero-lede {
+      max-width: 34rem;
+      margin-bottom: var(--space-8);
+      color: var(--ink-300);
+      font-size: var(--text-lg);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4) var(--space-6);
+      margin-top: var(--space-8);
+      color: var(--ink-500);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .proof span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .proof svg {
+      color: var(--cyan-500);
+    }
+
+    .stream-stage {
+      position: relative;
+      padding: var(--space-4) 0 var(--space-4) var(--space-4);
+    }
+
+    .stream-stage::before {
+      content: "LIVE BUILD / 0421";
+      position: absolute;
+      top: -0.8rem;
+      right: 1rem;
+      color: var(--ink-500);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.08em;
+      writing-mode: vertical-rl;
+    }
+
+    .stream-window {
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: var(--ink-900);
+      box-shadow: var(--shadow-panel);
+      outline: 1px solid rgba(169, 189, 192, 0.18);
+      transform: rotate(0.6deg);
+    }
+
+    .window-bar {
+      min-height: 3.25rem;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding-inline: var(--space-4);
+      border-bottom: 1px solid var(--ink-700);
+      background: var(--ink-850);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .window-dots i {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--ink-500);
+    }
+
+    .window-dots i:first-child {
+      background: var(--ember-500);
+    }
+
+    .window-title {
+      color: var(--ink-300);
+    }
+
+    .viewer-count {
+      justify-self: end;
+      color: var(--cyan-300);
+    }
+
+    .stream-grid {
+      min-height: 31rem;
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      grid-template-rows: 1fr auto;
+    }
+
+    .prompt-pane,
+    .code-pane {
+      min-width: 0;
+      padding: var(--space-4);
+    }
+
+    .prompt-pane {
+      border-right: 1px solid var(--ink-700);
+      background: #0c191c;
+    }
+
+    .code-pane {
+      background: #081315;
+    }
+
+    .pane-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+      color: var(--ink-500);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .prompt {
+      margin-bottom: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--radius-sm);
+      background: var(--ink-800);
+      color: var(--ink-100);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+    }
+
+    .prompt::before {
+      content: "you";
+      display: block;
+      margin-bottom: var(--space-2);
+      color: var(--ember-400);
+      font-size: var(--text-xs);
+    }
+
+    .model-output {
+      color: var(--ink-300);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      line-height: 1.7;
+    }
+
+    .model-output strong {
+      display: block;
+      margin-bottom: var(--space-2);
+      color: var(--cyan-300);
+      font-weight: 500;
+    }
+
+    pre {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink-300);
+      font-family: var(--font-mono);
+      font-size: 0.77rem;
+      line-height: 1.75;
+      white-space: pre;
+    }
+
+    .ln {
+      display: inline-block;
+      width: 2rem;
+      color: var(--ink-700);
+      user-select: none;
+    }
+
+    .kw {
+      color: var(--ember-400);
+    }
+
+    .fn {
+      color: var(--cyan-300);
+    }
+
+    .str {
+      color: var(--gold-500);
+    }
+
+    .comment {
+      color: var(--ink-500);
+    }
+
+    .stream-footer {
+      grid-column: 1 / -1;
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--ink-700);
+      color: var(--ink-300);
+      font-size: var(--text-sm);
+    }
+
+    .builder {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .avatar {
+      width: 2rem;
+      height: 2rem;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--cyan-500);
+      color: var(--ink-950);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 800;
+    }
+
+    .commit {
+      color: var(--ink-500);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .section {
+      padding-block: var(--space-24);
+      border-top: 1px solid rgba(169, 189, 192, 0.14);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(12rem, 0.55fr) minmax(0, 1fr);
+      gap: var(--space-12);
+      align-items: start;
+      margin-bottom: var(--space-16);
+    }
+
+    .section-label {
+      color: var(--ember-400);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    .section-heading h2 {
+      max-width: 15ch;
+      margin-bottom: var(--space-4);
+      color: var(--paper);
+      font-size: var(--text-2xl);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    .section-heading p {
+      max-width: var(--reading-width);
+      margin-bottom: 0;
+      color: var(--ink-300);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .step {
+      position: relative;
+      padding: var(--space-8);
+      border-top: 2px solid var(--ink-700);
+    }
+
+    .step + .step {
+      border-left: 1px solid var(--ink-700);
+    }
+
+    .step-number {
+      display: block;
+      margin-bottom: var(--space-12);
+      color: var(--cyan-300);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    .step h3 {
+      margin-bottom: var(--space-3);
+      color: var(--paper);
+      font-size: var(--text-xl);
+      line-height: 1.2;
+      letter-spacing: -0.035em;
+    }
+
+    .step p {
+      margin-bottom: 0;
+      color: var(--ink-300);
+    }
+
+    .feature-list {
+      border-top: 1px solid var(--ink-700);
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: minmax(15rem, 0.7fr) minmax(0, 1.3fr);
+      gap: var(--space-12);
+      padding-block: var(--space-16);
+      border-bottom: 1px solid var(--ink-700);
+    }
+
+    .feature:nth-child(2) .feature-art {
+      order: -1;
+    }
+
+    .feature-copy {
+      align-self: center;
+    }
+
+    .feature-tag {
+      display: block;
+      margin-bottom: var(--space-4);
+      color: var(--cyan-300);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .feature h3 {
+      max-width: 14ch;
+      margin-bottom: var(--space-4);
+      color: var(--paper);
+      font-size: var(--text-2xl);
+      line-height: 1.1;
+      letter-spacing: -0.045em;
+    }
+
+    .feature p {
+      max-width: 31rem;
+      margin-bottom: var(--space-6);
+      color: var(--ink-300);
+    }
+
+    .text-link {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      border-bottom: 1px solid var(--ember-500);
+      color: var(--paper);
+      font-weight: 700;
+      transition:
+        color var(--duration-fast) var(--ease-out),
+        gap var(--duration-fast) var(--ease-out);
+    }
+
+    .text-link:hover {
+      gap: var(--space-3);
+      color: var(--ember-300);
+    }
+
+    .text-link:active {
+      color: var(--ember-500);
+    }
+
+    .feature-art {
+      min-height: 19rem;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: var(--ink-900);
+      outline: 1px solid var(--ink-700);
+    }
+
+    .transcript {
+      width: min(90%, 30rem);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .transcript-row {
+      display: grid;
+      grid-template-columns: 3.2rem 1fr;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+      border-bottom: 1px solid var(--ink-700);
+    }
+
+    .transcript-time {
+      color: var(--ink-500);
+    }
+
+    .transcript-row.active {
+      margin-inline: calc(var(--space-3) * -1);
+      padding-inline: var(--space-3);
+      background: var(--ink-800);
+      color: var(--cyan-300);
+    }
+
+    .diff {
+      width: min(90%, 33rem);
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      background: var(--ink-950);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .diff-header {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--ink-700);
+      color: var(--ink-500);
+    }
+
+    .diff-line {
+      padding: var(--space-2) var(--space-4);
+      color: var(--ink-300);
+    }
+
+    .diff-line.added {
+      background: rgba(85, 214, 157, 0.1);
+      color: var(--success-500);
+    }
+
+    .diff-line.removed {
+      background: rgba(255, 111, 125, 0.09);
+      color: var(--error-500);
+    }
+
+    .fork-map {
+      position: relative;
+      width: min(90%, 32rem);
+      height: 13rem;
+    }
+
+    .fork-map::before {
+      content: "";
+      position: absolute;
+      left: 2rem;
+      top: 50%;
+      width: calc(100% - 4rem);
+      height: 1px;
+      background: var(--ink-500);
+    }
+
+    .repo-node {
+      position: absolute;
+      min-width: 8rem;
+      padding: var(--space-3);
+      border-radius: var(--radius-sm);
+      background: var(--ink-800);
+      color: var(--ink-300);
+      outline: 1px solid var(--ink-700);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .repo-node strong {
+      display: block;
+      color: var(--paper);
+    }
+
+    .repo-node.root {
+      left: 0;
+      top: calc(50% - 2.2rem);
+      outline-color: var(--ember-500);
+    }
+
+    .repo-node.fork-a {
+      right: 0;
+      top: 0;
+    }
+
+    .repo-node.fork-b {
+      right: 0;
+      bottom: 0;
+    }
+
+    .fork-branch {
+      position: absolute;
+      right: 7.9rem;
+      width: 6rem;
+      height: 5rem;
+      border-right: 1px solid var(--ink-500);
+    }
+
+    .fork-branch.top {
+      top: 2.7rem;
+      border-top: 1px solid var(--ink-500);
+    }
+
+    .fork-branch.bottom {
+      bottom: 2.7rem;
+      border-bottom: 1px solid var(--ink-500);
+    }
+
+    .cta {
+      padding-block: var(--space-24);
+      background: var(--paper);
+      color: var(--ink-950);
+    }
+
+    .cta-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(24rem, 0.7fr);
+      gap: var(--space-16);
+      align-items: end;
+    }
+
+    .cta-kicker {
+      margin-bottom: var(--space-4);
+      color: #a83b18;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    .cta h2 {
+      max-width: 12ch;
+      margin-bottom: var(--space-4);
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+    }
+
+    .cta-copy {
+      max-width: 36rem;
+      margin-bottom: 0;
+      color: #365054;
+      font-size: var(--text-lg);
+    }
+
+    .signup-form {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .signup-form label {
+      font-size: var(--text-sm);
+      font-weight: 750;
+    }
+
+    .form-row {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .signup-form input {
+      min-width: 0;
+      min-height: 3.25rem;
+      flex: 1;
+      border: 1px solid #779093;
+      border-radius: var(--radius-sm);
+      padding-inline: var(--space-4);
+      background: #ffffff;
+      color: var(--ink-950);
+      transition:
+        border-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    .signup-form input:hover {
+      border-color: var(--ink-800);
+    }
+
+    .signup-form input:focus-visible {
+      border-color: var(--cyan-500);
+      box-shadow: 0 0 0 0.25rem rgba(42, 197, 179, 0.16);
+    }
+
+    .signup-form input:invalid:not(:placeholder-shown) {
+      border-color: #c63748;
+    }
+
+    .signup-form input:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      background: #dce3df;
+    }
+
+    .form-note {
+      margin: 0;
+      color: #526a6d;
+      font-size: var(--text-xs);
+    }
+
+    .form-message {
+      display: none;
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .form-message.error {
+      color: #a71f33;
+    }
+
+    .form-message.success {
+      color: #176c4c;
+    }
+
+    .signup-form.has-error .form-message.error,
+    .signup-form.has-success .form-message.success {
+      display: block;
+    }
+
+    .site-footer {
+      padding-block: var(--space-8);
+      background: var(--paper);
+      color: #526a6d;
+      border-top: 1px solid #cbd6d1;
+      font-size: var(--text-sm);
+    }
+
+    .footer-layout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+    }
+
+    .footer-links a {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      color: #2d484c;
+      font-weight: 650;
+    }
+
+    .footer-links a:hover {
+      color: #a83b18;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.14);
+      }
+      50% {
+        box-shadow: 0 0 0 0.55rem rgba(255, 107, 53, 0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 62rem) {
+      .hero-layout,
+      .section-heading,
+      .cta-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-layout {
+        gap: var(--space-16);
+      }
+
+      .hero-copy {
+        padding-top: 0;
+      }
+
+      .hero h1 {
+        max-width: 9ch;
+      }
+
+      .stream-stage {
+        max-width: 48rem;
+        padding-left: 0;
+      }
+
+      .section-heading {
+        gap: var(--space-4);
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step + .step {
+        border-left: 0;
+      }
+
+      .step-number {
+        margin-bottom: var(--space-6);
+      }
+
+      .feature {
+        grid-template-columns: 1fr;
+      }
+
+      .feature:nth-child(2) .feature-art {
+        order: initial;
+      }
+
+      .cta-layout {
+        align-items: start;
+      }
+
+      .signup-form {
+        max-width: 38rem;
+      }
+    }
+
+    @media (max-width: 42rem) {
+      .shell {
+        width: min(calc(100% - 1.5rem), var(--content-width));
+      }
+
+      .nav {
+        min-height: 4rem;
+      }
+
+      .nav-link:not(.nav-cta) {
+        display: none;
+      }
+
+      .nav-cta {
+        padding-inline: var(--space-3);
+      }
+
+      .hero,
+      .section,
+      .cta {
+        padding-block: var(--space-16);
+      }
+
+      h1 {
+        font-size: clamp(3rem, 17vw, 4.6rem);
+      }
+
+      .hero-lede {
+        font-size: var(--text-base);
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .stream-window {
+        transform: none;
+      }
+
+      .window-bar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .window-title {
+        display: none;
+      }
+
+      .stream-grid {
+        min-height: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--ink-700);
+      }
+
+      .code-pane {
+        min-height: 20rem;
+      }
+
+      .stream-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .commit {
+        padding-left: 2.75rem;
+      }
+
+      .section-heading {
+        margin-bottom: var(--space-8);
+      }
+
+      .section-heading h2,
+      .feature h3 {
+        font-size: 2rem;
+      }
+
+      .step {
+        padding-inline: var(--space-4);
+      }
+
+      .feature {
+        gap: var(--space-8);
+        padding-block: var(--space-12);
+      }
+
+      .feature-art {
+        min-height: 17rem;
+      }
+
+      .fork-map {
+        transform: scale(0.85);
+      }
+
+      .form-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .form-row .button {
+        min-height: 3.25rem;
+      }
+
+      .footer-layout {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>streamforge</span>
+      </a>
+
+      <div class="nav-links">
+        <a class="nav-link" href="#how-it-works">How it works</a>
+        <a class="nav-link" href="#features">Features</a>
+        <a class="nav-link nav-cta" href="#signup">Get early access</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-layout shell">
+        <div class="hero-copy">
+          <p class="status-line">
+            <span class="live-dot" aria-hidden="true"></span>
+            128 developers building now
+          </p>
+
+          <h1 id="hero-title">Watch software <span class="cut">happen.</span></h1>
+
+          <p class="hero-lede">
+            See the prompts, model output, and code behind every build. Learn how working developers use AI, then fork the repository and make it yours.
+          </p>
+
+          <div class="hero-actions">
+            <a class="button" href="#signup">
+              Get early access
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                <path d="M3 9h11M10 5l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square"/>
+              </svg>
+            </a>
+            <a class="button button-secondary" href="#how-it-works">See how it works</a>
+          </div>
+
+          <div class="proof" aria-label="Platform highlights">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M2 7.5 5.2 11 12 3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              Full prompt history
+            </span>
+            <span>
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M2 7.5 5.2 11 12 3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              Forkable repos
+            </span>
+          </div>
+        </div>
+
+        <div class="stream-stage" aria-label="Example live coding stream">
+          <div class="stream-window">
+            <div class="window-bar">
+              <div class="window-dots" aria-hidden="true">
+                <i></i><i></i><i></i>
+              </div>
+              <span class="window-title">agent-runner / live</span>
+              <span class="viewer-count">● 847 watching</span>
+            </div>
+
+            <div class="stream-grid">
+              <div class="prompt-pane">
+                <div class="pane-label">
+                  <span>Assistant</span>
+                  <span>Claude 3.7</span>
+                </div>
+
+                <div class="prompt">
+                  Add retry handling to the worker queue. Use exponential backoff, cap it at 30 seconds, and preserve the original error.
+                </div>
+
+                <div class="model-output">
+                  <strong>assistant / reasoning</strong>
+                  I will keep retry state on the job, calculate the delay from the attempt count, and attach the cause when retries are exhausted.
+                </div>
+              </div>
+
+              <div class="code-pane">
+                <div class="pane-label">
+                  <span>src/worker.ts</span>
+                  <span>+18 −3</span>
+                </div>
+                <pre aria-label="TypeScript code"><code><span class="ln">18</span><span class="kw">const</span> <span class="fn">backoff</span> = (attempt: number) =&gt;
+<span class="ln">19</span>  Math.min(<span class="str">1000</span> * <span class="str">2</span> ** attempt, <span class="str">30_000</span>);
+<span class="ln">20</span>
+<span class="ln">21</span><span class="kw">export async function</span> <span class="fn">runJob</span>(job: Job) {
+<span class="ln">22</span>  <span class="kw">try</span> {
+<span class="ln">23</span>    <span class="kw">return await</span> job.execute();
+<span class="ln">24</span>  } <span class="kw">catch</span> (error) {
+<span class="ln">25</span>    <span class="kw">if</span> (job.attempt &gt;= MAX_RETRIES) {
+<span class="ln">26</span>      <span class="kw">throw new</span> RetryError(
+<span class="ln">27</span>        <span class="str">"Job retries exhausted"</span>,
+<span class="ln">28</span>        { cause: error }
+<span class="ln">29</span>      );
+<span class="ln">30</span>    }
+<span class="ln">31</span>
+<span class="ln">32</span>    <span class="comment">// Schedule without blocking a worker</span>
+<span class="ln">33</span>    <span class="kw">return</span> queue.defer(job, <span class="fn">backoff</span>(job.attempt));
+<span class="ln">34</span>  }
+<span class="ln">35</span>}</code></pre>
+              </div>
+
+              <div class="stream-footer">
+                <div class="builder">
+                  <span class="avatar" aria-hidden="true">AK</span>
+                  <span><strong>Ari Kim</strong> building a distributed job runner</span>
+                </div>
+                <span class="commit">main @ 7c29f1a</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works" aria-labelledby="how-title">
+      <div class="shell">
+        <div class="section-heading">
+          <div class="section-label">How it works</div>
+          <div>
+            <h2 id="how-title">The whole build, not just the reveal.</h2>
+            <p>
+              Streamforge keeps the developer, AI conversation, codebase, and repository timeline in one synchronized view.
+            </p>
+          </div>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01 / Broadcast</span>
+            <h3>Build in your own tools</h3>
+            <p>
+              Start a stream from your editor and AI assistant. Your workflow stays yours while Streamforge captures the useful context.
+            </p>
+          </article>
+
+          <article class="step">
+            <span class="step-number">02 / Inspect</span>
+            <h3>Follow every decision</h3>
+            <p>
+              Viewers move between prompts, responses, file changes, and commits without losing their place in the build.
+            </p>
+          </article>
+
+          <article class="step">
+            <span class="step-number">03 / Fork</span>
+            <h3>Continue from real code</h3>
+            <p>
+              Fork the repository at any point in the stream, open it locally, and take the project in a different direction.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="shell">
+        <div class="section-heading">
+          <div class="section-label">Built for technical depth</div>
+          <div>
+            <h2 id="features-title">Nothing important happens off-screen.</h2>
+            <p>
+              Each stream is an inspectable record of how software was shaped, from the first prompt to the latest commit.
+            </p>
+          </div>
+        </div>
+
+        <div class="feature-list">
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-tag">Synchronized context</span>
+              <h3>Prompts stay attached to the code they changed.</h3>
+              <p>
+                Jump from a generated function to the prompt that produced it. Rewind the model conversation and see how the developer corrected course.
+              </p>
+              <a class="text-link" href="#signup">
+                Follow a complete build
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div class="feature-art" aria-label="A synchronized stream transcript">
+              <div class="transcript">
+                <div class="transcript-row">
+                  <span class="transcript-time">18:04</span>
+                  <span>Define the queue interface</span>
+                </div>
+                <div class="transcript-row">
+                  <span class="transcript-time">22:17</span>
+                  <span>Add idempotency keys</span>
+                </div>
+                <div class="transcript-row active">
+                  <span class="transcript-time">31:42</span>
+                  <span>Implement capped retry backoff</span>
+                </div>
+                <div class="transcript-row">
+                  <span class="transcript-time">39:08</span>
+                  <span>Run worker integration tests</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-tag">Code-aware playback</span>
+              <h3>Review the diff at any moment.</h3>
+              <p>
+                Pause the stream and inspect the exact state of the repository. Compare revisions, trace file history, and understand what changed before moving on.
+              </p>
+              <a class="text-link" href="#signup">
+                Inspect live code
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div class="feature-art" aria-label="A source code diff">
+              <div class="diff">
+                <div class="diff-header">worker.ts · commit 7c29f1a</div>
+                <div class="diff-line removed">− await sleep(1000);</div>
+                <div class="diff-line added">+ const delay = backoff(job.attempt);</div>
+                <div class="diff-line added">+ await queue.defer(job, delay);</div>
+                <div class="diff-line">&nbsp; return result;</div>
+                <div class="diff-line added">+ metrics.count("job.retry");</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-tag">One-click forking</span>
+              <h3>Branch from the moment that matters.</h3>
+              <p>
+                Fork the repository from a stream timestamp, not just its latest version. Keep attribution, preserve history, and start coding immediately.
+              </p>
+              <a class="text-link" href="#signup">
+                Fork your first stream
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div class="feature-art" aria-label="A repository branching diagram">
+              <div class="fork-map">
+                <div class="fork-branch top" aria-hidden="true"></div>
+                <div class="fork-branch bottom" aria-hidden="true"></div>
+
+                <div class="repo-node root">
+                  <strong>ari/job-runner</strong>
+                  7c29f1a · source
+                </div>
+                <div class="repo-node fork-a">
+                  <strong>maya/edge-queue</strong>
+                  forked at 31:42
+                </div>
+                <div class="repo-node fork-b">
+                  <strong>devon/cron-worker</strong>
+                  forked at 39:08
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="signup" aria-labelledby="signup-title">
+      <div class="cta-layout shell">
+        <div>
+          <p class="cta-kicker">Early access opens soon</p>
+          <h2 id="signup-title">Build where developers can see the work.</h2>
+          <p class="cta-copy">
+            Join the first group of builders and viewers shaping Streamforge.
+          </p>
+        </div>
+
+        <form class="signup-form" action="#" method="post">
+          <label for="email">Work email</label>
+          <div class="form-row">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@company.dev"
+              aria-describedby="email-note email-error email-success"
+              required
+            >
+            <button class="button" type="submit">Request access</button>
+          </div>
+          <p class="form-note" id="email-note">Product updates only. Unsubscribe whenever you like.</p>
+          <p class="form-message error" id="email-error" role="alert">Enter a valid email address.</p>
+          <p class="form-message success" id="email-success" role="status">You are on the early access list.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-layout shell">
+      <span>© 2025 Streamforge</span>
+      <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

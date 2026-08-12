@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backlot — the back office for people who shoot for a living</title>
+<style>
+  :root{
+    --ink:#141210;
+    --paper:#f2ede3;
+    --paper-2:#e6dfd1;
+    --orange:#ff4d00;
+    --tape:#d9c98a;
+    --green:#1f6f4a;
+    --rule:#c8bfab;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --disp: "Helvetica Neue", Helvetica, "Arial Narrow", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.55;
+    background-image:
+      radial-gradient(rgba(20,18,16,.055) 1px, transparent 1px),
+      radial-gradient(rgba(20,18,16,.04) 1px, transparent 1px);
+    background-size:5px 5px, 5px 5px;
+    background-position:0 0, 2px 3px;
+  }
+  a{color:inherit}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+  /* ---------- slate bar ---------- */
+  .slate{
+    background:var(--ink);color:var(--paper);
+    border-bottom:3px solid var(--orange);
+    position:sticky;top:0;z-index:60;
+  }
+  .slate .wrap{display:flex;align-items:stretch;gap:0;min-height:52px}
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--disp);font-weight:700;letter-spacing:-.03em;
+    font-size:22px;text-transform:uppercase;padding-right:20px;
+  }
+  .clap{
+    width:26px;height:20px;display:block;flex:0 0 auto;
+    background:
+      repeating-linear-gradient(66deg, var(--paper) 0 6px, var(--ink) 6px 12px);
+    border:1.5px solid var(--paper);
+  }
+  .slate nav{margin-left:auto;display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+  .slate nav a{
+    text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    padding:8px 12px;opacity:.72;
+  }
+  .slate nav a:hover{opacity:1;background:rgba(242,237,227,.1)}
+  .slate .cta-sm{
+    background:var(--orange);color:#fff;opacity:1;font-weight:700;
+  }
+  .slate .cta-sm:hover{background:#fff;color:var(--ink)}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    border-bottom:1px solid var(--rule);
+    position:relative;overflow:hidden;
+  }
+  header.hero::before{
+    content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 119px, rgba(20,18,16,.05) 119px 120px);
+    pointer-events:none;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;padding:64px 0 72px;position:relative}
+  .kicker{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    display:inline-block;border:1px solid var(--ink);padding:5px 10px;margin-bottom:26px;
+    background:var(--tape);
+  }
+  h1{
+    font-family:var(--disp);
+    font-size:clamp(44px,7.6vw,92px);
+    line-height:.9;letter-spacing:-.045em;
+    text-transform:uppercase;font-weight:700;margin:0 0 22px;
+  }
+  h1 em{
+    font-style:normal;color:var(--orange);
+    display:inline-block;
+  }
+  h1 .strike{position:relative;color:#8b8375}
+  h1 .strike::after{
+    content:"";position:absolute;left:-2%;right:-2%;top:52%;height:6px;background:var(--orange);
+    transform:rotate(-1.6deg);
+  }
+  .lede{font-size:16.5px;max-width:46ch;color:#3b352d}
+  .lede b{background:var(--tape);padding:0 3px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px;align-items:center}
+  .btn{
+    display:inline-block;text-decoration:none;font-family:var(--disp);
+    text-transform:uppercase;letter-spacing:.02em;font-weight:700;font-size:17px;
+    padding:15px 26px;border:2px solid var(--ink);
+  }
+  .btn-primary{background:var(--orange);color:#fff;box-shadow:6px 6px 0 var(--ink)}
+  .btn-primary:hover{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+  .btn-ghost{background:transparent}
+  .btn-ghost:hover{background:var(--ink);color:var(--paper)}
+  .fineprint{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:#6b6355}
+
+  /* call sheet card */
+  .sheet{
+    background:#fffdf7;border:2px solid var(--ink);
+    box-shadow:10px 10px 0 rgba(20,18,16,.14);
+    transform:rotate(.8deg);
+    align-self:start;
+  }
+  .sheet-top{
+    background:var(--ink);color:var(--paper);padding:8px 12px;
+    display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .row{
+    display:grid;grid-template-columns:1fr auto;gap:10px;
+    padding:11px 13px;border-bottom:1px dashed var(--rule);font-size:12.5px;align-items:center;
+  }
+  .row:last-child{border-bottom:0}
+  .row .who{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:-.01em;text-transform:uppercase}
+  .row .meta{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#7a7264}
+  .amt{font-weight:700;white-space:nowrap}
+  .pill{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border:1px solid currentColor;display:inline-block}
+  .p-late{color:#b31d00;background:#ffe8e0}
+  .p-ok{color:var(--green);background:#e2f0e7}
+  .p-soon{color:#8a6300;background:#fbf0cf}
+  .sheet-foot{background:var(--paper-2);padding:10px 13px;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-top:2px solid var(--ink)}
+
+  /* ticker */
+  .ticker{
+    background:var(--ink);color:var(--paper);border-bottom:1px solid var(--ink);
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    padding:11px 0;overflow:hidden;white-space:nowrap;
+  }
+  .ticker .wrap{display:flex;gap:30px;flex-wrap:wrap}
+  .ticker span{opacity:.75}
+  .ticker span::before{content:"◆ ";color:var(--orange);opacity:1}
+
+  /* ---------- sections ---------- */
+  section{border-bottom:1px solid var(--rule);padding:76px 0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:44px;flex-wrap:wrap}
+  .sec-num{
+    font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.2em;
+    border:2px solid var(--ink);padding:4px 9px;
+  }
+  h2{
+    font-family:var(--disp);text-transform:uppercase;font-weight:700;
+    letter-spacing:-.035em;font-size:clamp(28px,4.4vw,46px);line-height:.95;margin:0;
+  }
+  .sec-sub{font-size:14px;color:#5c5548;max-width:52ch;margin:14px 0 0}
+
+  /* how it works */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--ink);background:#fffdf7}
+  .step{padding:26px 24px 30px;border-right:2px solid var(--ink);position:relative}
+  .step:last-child{border-right:0}
+  .step-n{
+    font-family:var(--disp);font-size:60px;line-height:.8;font-weight:700;
+    letter-spacing:-.06em;color:var(--orange);margin-bottom:14px;
+  }
+  .step h3{font-family:var(--disp);text-transform:uppercase;font-size:19px;letter-spacing:-.01em;margin:0 0 8px}
+  .step p{margin:0;font-size:13.5px;color:#4a443a}
+  .step .tag{position:absolute;top:0;right:0;background:var(--ink);color:var(--paper);font-size:9.5px;letter-spacing:.14em;padding:3px 7px;text-transform:uppercase}
+
+  /* features */
+  .feat{
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;
+    padding:38px 0;border-top:1px dashed var(--rule);
+  }
+  .feat:first-of-type{border-top:0}
+  .feat h3{
+    font-family:var(--disp);text-transform:uppercase;font-weight:700;
+    font-size:clamp(24px,3.2vw,34px);letter-spacing:-.035em;line-height:1;margin:12px 0 12px;
+  }
+  .feat p{margin:0 0 16px;font-size:14.5px;color:#463f36;max-width:44ch}
+  .feat ul{margin:0;padding:0;list-style:none;font-size:12.5px}
+  .feat li{padding:7px 0 7px 22px;border-bottom:1px dotted var(--rule);position:relative;letter-spacing:.02em}
+  .feat li::before{content:"→";position:absolute;left:0;color:var(--orange);font-weight:700}
+  .lbl{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);font-weight:700}
+  .alt{order:-1}
+
+  /* faux panels */
+  .panel{border:2px solid var(--ink);background:#fffdf7;box-shadow:8px 8px 0 rgba(20,18,16,.12)}
+  .panel-bar{background:var(--ink);color:var(--paper);padding:7px 11px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;display:flex;justify-content:space-between}
+  .panel-body{padding:14px}
+  .bar{display:grid;grid-template-columns:76px 1fr 62px;gap:10px;align-items:center;margin-bottom:11px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .track{height:14px;background:var(--paper-2);border:1px solid var(--ink)}
+  .track i{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--orange) 0 5px,#ffb08c 5px 10px)}
+  .track i.g{background:repeating-linear-gradient(45deg,var(--green) 0 5px,#5da684 5px 10px)}
+  .track i.d{background:repeating-linear-gradient(45deg,#8b8375 0 5px,#b3ac9e 5px 10px)}
+  .doc{font-size:12px;border-bottom:1px solid var(--rule);padding:9px 0;display:flex;justify-content:space-between;gap:10px}
+  .doc:last-child{border-bottom:0}
+  .doc b{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.01em;font-size:14px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal div{border:1px solid var(--rule);aspect-ratio:1;display:flex;align-items:flex-start;justify-content:flex-end;padding:3px;font-size:9.5px;color:#8b8375}
+  .cal div.hit{background:var(--orange);color:#fff;border-color:var(--ink);font-weight:700}
+  .cal div.due{background:var(--tape);border-color:var(--ink);color:var(--ink)}
+
+  /* CTA */
+  .cta{background:var(--ink);color:var(--paper);border-bottom:0;position:relative}
+  .cta::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:12px;
+    background:repeating-linear-gradient(66deg,var(--orange) 0 14px, var(--ink) 14px 28px);
+  }
+  .cta .wrap{position:relative}
+  .cta h2{color:var(--paper)}
+  .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:10px}
+  form{background:#fffdf7;color:var(--ink);border:2px solid var(--orange);padding:22px}
+  .field{margin-bottom:16px}
+  label{display:block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;color:#5c5548}
+  input,select{
+    width:100%;font-family:var(--mono);font-size:14px;padding:11px 12px;
+    border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0;
+  }
+  input:focus,select:focus{outline:3px solid var(--orange);outline-offset:1px}
+  button{
+    width:100%;font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:19px;
+    letter-spacing:.01em;padding:15px;background:var(--orange);color:#fff;border:2px solid var(--ink);
+    cursor:pointer;box-shadow:5px 5px 0 var(--ink);
+  }
+  button:hover{background:var(--ink)}
+  .cta ul.checks{list-style:none;padding:0;margin:22px 0 0;font-size:13.5px}
+  .cta ul.checks li{padding:9px 0 9px 26px;border-bottom:1px solid rgba(242,237,227,.16);position:relative}
+  .cta ul.checks li::before{content:"✓";position:absolute;left:0;color:var(--orange);font-weight:700}
+  .quote{border-left:3px solid var(--orange);padding:6px 0 6px 16px;margin:30px 0 0;font-size:14px;color:#d9d3c6}
+  .quote span{display:block;margin-top:8px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8f8877}
+
+  footer{background:var(--ink);color:#8f8877;padding:26px 0 40px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+  footer .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(242,237,227,.16);padding-top:20px}
+
+  @media(max-width:880px){
+    .hero-grid,.cta-grid,.feat{grid-template-columns:1fr;gap:34px}
+    .steps{grid-template-columns:1fr}
+    .step{border-right:0;border-bottom:2px solid var(--ink)}
+    .step:last-child{border-bottom:0}
+    .alt{order:0}
+    .sheet{transform:none}
+    section{padding:56px 0}
+  }
+</style>
+</head>
+<body>
+
+<div class="slate">
+  <div class="wrap">
+    <div class="brand"><span class="clap" aria-hidden="true"></span>Backlot</div>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#deals">Deals</a>
+      <a href="#money">Money</a>
+      <a href="#signup" class="cta-sm">Get early access</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="kicker">Prod. Co. of One — Est. Your Bedroom</span>
+      <h1>You're a <span class="strike">business</span> <em>studio.</em><br>Act like it.</h1>
+      <p class="lede">Backlot keeps every brand contract, invoice, sponsor deadline and platform payout in one place — so you can stop digging through email at 1am looking for <b>the deliverables you already shot</b>.</p>
+      <div class="hero-actions">
+        <a href="#signup" class="btn btn-primary">Claim your slot</a>
+        <a href="#how" class="btn btn-ghost">See the workflow</a>
+      </div>
+      <p class="fineprint">No spreadsheets harmed · No accounting degree required</p>
+    </div>
+
+    <div class="sheet" role="img" aria-label="Example dashboard showing brand deals and their payment status">
+      <div class="sheet-top"><span>Call Sheet — Week 12</span><span>4 Open</span></div>
+      <div class="row">
+        <div><div class="who">Rhode Audio</div><div class="meta">Integration · 60s · Draft due Thu</div></div>
+        <div style="text-align:right"><div class="amt">$4,200</div><span class="pill p-soon">Deadline 2d</span></div>
+      </div>
+      <div class="row">
+        <div><div class="who">Kettle Coffee</div><div class="meta">Invoice #0091 · Net 30 · Sent Feb 2</div></div>
+        <div style="text-align:right"><div class="amt">$1,800</div><span class="pill p-late">41d Late</span></div>
+      </div>
+      <div class="row">
+        <div><div class="who">Northline Bags</div><div class="meta">Contract signed · Usage 6mo</div></div>
+        <div style="text-align:right"><div class="amt">$7,500</div><span class="pill p-ok">Paid</span></div>
+      </div>
+      <div class="row">
+        <div><div class="who">YouTube AdSense</div><div class="meta">Payout window · 21st monthly</div></div>
+        <div style="text-align:right"><div class="amt">$2,314</div><span class="pill p-soon">Pending</span></div>
+      </div>
+      <div class="sheet-foot"><span>Booked this quarter</span><span><strong>$38,940</strong></span></div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker">
+  <div class="wrap">
+    <span>Contracts, not chaos</span>
+    <span>Chase invoices without the awkward email</span>
+    <span>Every platform, one payout view</span>
+    <span>Built with 40 full-time creators</span>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <div>
+        <h2>Three steps. Then it runs itself.</h2>
+        <p class="sec-sub">Setup takes one coffee. After that Backlot nags the brands instead of you.</p>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="tag">Intake</span>
+        <div class="step-n">1</div>
+        <h3>Drop the deal in</h3>
+        <p>Forward the brand email or upload the PDF. Backlot pulls out the fee, the deliverables, the exclusivity window and the payment terms — and tells you in plain English what you actually agreed to.</p>
+      </div>
+      <div class="step">
+        <span class="tag">Schedule</span>
+        <div class="step-n">2</div>
+        <h3>Get a real timeline</h3>
+        <p>Every deliverable becomes a dated task: script, first cut, brand approval, live date. Slipping deadlines turn loud before they turn expensive.</p>
+      </div>
+      <div class="step">
+        <span class="tag">Cash</span>
+        <div class="step-n">3</div>
+        <h3>Watch the money land</h3>
+        <p>Invoices go out on the day the contract says they can. Platform payouts sync in. One number tells you what's earned, what's promised, and what's overdue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="deals">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>What's inside</h2>
+    </div>
+
+    <div class="feat">
+      <div>
+        <span class="lbl">Feature / Contracts</span>
+        <h3>A contract vault that reads the fine print for you</h3>
+        <p>Every signed deal in one shelf, with the scary parts translated: usage rights, exclusivity, kill fees, whether they can run your face as a paid ad forever.</p>
+        <ul>
+          <li>Plain-English summary of each clause</li>
+          <li>Exclusivity conflicts flagged before you sign the next one</li>
+          <li>Usage windows that expire on your calendar, loudly</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-bar"><span>Contract · Northline Bags</span><span>Signed</span></div>
+        <div class="panel-body">
+          <div class="doc"><b>Fee</b><span>$7,500 · 50% up front</span></div>
+          <div class="doc"><b>Deliverables</b><span>1× long-form, 2× shorts</span></div>
+          <div class="doc"><b>Exclusivity</b><span>Bags/luggage · 90 days</span></div>
+          <div class="doc"><b>Paid usage</b><span>6 months, org social only</span></div>
+          <div class="doc"><b>Watch out</b><span style="color:#b31d00">Unlimited revisions clause</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat" id="money">
+      <div class="panel alt">
+        <div class="panel-bar"><span>Invoices · Outstanding</span><span>$6,000</span></div>
+        <div class="panel-body">
+          <div class="doc"><b>#0091 Kettle</b><span style="color:#b31d00">41d late · nudge #3 sent</span></div>
+          <div class="doc"><b>#0092 Rhode</b><span>Due in 12d</span></div>
+          <div class="doc"><b>#0093 Pilot Co</b><span>Draft ready</span></div>
+          <div class="panel-bar" style="margin-top:14px"><span>Follow-up cadence</span><span>Auto</span></div>
+          <div class="bar" style="margin-top:12px"><span>Day 1</span><span class="track"><i class="g" style="width:100%"></i></span><span>Sent</span></div>
+          <div class="bar"><span>Day 30</span><span class="track"><i style="width:100%"></i></span><span>Nudge</span></div>
+          <div class="bar" style="margin:0"><span>Day 45</span><span class="track"><i class="d" style="width:35%"></i></span><span>Escalate</span></div>
+        </div>
+      </div>
+      <div>
+        <span class="lbl">Feature / Invoicing</span>
+        <h3>Invoices that chase themselves</h3>
+        <p>Send a clean, branded invoice in two clicks — then let Backlot do the polite, firm, increasingly firm follow-ups. You never have to write "just circling back on this" again.</p>
+        <ul>
+          <li>Auto-generated from the contract terms</li>
+          <li>Escalating reminders on your schedule, in your tone</li>
+          <li>Late-fee math done quietly in the background</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div>
+        <span class="lbl">Feature / Payouts</span>
+        <h3>Every platform's payday on one calendar</h3>
+        <p>YouTube on the 21st, TikTok when it feels like it, Patreon on the 1st, Twitch net-15, brand money whenever. Backlot lines it all up so you know what actually hits your account this month.</p>
+        <ul>
+          <li>Per-platform revenue and payout dates side by side</li>
+          <li>Split ad revenue, memberships, tips and sponsorships</li>
+          <li>A tax-set-aside number you can trust, updated weekly</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-bar"><span>March · Incoming</span><span>$11,410</span></div>
+        <div class="panel-body">
+          <div class="bar"><span>YouTube</span><span class="track"><i class="g" style="width:72%"></i></span><span>$4,120</span></div>
+          <div class="bar"><span>Sponsors</span><span class="track"><i style="width:88%"></i></span><span>$5,200</span></div>
+          <div class="bar"><span>Patreon</span><span class="track"><i class="g" style="width:26%"></i></span><span>$1,480</span></div>
+          <div class="bar"><span>TikTok</span><span class="track"><i class="d" style="width:11%"></i></span><span>$610</span></div>
+          <div class="panel-bar" style="margin:14px 0 12px"><span>Deadlines</span><span>March</span></div>
+          <div class="cal" aria-hidden="true">
+            <div>1</div><div>2</div><div class="due">3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+            <div>8</div><div class="hit">9</div><div>10</div><div>11</div><div class="due">12</div><div>13</div><div>14</div>
+            <div>15</div><div>16</div><div class="hit">17</div><div>18</div><div>19</div><div>20</div><div class="due">21</div>
+            <div>22</div><div>23</div><div>24</div><div class="hit">25</div><div>26</div><div>27</div><div>28</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="signup">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:8px">
+      <span class="sec-num" style="border-color:var(--orange);color:var(--orange)">03</span>
+      <h2>Get on the early access list</h2>
+    </div>
+    <div class="cta-grid">
+      <div>
+        <p style="max-width:44ch;color:#ded8cb">We're onboarding 200 full-time creators before the public launch. Free while you're in the group, and you get a direct line to the people building it.</p>
+        <ul class="checks">
+          <li>Free for early access members through launch</li>
+          <li>We import your existing deals for you — send the folder</li>
+          <li>No bank connection required to start</li>
+          <li>Cancel by replying "nah". We're not weird about it.</li>
+        </ul>
+        <blockquote class="quote">
+          I had four brands owing me money and no idea which. Found $9,400 in the first week of using this.
+          <span>— Maya T. · 410k subs · gear reviews</span>
+        </blockquote>
+      </div>
+
+      <form action="#" method="post">
+        <div class="field">
+          <label for="name">Name / handle</label>
+          <input id="name" name="name" type="text" placeholder="@yourhandle" required>
+        </div>
+        <div class="field">
+          <label for="email">Email you actually read</label>
+          <input id="email" name="email" type="email" placeholder="you@studio.co" required>
+        </div>
+        <div class="field">
+          <label for="plat">Where most of your income comes from</label>
+          <select id="plat" name="plat">
+            <option>YouTube long-form</option>
+            <option>Shorts / Reels / TikTok</option>
+            <option>Twitch / live</option>
+            <option>Mostly brand deals</option>
+            <option>Honestly, a bit of everything</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="deals">Open brand deals right now</label>
+          <select id="deals" name="deals">
+            <option>1–3</option>
+            <option>4–8</option>
+            <option>9+</option>
+            <option>I've genuinely lost count</option>
+          </select>
+        </div>
+        <button type="submit">Put me on the list</button>
+        <p class="fineprint" style="margin:14px 0 0;text-align:center">One email when your slot opens. That's the whole plan.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Backlot — Back office for one-person studios</span>
+    <span>Contracts · Invoices · Deadlines · Payouts</span>
+    <span>© 2024 · hello@backlot.co</span>
+  </div>
+</footer>
+
+</body>
+</html>

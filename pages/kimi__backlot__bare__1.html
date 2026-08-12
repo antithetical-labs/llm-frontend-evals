@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot — Run your creator business like a business</title>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #17171d;
+    --surface-2: #1e1e26;
+    --border: #2a2a35;
+    --text: #f4f2ee;
+    --muted: #9a97a3;
+    --accent: #ffd34d;
+    --accent-2: #7c5cff;
+    --green: #4ade80;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Nav ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14,14,18,.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: .95rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-block; padding: 12px 26px; border-radius: 999px;
+    font-weight: 700; font-size: 1rem; text-decoration: none;
+    background: var(--accent); color: #141414; border: none; cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,211,77,.25); }
+  .btn.small { padding: 8px 18px; font-size: .9rem; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn.ghost:hover { border-color: var(--muted); box-shadow: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 96px 0 80px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 500px;
+    background: radial-gradient(ellipse, rgba(124,92,255,.18), transparent 65%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    display: inline-block; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-size: .82rem; color: var(--muted); letter-spacing: .04em; margin-bottom: 24px;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem); line-height: 1.08;
+    letter-spacing: -0.03em; font-weight: 800; max-width: 780px; margin: 0 auto 20px;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .hero p { font-size: 1.15rem; color: var(--muted); max-width: 560px; margin: 0 auto 36px; }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 18px; font-size: .85rem; color: var(--muted); }
+
+  /* ---------- Mock dashboard ---------- */
+  .mock {
+    max-width: 860px; margin: 60px auto 0; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    text-align: left; position: relative; z-index: 1;
+  }
+  .mock-bar { display: flex; gap: 6px; margin-bottom: 16px; }
+  .mock-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--border); display: block; }
+  .mock-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .mock-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .mock-card h4 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  .deal-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+  .deal-row:last-child { border-bottom: none; }
+  .pill { font-size: .72rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+  .pill.due { background: rgba(255,211,77,.15); color: var(--accent); }
+  .pill.paid { background: rgba(74,222,128,.15); color: var(--green); }
+  .pill.draft { background: rgba(124,92,255,.18); color: #b6a5ff; }
+  .stat { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+  .stat small { display: block; font-size: .78rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .bar { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 8px; }
+  .bar i { display: block; height: 100%; border-radius: 4px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 90px 0; }
+  .section-head { text-align: center; max-width: 620px; margin: 0 auto 56px; }
+  .section-head h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -0.02em; font-weight: 800; margin-bottom: 14px; }
+  .section-head p { color: var(--muted); font-size: 1.05rem; }
+
+  /* ---------- How it works ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .step {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px 28px; position: relative;
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+    background: var(--accent); color: #141414; font-weight: 800; margin-bottom: 18px;
+  }
+  .step h3 { font-size: 1.15rem; margin-bottom: 8px; }
+  .step p { color: var(--muted); font-size: .95rem; }
+
+  /* ---------- Features ---------- */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .feature {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 34px 28px; transition: transform .2s, border-color .2s;
+  }
+  .feature:hover { transform: translateY(-4px); border-color: var(--accent-2); }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center;
+    margin-bottom: 20px; background: rgba(124,92,255,.15); font-size: 1.3rem;
+  }
+  .feature h3 { font-size: 1.2rem; margin-bottom: 10px; }
+  .feature p { color: var(--muted); font-size: .95rem; }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    background: linear-gradient(135deg, var(--surface) 0%, #1d1830 100%);
+    border: 1px solid var(--border); border-radius: 20px;
+    text-align: center; padding: 72px 32px; margin-bottom: 90px;
+  }
+  .cta h2 { font-size: clamp(1.8rem, 4vw, 2.4rem); letter-spacing: -0.02em; margin-bottom: 14px; }
+  .cta p { color: var(--muted); max-width: 480px; margin: 0 auto 30px; }
+  .signup-form { display: flex; gap: 10px; justify-content: center; max-width: 480px; margin: 0 auto; }
+  .signup-form input {
+    flex: 1; padding: 13px 18px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 1rem; outline: none; min-width: 0;
+  }
+  .signup-form input:focus { border-color: var(--accent); }
+
+  footer { border-top: 1px solid var(--border); padding: 32px 0; text-align: center; color: var(--muted); font-size: .85rem; }
+
+  @media (max-width: 820px) {
+    .steps, .features, .mock-grid { grid-template-columns: 1fr; }
+    .nav-links a:not(.btn) { display: none; }
+    .signup-form { flex-direction: column; }
+    .signup-form .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="logo">Backlot<span>.</span></div>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#signup" class="btn small">Get started</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Built for full-time creators, not accountants</span>
+    <h1>You make the videos.<br><em>Backlot runs the business.</em></h1>
+    <p>Brand deals, contracts, invoices, sponsor deadlines, and payouts from every platform — finally in one place you actually understand.</p>
+    <div class="hero-actions">
+      <a href="#signup" class="btn">Start free for 14 days</a>
+      <a href="#how" class="btn ghost">See how it works</a>
+    </div>
+    <p class="hero-note">No credit card required · Set up in under 5 minutes</p>
+
+    <div class="mock" aria-hidden="true">
+      <div class="mock-bar"><i></i><i></i><i></i></div>
+      <div class="mock-grid">
+        <div class="mock-card">
+          <h4>Active brand deals</h4>
+          <div class="deal-row"><span>NordVPN — 60s integration</span><span class="pill due">Due Fri</span></div>
+          <div class="deal-row"><span>Skillshare — dedicated video</span><span class="pill draft">Contract sent</span></div>
+          <div class="deal-row"><span>AG1 — 3x shorts package</span><span class="pill paid">Invoice paid</span></div>
+          <div class="deal-row"><span>Squarespace — Q3 renewal</span><span class="pill due">Draft due</span></div>
+        </div>
+        <div style="display:grid;gap:14px;">
+          <div class="mock-card">
+            <h4>Owed to you</h4>
+            <div class="stat">$8,240<small>across 4 open invoices</small></div>
+          </div>
+          <div class="mock-card">
+            <h4>March payouts</h4>
+            <div style="font-size:.85rem;color:var(--muted);">YouTube <span style="float:right;color:var(--text);">$3,120</span></div>
+            <div class="bar"><i style="width:78%;background:var(--accent);"></i></div>
+            <div style="font-size:.85rem;color:var(--muted);margin-top:10px;">TikTok <span style="float:right;color:var(--text);">$940</span></div>
+            <div class="bar"><i style="width:32%;background:var(--accent-2);"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>From chaos to clear in three steps</h2>
+      <p>No spreadsheets. No digging through email for that one PDF. No surprises at tax time.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Drop in your deals</h3>
+        <p>Forward a contract or paste the details. Backlot pulls out the deliverables, rates, usage terms, and payment deadlines automatically.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Track every deadline</h3>
+        <p>One timeline shows every script approval, draft upload, and posting date — with nudges before anything slips.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Get paid, know your numbers</h3>
+        <p>Send invoices in two clicks, see what's overdue, and watch payouts from YouTube, TikTok, Twitch, and more roll into one view.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Everything after "let's work together"</h2>
+      <p>The unsexy parts of being a creator, handled.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📄</div>
+        <h3>Contracts & deals, decoded</h3>
+        <p>Every brand deal lives in one dashboard with plain-English summaries: what you owe them, what they owe you, and when. Exclusivity windows and usage rights flagged before they bite you.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🧾</div>
+        <h3>Invoicing without the dread</h3>
+        <p>Generate professional invoices from your deal terms in seconds. Automatic reminders chase late payers so you never have to send that awkward follow-up email again.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>Every payout, one picture</h3>
+        <p>AdSense, TikTok Creator Fund, Twitch subs, affiliate income — see what each platform actually pays you month over month, plus a clean export your accountant will love.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="signup" style="padding-top:0;">
+  <div class="wrap">
+    <div class="cta">
+      <h2>Stop running your career out of your inbox</h2>
+      <p>Join thousands of full-time creators who know exactly what they're owed, what's due, and what's next.</p>
+      <form class="signup-form" action="#" method="post">
+        <input type="email" placeholder="you@yourchannel.com" required aria-label="Email address">
+        <button type="submit" class="btn">Claim your free trial</button>
+      </form>
+      <p style="margin-top:16px;font-size:.85rem;">Free for 14 days · Then $12/mo · Cancel anytime</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">© 2025 Backlot · Made for creators, by people who can't edit video either.</div>
+</footer>
+
+</body>
+</html>

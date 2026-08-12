@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot | The Creator Command Center</title>
+<style>
+    /* RESET & BASE */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    :root {
+        --bg: #050505;
+        --grid-line: #1a1a1a;
+        --acid-green: #CCFF00;
+        --magenta: #FF00FF;
+        --cyan: #00FFFF;
+        --text-main: #E0E0E0;
+        --text-muted: #888888;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --display: Impact, "Arial Black", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+        background-color: var(--bg);
+        color: var(--text-main);
+        font-family: var(--mono);
+        line-height: 1.5;
+        overflow-x: hidden;
+        background-image: 
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3, .display-text {
+        font-family: var(--display);
+        text-transform: uppercase;
+        font-weight: 900;
+        line-height: 0.9;
+        letter-spacing: 1px;
+    }
+
+    .text-acid { color: var(--acid-green); }
+    .text-magenta { color: var(--magenta); }
+    .text-cyan { color: var(--cyan); }
+
+    /* UTILITY CLASSES */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .border-box {
+        border: 1px solid var(--grid-line);
+        background: rgba(5, 5, 5, 0.8);
+        backdrop-filter: blur(5px);
+    }
+
+    /* BUTTONS */
+    .btn {
+        display: inline-block;
+        font-family: var(--display);
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--bg);
+        background: var(--acid-green);
+        padding: 15px 40px;
+        border: 1px solid var(--acid-green);
+        transition: all 0.1s ease-in-out;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .btn:hover {
+        background: transparent;
+        color: var(--acid-green);
+        box-shadow: 0 0 15px var(--acid-green) inset, 0 0 15px var(--acid-green);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--text-main);
+        border: 1px solid var(--text-main);
+        font-family: var(--mono);
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    .btn-outline:hover {
+        border-color: var(--acid-green);
+        color: var(--acid-green);
+    }
+
+    /* MARQUEE */
+    .marquee-container {
+        width: 100vw;
+        overflow: hidden;
+        background: var(--acid-green);
+        color: var(--bg);
+        font-family: var(--display);
+        font-size: 1.2rem;
+        padding: 10px 0;
+        border-top: 1px solid var(--acid-green);
+        border-bottom: 1px solid var(--acid-green);
+        white-space: nowrap;
+        position: relative;
+        z-index: 10;
+    }
+
+    .marquee-content {
+        display: inline-block;
+        animation: marquee 15s linear infinite;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* NAV */
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--grid-line);
+    }
+
+    .logo {
+        font-family: var(--display);
+        font-size: 2.5rem;
+        color: var(--text-main);
+        letter-spacing: -2px;
+    }
+    
+    .logo span { color: var(--acid-green); }
+
+    /* HERO */
+    .hero {
+        padding: 100px 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .hero h1 {
+        font-size: clamp(4rem, 10vw, 9rem);
+        margin-bottom: 20px;
+        text-shadow: 4px 4px 0px var(--magenta), -4px -4px 0px var(--cyan);
+        mix-blend-mode: screen;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto 40px auto;
+        color: var(--text-muted);
+    }
+
+    /* HOW IT WORKS */
+    .how-it-works {
+        padding: 80px 0;
+        border-top: 1px solid var(--grid-line);
+        border-bottom: 1px solid var(--grid-line);
+        background: #000;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2px;
+        background: var(--grid-line);
+        border: 1px solid var(--grid-line);
+    }
+
+    .step-card {
+        background: var(--bg);
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .step-number {
+        font-family: var(--display);
+        font-size: 8rem;
+        position: absolute;
+        top: -20px;
+        right: -10px;
+        color: transparent;
+        -webkit-text-stroke: 1px #222;
+        z-index: 0;
+    }
+
+    .step-card h3 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+        color: var(--acid-green);
+    }
+
+    .step-card p {
+        position: relative;
+        z-index: 1;
+        font-size: 0.9rem;
+    }
+
+    /* FEATURES */
+    .feature-block {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding: 100px 0;
+        align-items: center;
+        border-bottom: 1px solid var(--grid-line);
+    }
+
+    .feature-block:nth-child(even) {
+        direction: rtl;
+    }
+
+    .feature-block:nth-child(even) > * {
+        direction: ltr;
+    }
+
+    .feature-content h2 {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: var(--text-main);
+    }
+
+    .feature-content p {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+    }
+
+    /* CSS UI MOCKUPS */
+    .ui-mockup {
+        width: 100%;
+        height: 400px;
+        border: 1px solid var(--grid-line);
+        background: #0a0a0a;
+        position: relative;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ui-mockup::before {
+        content: 'TERMINAL // BACKLOT_OS';
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: var(--bg);
+        padding: 0 10px;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    /* Mockup 1: Deadlines */
+    .timeline-item {
+        border: 1px solid #222;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #000;
+    }
+    .timeline-item.warning { border-left: 4px solid var(--magenta); }
+    .timeline-item.ok { border-left: 4px solid var(--acid-green); }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+    .dot-warning { background: var(--magenta); box-shadow: 0 0 10px var(--magenta); }
+    .dot-ok { background: var(--acid-green); box-shadow: 0 0 10px var(--acid-green); }
+
+    /* Mockup 2: Invoices */
+    .invoice-card {
+        border: 1px solid var(--cyan);
+        padding: 20px;
+        background: rgba(0, 255, 255, 0.05);
+        position: absolute;
+        width: 80%;
+    }
+    .inv-1 { top: 40px; left: 20px; z-index: 3; }
+    .inv-2 { top: 80px; left: 40px; border-color: #333; background: #000; z-index: 2; opacity: 0.7; }
+    .inv-3 { top: 120px; left: 60px; border-color: #333; background: #000; z-index: 1; opacity: 0.4; }
+
+    /* Mockup 3: Payouts */
+    .chart-container {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+        gap: 15px;
+        padding-top: 40px;
+    }
+    .bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .bar {
+        width: 100%;
+        background: var(--grid-line);
+        position: relative;
+    }
+    .bar-fill {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: var(--acid-green);
+    }
+    .bar-wrapper:nth-child(2) .bar-fill { background: var(--magenta); }
+    .bar-wrapper:nth-child(3) .bar-fill { background: var(--cyan); }
+
+    /* CTA SECTION */
+    .cta {
+        padding: 120px 0;
+        text-align: center;
+        background: var(--acid-green);
+        color: var(--bg);
+    }
+
+    .cta h2 {
+        font-size: clamp(3rem, 8vw, 7rem);
+        margin-bottom: 20px;
+        color: var(--bg);
+    }
+
+    .form-group {
+        display: flex;
+        max-width: 600px;
+        margin: 40px auto 0;
+        border: 2px solid var(--bg);
+    }
+
+    .form-group input {
+        flex: 1;
+        padding: 20px;
+        font-family: var(--mono);
+        font-size: 1.2rem;
+        background: transparent;
+        border: none;
+        color: var(--bg);
+        outline: none;
+    }
+
+    .form-group input::placeholder {
+        color: rgba(5, 5, 5, 0.5);
+    }
+
+    .form-group button {
+        background: var(--bg);
+        color: var(--acid-green);
+        border: none;
+        padding: 0 40px;
+        font-family: var(--display);
+        font-size: 1.5rem;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+    
+    .form-group button:hover {
+        background: #222;
+    }
+
+    /* FOOTER */
+    footer {
+        padding: 40px 0;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        border-top: 1px solid var(--grid-line);
+    }
+
+    @media (max-width: 900px) {
+        .feature-block { grid-template-columns: 1fr; }
+        .feature-block:nth-child(even) { direction: ltr; }
+        .form-group { flex-direction: column; border: none; gap: 10px; }
+        .form-group input { border: 2px solid var(--bg); }
+        .form-group button { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="marquee-container">
+    <div class="marquee-content">
+        // NO MORE SPREADSHEETS // TRACK PAYOUTS // MANAGE SPONSORS // KILL THE ADMIN // RUN YOUR EMPIRE // NO MORE SPREADSHEETS // TRACK PAYOUTS // MANAGE SPONSORS // KILL THE ADMIN // RUN YOUR EMPIRE 
+    </div>
+</div>
+
+<div class="container">
+    <nav>
+        <div class="logo">BACKLOT<span>.</span></div>
+        <a href="#" class="btn-outline">SYSTEM LOGIN</a>
+    </nav>
+
+    <header class="hero">
+        <h1>RUN YOUR EMPIRE.<br>F*CK THE SPREADSHEETS.</h1>
+        <p>The brutalist command center for full-time creators. Consolidate brand-deal contracts, invoices, sponsor deadlines, and per-platform payout tracking in one high-voltage dashboard.</p>
+        <a href="#signup" class="btn">INITIALIZE SETUP</a>
+    </header>
+</div>
+
+<section class="how-it-works">
+    <div class="container">
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <h3>CONNECT COMMS</h3>
+                <p>Link your YouTube, TikTok, and bank accounts via secure API. Raw data flows directly into the core.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <h3>DROP CONTRACTS</h3>
+                <p>Upload sponsor MSAs and SOWs. Backlot parses deliverables and payment terms automatically.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <h3>GET PAID</h3>
+                <p>Track exactly who owes you money, trigger automated invoice reminders, and monitor platform revenue.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Feature 1 -->
+    <section class="feature-block">
+        <div class="feature-content">
+            <h2>SPONSOR DEADLINES</h2>
+            <p>Never miss a draft approval again. The timeline view extracts deliverable dates from your contracts and lines them up in a ruthless, unignorable queue. Red means execute. Green means cleared.</p>
+        </div>
+        <div class="ui-mockup">
+            <div class="timeline-item warning">
+                <div>
+                    <div><strong>RAID SHADOW LEGENDS</strong></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">DRAFT SUBMISSION: IN 12 HOURS</div>
+                </div>
+                <div class="status-dot dot-warning"></div>
+            </div>
+            <div class="timeline-item ok">
+                <div>
+                    <div><strong>NORDVPN</strong></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">FINAL CUT APPROVED</div>
+                </div>
+                <div class="status-dot dot-ok"></div>
+            </div>
+            <div class="timeline-item ok" style="opacity: 0.5;">
+                <div>
+                    <div><strong>SQUARESPACE</strong></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">INTEGRATION LIVE</div>
+                </div>
+                <div class="status-dot dot-ok"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature 2 -->
+    <section class="feature-block">
+        <div class="feature-content">
+            <h2 class="text-cyan">CONTRACT & INVOICE HUB</h2>
+            <p>Your legal and financial documents organized like a digital armory. Generate brutalist invoices in one click, attach them to specific deliverables, and track payment status without touching a single cell in Excel.</p>
+        </div>
+        <div class="ui-mockup" style="position: relative; overflow: hidden;">
+            <div class="invoice-card inv-3">
+                <div style="color: var(--text-muted); font-size: 0.8rem;">INV-0042 // PAID</div>
+                <div style="font-size: 1.5rem;">$2,500.00</div>
+            </div>
+            <div class="invoice-card inv-2">
+                <div style="color: var(--text-muted); font-size: 0.8rem;">INV-0043 // PENDING</div>
+                <div style="font-size: 1.5rem;">$8,000.00</div>
+            </div>
+            <div class="invoice-card inv-1">
+                <div style="color: var(--cyan); font-size: 0.8rem; margin-bottom: 10px;">> INV-0044 // OVERDUE _</div>
+                <div style="font-size: 2.5rem; font-family: var(--display); color: #fff;">$12,500.00</div>
+                <div style="margin-top: 15px; font-size: 0.8rem;">CLIENT: SEATGEEK</div>
+                <div style="margin-top: 5px; font-size: 0.8rem;">NET 30: EXCEEDED BY 5 DAYS</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature 3 -->
+    <section class="feature-block">
+        <div class="feature-content">
+            <h2 class="text-magenta">PLATFORM PAYOUTS</h2>
+            <p>AdSense, Creator Fund, Twitch Subs. Stop logging into 5 different dashboards. Backlot aggregates your per-platform earnings into a unified telemetry stream.</p>
+        </div>
+        <div class="ui-mockup">
+            <div style="font-size: 0.8rem; color: var(--text-muted);">M-T-D REVENUE TELEMETRY</div>
+            <div class="chart-container">
+                <div class="bar-wrapper">
+                    <div style="font-size: 0.7rem;">YOUTUBE</div>
+                    <div class="bar" style="height: 100%;"><div class="bar-fill" style="height: 85%;"></div></div>
+                    <div style="font-size: 0.9rem;">$14K</div>
+                </div>
+                <div class="bar-wrapper">
+                    <div style="font-size: 0.7rem;">TWITCH</div>
+                    <div class="bar" style="height: 100%;"><div class="bar-fill" style="height: 40%;"></div></div>
+                    <div style="font-size: 0.9rem;">$3.2K</div>
+                </div>
+                <div class="bar-wrapper">
+                    <div style="font-size: 0.7rem;">TIKTOK</div>
+                    <div class="bar" style="height: 100%;"><div class="bar-fill" style="height: 15%;"></div></div>
+                    <div style="font-size: 0.9rem;">$800</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section id="signup" class="cta">
+    <div class="container">
+        <h2>ENTER THE GRID</h2>
+        <p style="font-size: 1.2rem; color: #111; font-weight: bold;">Early access is restricted. Drop your comms below to join the waitlist.</p>
+        <form class="form-group" onsubmit="event.preventDefault();">
+            <input type="email" placeholder="ENTER_EMAIL_ADDRESS..." required>
+            <button type="submit">REQUEST ACCESS</button>
+        </form>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>BACKLOT OS VERSION 1.0.0 // DESIGNED FOR THE NEW MEDIA VANGUARD</p>
+        <p style="margin-top: 10px; opacity: 0.5;">© 2023 BACKLOT. ALL RIGHTS RESERVED.</p>
+    </div>
+</footer>
+
+</body>
+</html>

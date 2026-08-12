@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BACKLOT — Run your creator business like a machine</title>
+<style>
+  :root{
+    --void:#070708;
+    --void-2:#0d0d10;
+    --lime:#c8ff00;
+    --magenta:#ff2ec4;
+    --cyan:#00e5ff;
+    --violet:#7b2eff;
+    --white:#f4f4f2;
+    --gridline:rgba(200,255,0,.14);
+    --mono:"SFMono-Regular",ui-monospace,"Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    --disp:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed","Liberation Sans Narrow",Impact,"Franklin Gothic Medium",sans-serif;
+    --body:"Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--white);
+    font-family:var(--body);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lime);color:#000;}
+
+  /* ---------- grain overlay ---------- */
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    z-index:9000;
+    opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- scanline flicker ---------- */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;z-index:9001;
+    background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.12) 3px 4px);
+    opacity:.5;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ---------- ticker ---------- */
+  .ticker{
+    border-top:1px solid var(--gridline);
+    border-bottom:1px solid var(--gridline);
+    overflow:hidden;
+    background:#000;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.22em;
+    color:var(--lime);
+    white-space:nowrap;
+    padding:9px 0;
+    text-transform:uppercase;
+  }
+  .ticker-track{display:inline-block;animation:tick 28s linear infinite;}
+  @keyframes tick{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  .ticker span{margin:0 2.2em;}
+  .ticker .m{color:var(--magenta);}
+  .ticker .c{color:var(--cyan);}
+
+  /* ---------- nav ---------- */
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;
+    border-bottom:1px solid var(--gridline);
+    position:sticky;top:0;z-index:100;
+    background:rgba(7,7,8,.82);
+    backdrop-filter:blur(12px);
+  }
+  .logo{
+    font-family:var(--disp);
+    font-weight:900;font-stretch:condensed;
+    font-size:26px;letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--lime);
+  }
+  .logo em{font-style:normal;color:var(--white);
+    text-shadow:0 0 14px var(--magenta);}
+  .nav-links{display:flex;gap:26px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;}
+  .nav-links a{color:#9a9a96;transition:color .15s;}
+  .nav-links a:hover{color:var(--lime);}
+  .btn{
+    display:inline-block;
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    padding:12px 22px;
+    border:1px solid var(--lime);
+    color:var(--lime);
+    position:relative;
+    transition:.15s;
+    background:transparent;
+  }
+  .btn:hover{background:var(--lime);color:#000;box-shadow:0 0 30px rgba(200,255,0,.5);}
+  .btn.solid{background:var(--lime);color:#000;font-weight:700;}
+  .btn.solid:hover{box-shadow:0 0 40px rgba(200,255,0,.65);transform:translate(-2px,-2px);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    min-height:92vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:60px 28px 80px;
+    border-bottom:1px solid var(--gridline);
+    overflow:hidden;
+  }
+  .hero-grid-bg{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(var(--gridline) 1px,transparent 1px),
+      linear-gradient(90deg,var(--gridline) 1px,transparent 1px);
+    background-size:72px 72px;
+    mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black 30%,transparent 100%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black 30%,transparent 100%);
+  }
+  .hero-orb{
+    position:absolute;
+    width:520px;height:520px;border-radius:50%;
+    right:-120px;top:-140px;
+    background:conic-gradient(from 120deg,var(--violet),var(--magenta),var(--cyan),var(--lime),var(--violet));
+    filter:blur(90px);
+    opacity:.34;
+    animation:orb 14s ease-in-out infinite alternate;
+  }
+  @keyframes orb{from{transform:translate(0,0) scale(1);}to{transform:translate(-90px,90px) scale(1.18);}}
+
+  .hero-inner{position:relative;z-index:2;max-width:1280px;margin:0 auto;width:100%;}
+  .hero-meta{
+    font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:26px;
+  }
+  .hero-meta b{color:var(--magenta);font-weight:400;}
+  h1{
+    font-family:var(--disp);
+    font-stretch:condensed;
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(64px,12.5vw,176px);
+    line-height:.84;
+    letter-spacing:-.01em;
+  }
+  h1 .outline{
+    color:transparent;
+    -webkit-text-stroke:2px var(--lime);
+  }
+  h1 .glow{color:var(--white);text-shadow:0 0 26px rgba(255,46,196,.75);}
+  h1 .acid{color:var(--lime);text-shadow:0 0 34px rgba(200,255,0,.55);}
+  .hero-sub{
+    max-width:560px;
+    margin-top:34px;
+    font-size:17px;line-height:1.55;color:#b9b9b4;
+  }
+  .hero-sub strong{color:var(--white);}
+  .hero-cta{margin-top:38px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+  .hero-note{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#6b6b66;text-transform:uppercase;}
+
+  /* hero data strip */
+  .hero-strip{
+    position:relative;z-index:2;
+    max-width:1280px;margin:70px auto 0;width:100%;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border:1px solid var(--gridline);
+    background:rgba(0,0,0,.55);
+  }
+  .stat{
+    padding:20px 22px;
+    border-right:1px solid var(--gridline);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#7c7c77;}
+  .stat .v{font-family:var(--mono);font-size:24px;margin-top:8px;color:var(--lime);}
+  .stat:nth-child(2) .v{color:var(--cyan);}
+  .stat:nth-child(3) .v{color:var(--magenta);}
+  .stat:nth-child(4) .v{color:var(--white);}
+
+  /* ---------- section scaffolding ---------- */
+  section{position:relative;}
+  .wrap{max-width:1280px;margin:0 auto;padding:110px 28px;}
+  .sec-label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--magenta);margin-bottom:20px;
+  }
+  .sec-label::before{content:"// ";}
+  h2{
+    font-family:var(--disp);font-stretch:condensed;font-weight:900;text-transform:uppercase;
+    font-size:clamp(42px,6.4vw,88px);line-height:.9;letter-spacing:-.01em;
+  }
+  h2 .acid{color:var(--lime);}
+  h2 .cy{color:var(--cyan);}
+
+  /* ---------- how it works ---------- */
+  .how{border-bottom:1px solid var(--gridline);background:var(--void-2);}
+  .steps{
+    margin-top:60px;
+    display:grid;grid-template-columns:repeat(3,1fr);
+    border:1px solid var(--gridline);
+  }
+  .step{
+    padding:36px 30px 44px;
+    border-right:1px solid var(--gridline);
+    background:#000;
+    position:relative;
+    transition:background .2s;
+  }
+  .step:last-child{border-right:none;}
+  .step:hover{background:#0b0f02;}
+  .step-num{
+    font-family:var(--disp);font-weight:900;font-stretch:condensed;
+    font-size:72px;line-height:1;
+    color:transparent;-webkit-text-stroke:1.5px var(--magenta);
+  }
+  .step:nth-child(2) .step-num{-webkit-text-stroke-color:var(--cyan);}
+  .step:nth-child(3) .step-num{-webkit-text-stroke-color:var(--lime);}
+  .step h3{
+    font-family:var(--disp);font-stretch:condensed;font-weight:900;text-transform:uppercase;
+    font-size:26px;margin:20px 0 12px;letter-spacing:.02em;
+  }
+  .step p{font-size:14.5px;line-height:1.6;color:#a5a5a0;}
+  .step .tag{
+    position:absolute;top:16px;right:16px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#5c5c58;
+  }
+
+  /* ---------- features ---------- */
+  .feature{
+    border-bottom:1px solid var(--gridline);
+    display:grid;grid-template-columns:1fr 1fr;
+    min-height:520px;
+  }
+  .feature .copy{
+    padding:80px 56px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .feature .visual{
+    border-left:1px solid var(--gridline);
+    background:#000;
+    display:flex;align-items:center;justify-content:center;
+    padding:48px;
+    position:relative;overflow:hidden;
+  }
+  .feature:nth-of-type(even) .visual{border-left:none;border-right:1px solid var(--gridline);order:-1;}
+  .f-index{font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--cyan);text-transform:uppercase;}
+  .feature h3{
+    font-family:var(--disp);font-stretch:condensed;font-weight:900;text-transform:uppercase;
+    font-size:clamp(38px,4.6vw,64px);line-height:.92;margin:18px 0 22px;
+  }
+  .feature p{font-size:16px;line-height:1.6;color:#a5a5a0;max-width:460px;}
+  .feature ul{
+    list-style:none;margin-top:26px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.08em;
+  }
+  .feature li{padding:9px 0;border-top:1px dashed rgba(255,255,255,.14);color:#cfcfca;}
+  .feature li::before{content:"> ";color:var(--lime);}
+
+  /* fake UI panels */
+  .panel{
+    width:100%;max-width:440px;
+    border:1px solid var(--gridline);
+    background:#0a0a0c;
+    box-shadow:0 0 60px rgba(123,46,255,.18);
+    font-family:var(--mono);
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;border-bottom:1px solid var(--gridline);
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7c7c77;
+  }
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:blink 1.6s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.06);
+    font-size:12px;
+  }
+  .row:last-child{border-bottom:none;}
+  .row .name{color:#e8e8e4;}
+  .row .amt{color:var(--lime);}
+  .badge{font-size:9px;letter-spacing:.18em;padding:3px 8px;text-transform:uppercase;}
+  .b-paid{border:1px solid var(--lime);color:var(--lime);}
+  .b-due{border:1px solid var(--magenta);color:var(--magenta);animation:blink 1.8s infinite;}
+  .b-sent{border:1px solid var(--cyan);color:var(--cyan);}
+
+  /* bar chart */
+  .bars{display:flex;align-items:flex-end;gap:14px;height:190px;padding:20px 14px 0;}
+  .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;height:100%;}
+  .bar i{display:block;width:100%;animation:grow 1.4s cubic-bezier(.2,.9,.2,1) both;}
+  .bar:nth-child(1) i{height:46%;background:var(--lime);box-shadow:0 0 18px rgba(200,255,0,.5);}
+  .bar:nth-child(2) i{height:78%;background:var(--cyan);box-shadow:0 0 18px rgba(0,229,255,.5);animation-delay:.15s;}
+  .bar:nth-child(3) i{height:58%;background:var(--magenta);box-shadow:0 0 18px rgba(255,46,196,.5);animation-delay:.3s;}
+  .bar:nth-child(4) i{height:92%;background:linear-gradient(180deg,var(--violet),var(--magenta));box-shadow:0 0 18px rgba(123,46,255,.5);animation-delay:.45s;}
+  @keyframes grow{from{transform:scaleY(0);transform-origin:bottom;}}
+  .bar span{font-size:9px;letter-spacing:.16em;color:#7c7c77;text-transform:uppercase;}
+
+  /* deadline list */
+  .dl{padding:6px 0;}
+  .dl .row .date{color:var(--cyan);width:78px;}
+  .dl .row .what{flex:1;color:#e8e8e4;padding:0 12px;}
+  .pulse{color:var(--magenta);}
+
+  /* marquee divider */
+  .bigmarquee{
+    border-bottom:1px solid var(--gridline);
+    overflow:hidden;white-space:nowrap;
+    padding:22px 0;background:#000;
+  }
+  .bigmarquee .ticker-track{animation-duration:20s;}
+  .bigmarquee span{
+    font-family:var(--disp);font-stretch:condensed;font-weight:900;text-transform:uppercase;
+    font-size:54px;margin:0 .6em;
+    color:transparent;-webkit-text-stroke:1.5px rgba(200,255,0,.55);
+  }
+  .bigmarquee span.fill{color:var(--lime);-webkit-text-stroke:0;text-shadow:0 0 24px rgba(200,255,0,.4);}
+
+  /* ---------- CTA ---------- */
+  .cta{
+    text-align:center;
+    padding:140px 28px 130px;
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 110%,rgba(255,46,196,.22),transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% -10%,rgba(200,255,0,.14),transparent 70%),
+      var(--void);
+  }
+  .cta h2{font-size:clamp(52px,9vw,132px);}
+  .cta p{
+    font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+    color:#9a9a96;margin:28px 0 40px;
+  }
+  .cta-form{
+    display:flex;justify-content:center;gap:0;max-width:520px;margin:0 auto;
+  }
+  .cta-form input{
+    flex:1;background:#000;border:1px solid var(--lime);border-right:none;
+    color:var(--lime);font-family:var(--mono);font-size:13px;letter-spacing:.06em;
+    padding:15px 18px;outline:none;min-width:0;
+  }
+  .cta-form input::placeholder{color:#5c5c58;}
+  .cta-form button{
+    background:var(--lime);color:#000;border:1px solid var(--lime);
+    font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    padding:15px 26px;cursor:pointer;transition:.15s;
+  }
+  .cta-form button:hover{box-shadow:0 0 34px rgba(200,255,0,.7);}
+  .cta .fine{margin-top:20px;font-size:10px;color:#5c5c58;letter-spacing:.2em;font-family:var(--mono);text-transform:uppercase;}
+
+  footer{
+    border-top:1px solid var(--gridline);
+    padding:26px 28px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#5c5c58;
+  }
+
+  @media (max-width:900px){
+    .hero-strip{grid-template-columns:repeat(2,1fr);}
+    .stat:nth-child(2){border-right:none;}
+    .stat{border-bottom:1px solid var(--gridline);}
+    .steps{grid-template-columns:1fr;}
+    .step{border-right:none;border-bottom:1px solid var(--gridline);}
+    .feature{grid-template-columns:1fr;}
+    .feature .visual{border-left:none;border-right:none;border-top:1px solid var(--gridline);order:0 !important;}
+    .nav-links{display:none;}
+    .cta-form{flex-direction:column;gap:12px;}
+    .cta-form input{border-right:1px solid var(--lime);}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">BACK<em>LOT</em></div>
+  <div class="nav-links">
+    <a href="#how">Protocol</a>
+    <a href="#features">Systems</a>
+    <a href="#access">Access</a>
+  </div>
+  <a class="btn" href="#access">Get Access</a>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="t1">
+    <span>CONTRACT_SIGNED: GLOWUP.CO — $4,500</span><span class="m">DEADLINE_T-3D: INTEGRATION CUT — NEXA</span><span class="c">PAYOUT: YOUTUBE ADSENSE $2,314.08</span><span>INVOICE_#041: SENT → PIXELWORKS</span><span class="m">SPONSOR SLOT LOCKED: AUG 14</span><span class="c">PAYOUT: TWITCH SUBS $1,882.50</span><span>CONTRACT_RENEWED: VOLTA ENERGY — $7,200</span><span class="m">DELIVERABLE DUE: TIKTOK x3 — FRIDAY</span>
+    <span>CONTRACT_SIGNED: GLOWUP.CO — $4,500</span><span class="m">DEADLINE_T-3D: INTEGRATION CUT — NEXA</span><span class="c">PAYOUT: YOUTUBE ADSENSE $2,314.08</span><span>INVOICE_#041: SENT → PIXELWORKS</span><span class="m">SPONSOR SLOT LOCKED: AUG 14</span><span class="c">PAYOUT: TWITCH SUBS $1,882.50</span><span>CONTRACT_RENEWED: VOLTA ENERGY — $7,200</span><span class="m">DELIVERABLE DUE: TIKTOK x3 — FRIDAY</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-inner">
+    <div class="hero-meta">SYS.ONLINE // OPERATIONS CONSOLE FOR FULL-TIME CREATORS // <b>NO SPREADSHEETS. EVER.</b></div>
+    <h1>
+      <span class="outline">YOU MAKE</span><br>
+      <span class="glow">THE VIDEOS.</span><br>
+      <span class="acid">WE RUN THE BUSINESS.</span>
+    </h1>
+    <p class="hero-sub">Backlot consolidates <strong>brand-deal contracts</strong>, <strong>invoices</strong>, <strong>sponsor deadlines</strong>, and <strong>per-platform payouts</strong> into one loud, live dashboard. Built for creators who earn a living on camera — not for finance people.</p>
+    <div class="hero-cta">
+      <a class="btn solid" href="#access">Start Free — 30 Days</a>
+      <a class="btn" href="#how">See the Protocol</a>
+      <span class="hero-note">// 4 min setup. Zero accounting vocab.</span>
+    </div>
+  </div>
+  <div class="hero-strip">
+    <div class="stat"><div class="k">Tracked revenue / mo</div><div class="v">$12,847</div></div>
+    <div class="stat"><div class="k">Active brand deals</div><div class="v">07</div></div>
+    <div class="stat"><div class="k">Next deadline</div><div class="v">T-3D 14H</div></div>
+    <div class="stat"><div class="k">Overdue invoices</div><div class="v">00 — CLEAN</div></div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="sec-label">Protocol // Three Steps // No MBA Required</div>
+    <h2>PLUG IN. <span class="acid">SYNC UP.</span><br>GET PAID.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="tag">STEP_01</div>
+        <div class="step-num">01</div>
+        <h3>Connect Your Platforms</h3>
+        <p>Link YouTube, Twitch, TikTok, Instagram, and Patreon in one click. Backlot pulls every payout automatically and normalizes it into one timeline you can actually read.</p>
+      </div>
+      <div class="step">
+        <div class="tag">STEP_02</div>
+        <div class="step-num">02</div>
+        <h3>Drop In Your Deals</h3>
+        <p>Forward a contract or paste the terms. Backlot extracts the money, the deliverables, and the due dates — then builds your deadline radar and invoice queue for you.</p>
+      </div>
+      <div class="step">
+        <div class="tag">STEP_03</div>
+        <div class="step-num">03</div>
+        <h3>Run the Console</h3>
+        <p>One screen shows what's owed, what's due, and what cleared. Alerts hit before deadlines do. Invoices chase themselves. You get back to editing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE DIVIDER -->
+<div class="bigmarquee" id="features" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Contracts</span><span class="fill">Invoices</span><span>Deadlines</span><span class="fill">Payouts</span>
+    <span>Contracts</span><span class="fill">Invoices</span><span>Deadlines</span><span class="fill">Payouts</span>
+  </div>
+</div>
+
+<!-- FEATURE 1 -->
+<section class="feature">
+  <div class="copy">
+    <div class="f-index">SYS.01 // DEAL VAULT</div>
+    <h3>Every contract, <span style="color:var(--lime)">decoded.</span></h3>
+    <p>Stop digging through email threads for usage rights and payment terms. Backlot reads your brand deals and surfaces exactly what matters — no legalese, no PDF spelunking.</p>
+    <ul>
+      <li>Auto-extracted payment terms &amp; net-30/60 flags</li>
+      <li>Deliverable checklists generated per deal</li>
+      <li>Renewal &amp; exclusivity window alerts</li>
+    </ul>
+  </div>
+  <div class="visual">
+    <div class="panel">
+      <div class="panel-head"><span>DEAL_VAULT // ACTIVE</span><span class="dot"></span></div>
+      <div class="row"><span class="name">VOLTA ENERGY — Q3</span><span class="amt">$7,200</span><span class="badge b-paid">SIGNED</span></div>
+      <div class="row"><span class="name">NEXA AUDIO</span><span class="amt">$3,800</span><span class="badge b-sent">NET-30</span></div>
+      <div class="row"><span class="name">GLOWUP.CO</span><span class="amt">$4,500</span><span class="badge b-paid">SIGNED</span></div>
+      <div class="row"><span class="name">PIXELWORKS</span><span class="amt">$2,150</span><span class="badge b-due">EXPIRES 5D</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE 2 -->
+<section class="feature">
+  <div class="copy">
+    <div class="f-index">SYS.02 // DEADLINE RADAR</div>
+    <h3>Sponsor dates, <span style="color:var(--magenta)">on radar.</span></h3>
+    <p>Every deliverable from every deal lands on one countdown board. Backlot pings you before things get awkward — and auto-fires the invoice the moment a deliverable ships.</p>
+    <ul>
+      <li>Countdown alerts at T-7, T-3, and T-1 days</li>
+      <li>One-tap invoice generation per deliverable</li>
+      <li>Auto-reminders for late sponsor payments</li>
+    </ul>
+  </div>
+  <div class="visual">
+    <div class="panel dl">
+      <div class="panel-head"><span>DEADLINE_RADAR // LIVE</span><span class="dot"></span></div>
+      <div class="row"><span class="date">AUG 12</span><span class="what">NEXA — 60s integration cut</span><span class="badge b-due pulse">T-3D</span></div>
+      <div class="row"><span class="date">AUG 14</span><span class="what">VOLTA — dedicated video</span><span class="badge b-sent">T-5D</span></div>
+      <div class="row"><span class="date">AUG 16</span><span class="what">GLOWUP — TikTok x3</span><span class="badge b-sent">T-7D</span></div>
+      <div class="row"><span class="date">AUG 09</span><span class="what">PIXELWORKS — invoice #041</span><span class="badge b-paid">SENT</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE 3 -->
+<section class="feature">
+  <div class="copy">
+    <div class="f-index">SYS.03 // PAYOUT MATRIX</div>
+    <h3>All platforms. <span style="color:var(--cyan)">One number.</span></h3>
+    <p>AdSense, subs, memberships, tips, affiliate — every stream, every platform, converted into a single honest picture of what you actually earn and where it's trending.</p>
+    <ul>
+      <li>Per-platform payout tracking, synced daily</li>
+      <li>Month-over-month trend lines per revenue stream</li>
+      <li>Tax-ready export in one click — no spreadsheet</li>
+    </ul>
+  </div>
+  <div class="visual">
+    <div class="panel">
+      <div class="panel-head"><span>PAYOUT_MATRIX // JUL</span><span class="dot"></span></div>
+      <div class="bars">
+        <div class="bar"><i></i><span>YT</span></div>
+        <div class="bar"><i></i><span>TW</span></div>
+        <div class="bar"><i></i><span>TT</span></div>
+        <div class="bar"><i></i><span>DEALS</span></div>
+      </div>
+      <div class="row" style="border-top:1px solid var(--gridline);"><span class="name">TOTAL_CLEARED</span><span class="amt">$12,847.33</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="access">
+  <div class="sec-label" style="color:var(--cyan)">Access // Early Creators Only</div>
+  <h2>STOP LOSING MONEY<br><span class="acid">IN YOUR INBOX.</span></h2>
+  <p>Free for 30 days // Then $19/mo // Cancel in one click</p>
+  <form class="cta-form" onsubmit="return false;">
+    <input type="email" placeholder="your@channel.com" aria-label="Email address" required>
+    <button type="submit">Get Access →</button>
+  </form>
+  <div class="fine">// No card required. Your data stays yours. Built by creators, for creators.</div>
+</section>
+
+<footer>
+  <span>BACKLOT © 2025 — OPERATIONS FOR THE FEED ERA</span>
+  <span>SYS.STATUS: <span style="color:var(--lime)">ALL_SYSTEMS_GO</span></span>
+  <span>MADE IN THE VOID</span>
+</footer>
+
+</body>
+</html>

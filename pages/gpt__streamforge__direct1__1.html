@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is the live-streaming platform where developers build software with AI in public.">
+  <title>Streamforge — Build with AI, live.</title>
+  <style>
+    :root {
+      --ink: #07070a;
+      --paper: #f3f1e8;
+      --acid: #c8ff00;
+      --pink: #ff3eb5;
+      --blue: #30d8ff;
+      --violet: #8a5cff;
+      --line: #25252c;
+      --muted: #aaa9b1;
+      --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--paper);
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        var(--ink);
+      background-size: 48px 48px;
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 8% 18%, rgba(200,255,0,.13), transparent 24rem),
+        radial-gradient(circle at 94% 35%, rgba(255,62,181,.12), transparent 27rem),
+        radial-gradient(circle at 55% 90%, rgba(48,216,255,.09), transparent 25rem);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 82px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 27px;
+      height: 27px;
+      background: var(--acid);
+      box-shadow: 6px 6px 0 var(--pink);
+      clip-path: polygon(0 0, 100% 0, 100% 65%, 65% 65%, 65% 100%, 0 100%);
+    }
+
+    .brand-mark::after {
+      position: absolute;
+      top: 7px;
+      left: 8px;
+      width: 9px;
+      height: 9px;
+      content: "";
+      background: var(--ink);
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      color: #c9c8ce;
+      font-family: var(--mono);
+      font-size: .78rem;
+      text-transform: uppercase;
+    }
+
+    .nav-links a:hover {
+      color: var(--acid);
+    }
+
+    .nav-action {
+      padding: 11px 16px;
+      color: var(--ink);
+      background: var(--acid);
+      border: 1px solid var(--acid);
+      font-weight: 800;
+      box-shadow: 4px 4px 0 var(--pink);
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      gap: 52px;
+      align-items: center;
+      min-height: 710px;
+      padding: 80px 0 96px;
+    }
+
+    .eyebrow,
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 24px;
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      width: 9px;
+      height: 9px;
+      background: var(--pink);
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(255,62,181,.16), 0 0 22px var(--pink);
+    }
+
+    h1 {
+      max-width: 740px;
+      margin: 0;
+      font-size: clamp(4rem, 7.4vw, 7.5rem);
+      line-height: .85;
+      letter-spacing: -.085em;
+      text-transform: uppercase;
+    }
+
+    h1 .outline {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--paper);
+    }
+
+    h1 .acid {
+      position: relative;
+      display: inline-block;
+      color: var(--acid);
+      text-shadow: 5px 5px 0 var(--violet);
+    }
+
+    .hero-copy {
+      max-width: 600px;
+      margin: 34px 0 0;
+      color: #c3c2c9;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 53px;
+      padding: 0 23px;
+      border: 1px solid #55545d;
+      font-family: var(--mono);
+      font-size: .82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+
+    .button:hover {
+      transform: translate(-2px, -2px);
+    }
+
+    .button-primary {
+      color: var(--ink);
+      background: var(--acid);
+      border-color: var(--acid);
+      box-shadow: 6px 6px 0 var(--pink);
+    }
+
+    .button-primary:hover {
+      box-shadow: 8px 8px 0 var(--pink);
+    }
+
+    .button-secondary {
+      background: rgba(7,7,10,.75);
+    }
+
+    .mini-proof {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 37px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .73rem;
+      text-transform: uppercase;
+    }
+
+    .avatars {
+      display: flex;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-left: -8px;
+      color: var(--ink);
+      background: var(--blue);
+      border: 2px solid var(--ink);
+      font-weight: 900;
+    }
+
+    .avatar:first-child {
+      margin-left: 0;
+      background: var(--acid);
+    }
+
+    .avatar:nth-child(2) {
+      background: var(--pink);
+    }
+
+    .avatar:nth-child(3) {
+      background: var(--violet);
+    }
+
+    .stream-window {
+      position: relative;
+      border: 1px solid #4b4a52;
+      background: #0c0c11;
+      box-shadow: 13px 13px 0 var(--acid);
+      transform: rotate(1deg);
+    }
+
+    .stream-window::before {
+      position: absolute;
+      top: -18px;
+      right: -17px;
+      width: 82px;
+      height: 82px;
+      z-index: -1;
+      content: "";
+      border: 1px solid var(--pink);
+      background: repeating-linear-gradient(135deg, transparent 0 8px, var(--pink) 9px 10px);
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 45px;
+      padding: 0 15px;
+      border-bottom: 1px solid #303038;
+      font-family: var(--mono);
+      font-size: .65rem;
+      text-transform: uppercase;
+    }
+
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--pink);
+      font-weight: 900;
+    }
+
+    .window-content {
+      display: grid;
+      grid-template-columns: 38% 62%;
+      min-height: 440px;
+    }
+
+    .prompt-panel {
+      padding: 18px;
+      border-right: 1px solid #303038;
+      font-family: var(--mono);
+      font-size: .68rem;
+      line-height: 1.55;
+    }
+
+    .panel-label {
+      margin-bottom: 18px;
+      color: #797881;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .message {
+      margin-bottom: 13px;
+      padding: 12px;
+      border-left: 2px solid var(--blue);
+      background: #15151c;
+      color: #cbcbd1;
+    }
+
+    .message.ai {
+      border-color: var(--pink);
+    }
+
+    .message b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--blue);
+      font-size: .61rem;
+      text-transform: uppercase;
+    }
+
+    .message.ai b {
+      color: var(--pink);
+    }
+
+    .code-panel {
+      position: relative;
+      padding: 18px 10px;
+      overflow: hidden;
+      color: #d4d3da;
+      font-family: var(--mono);
+      font-size: .64rem;
+      line-height: 1.7;
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      white-space: pre;
+    }
+
+    .line-no {
+      color: #47464f;
+      user-select: none;
+    }
+
+    .kw { color: var(--pink); }
+    .fn { color: var(--blue); }
+    .str { color: var(--acid); }
+    .cm { color: #686770; }
+
+    .stream-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      padding: 13px 15px;
+      border-top: 1px solid #303038;
+      font-family: var(--mono);
+      font-size: .66rem;
+    }
+
+    .streamer {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .streamer-icon {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--ink);
+      background: var(--blue);
+      font-weight: 900;
+    }
+
+    .fork-pill {
+      padding: 7px 10px;
+      color: var(--ink);
+      background: var(--acid);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ticker {
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--acid);
+      border-block: 1px solid var(--ink);
+      transform: rotate(-1deg) scale(1.02);
+    }
+
+    .ticker-track {
+      width: max-content;
+      padding: 13px 0;
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      animation: drift 24s linear infinite;
+    }
+
+    @keyframes drift {
+      to { transform: translateX(-50%); }
+    }
+
+    section {
+      padding: 120px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: end;
+      margin-bottom: 60px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2.6rem, 5vw, 5.1rem);
+      line-height: .94;
+      letter-spacing: -.065em;
+      text-transform: uppercase;
+    }
+
+    .section-intro {
+      max-width: 540px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid #3d3c44;
+      border-left: 1px solid #3d3c44;
+    }
+
+    .step {
+      position: relative;
+      min-height: 260px;
+      padding: 30px;
+      border-right: 1px solid #3d3c44;
+      border-bottom: 1px solid #3d3c44;
+      background: rgba(12,12,17,.7);
+    }
+
+    .step-number {
+      color: var(--acid);
+      font-family: var(--mono);
+      font-size: .72rem;
+    }
+
+    .step h3 {
+      margin: 55px 0 13px;
+      font-size: 1.45rem;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .step::after {
+      position: absolute;
+      top: 27px;
+      right: 27px;
+      color: #424149;
+      content: "↗";
+      font-size: 1.4rem;
+    }
+
+    .features {
+      padding-top: 80px;
+    }
+
+    .feature-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: .78fr 1.22fr;
+      min-height: 315px;
+      border: 1px solid #3c3b43;
+      background: #0d0d12;
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px;
+      border-right: 1px solid #3c3b43;
+    }
+
+    .feature-index {
+      color: var(--pink);
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .1em;
+    }
+
+    .feature h3 {
+      max-width: 470px;
+      margin: 30px 0 15px;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+      line-height: 1;
+      letter-spacing: -.055em;
+      text-transform: uppercase;
+    }
+
+    .feature p {
+      max-width: 500px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .feature-visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 300px;
+      padding: 36px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 25px 25px;
+    }
+
+    .feature-visual::before {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      content: "";
+      background: var(--violet);
+      filter: blur(100px);
+      opacity: .2;
+    }
+
+    .prompt-stack {
+      position: relative;
+      width: min(100%, 470px);
+    }
+
+    .prompt-card {
+      padding: 15px 18px;
+      border: 1px solid #4d4c55;
+      background: #111117;
+      box-shadow: 5px 5px 0 #272631;
+      font-family: var(--mono);
+      font-size: .72rem;
+      line-height: 1.55;
+    }
+
+    .prompt-card + .prompt-card {
+      width: 91%;
+      margin-top: 13px;
+      margin-left: auto;
+      border-color: var(--pink);
+    }
+
+    .prompt-card strong {
+      color: var(--blue);
+    }
+
+    .prompt-card + .prompt-card strong {
+      color: var(--pink);
+    }
+
+    .timeline {
+      position: relative;
+      width: min(100%, 510px);
+      height: 150px;
+      border-left: 2px solid var(--acid);
+      border-bottom: 2px solid var(--acid);
+    }
+
+    .timeline svg {
+      position: absolute;
+      inset: 15px 10px 10px 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 25px);
+      overflow: visible;
+    }
+
+    .timeline-tag {
+      position: absolute;
+      top: -12px;
+      right: 0;
+      padding: 7px 10px;
+      color: var(--ink);
+      background: var(--pink);
+      font-family: var(--mono);
+      font-size: .65rem;
+      font-weight: 900;
+    }
+
+    .repo-card {
+      position: relative;
+      width: min(100%, 460px);
+      border: 1px solid var(--acid);
+      background: #101015;
+      box-shadow: 10px 10px 0 var(--blue);
+      font-family: var(--mono);
+    }
+
+    .repo-head,
+    .repo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 14px 17px;
+      border-bottom: 1px solid #33323a;
+      font-size: .7rem;
+    }
+
+    .repo-head {
+      color: var(--acid);
+      font-weight: 900;
+    }
+
+    .repo-row {
+      color: #aaa9b1;
+    }
+
+    .repo-row:last-child {
+      border-bottom: 0;
+    }
+
+    .cta-wrap {
+      padding-top: 75px;
+      padding-bottom: 120px;
+    }
+
+    .cta {
+      position: relative;
+      padding: clamp(38px, 7vw, 85px);
+      color: var(--ink);
+      background: var(--acid);
+      border: 1px solid var(--ink);
+      box-shadow: 14px 14px 0 var(--pink);
+      overflow: hidden;
+    }
+
+    .cta::after {
+      position: absolute;
+      right: -60px;
+      bottom: -115px;
+      width: 320px;
+      height: 320px;
+      content: "";
+      border: 45px solid var(--ink);
+      border-radius: 50%;
+      opacity: .1;
+    }
+
+    .cta-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 50px;
+      align-items: end;
+    }
+
+    .cta h2 {
+      max-width: 700px;
+    }
+
+    .cta p {
+      max-width: 580px;
+      margin: 22px 0 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .signup {
+      display: flex;
+      padding: 6px;
+      background: var(--ink);
+    }
+
+    .signup input {
+      min-width: 0;
+      flex: 1;
+      padding: 15px;
+      color: var(--paper);
+      background: transparent;
+      border: 0;
+      outline: 0;
+      font-family: var(--mono);
+      font-size: .75rem;
+    }
+
+    .signup input::placeholder {
+      color: #85848c;
+    }
+
+    .signup button {
+      padding: 0 18px;
+      color: var(--ink);
+      background: var(--pink);
+      border: 0;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .form-note {
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: .65rem;
+      text-transform: uppercase;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 28px 0 40px;
+      color: #73727b;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: .67rem;
+      text-transform: uppercase;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-head,
+      .feature,
+      .cta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 65px;
+      }
+
+      .stream-window {
+        max-width: 680px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-copy {
+        border-right: 0;
+        border-bottom: 1px solid #3c3b43;
+      }
+
+      .feature {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav-links a:not(.nav-action) {
+        display: none;
+      }
+
+      h1 {
+        font-size: clamp(3.5rem, 18vw, 5.1rem);
+      }
+
+      .hero {
+        gap: 55px;
+        min-height: auto;
+        padding-bottom: 80px;
+      }
+
+      .window-content {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-panel {
+        border-right: 0;
+        border-bottom: 1px solid #303038;
+      }
+
+      .code-panel {
+        min-height: 300px;
+      }
+
+      .section-head {
+        margin-bottom: 40px;
+      }
+
+      section {
+        padding: 85px 0;
+      }
+
+      .feature-copy,
+      .feature-visual,
+      .step {
+        padding: 25px;
+      }
+
+      .signup {
+        flex-direction: column;
+      }
+
+      .signup button {
+        min-height: 48px;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .ticker-track {
+        animation: none;
+      }
+
+      .button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Streamforge
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-action" href="#signup">Get early access</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="shell">
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span> Live builders online now</div>
+          <h1>Build with <span class="outline">AI.</span><br><span class="acid">Ship live.</span></h1>
+          <p class="hero-copy">
+            Watch developers turn prompts into production software in real time. See every model response, inspect every diff, and fork the repo before the stream ends.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#signup">Start streaming&nbsp; →</a>
+            <a class="button button-secondary" href="#features">Explore the platform</a>
+          </div>
+          <div class="mini-proof">
+            <div class="avatars" aria-hidden="true">
+              <span class="avatar">K</span>
+              <span class="avatar">M</span>
+              <span class="avatar">R</span>
+            </div>
+            <span>Built for developers who build in public</span>
+          </div>
+        </div>
+
+        <div class="stream-window" aria-label="Preview of a live development stream">
+          <div class="window-bar">
+            <span>stream://maya/agent-dashboard</span>
+            <span class="live"><span class="pulse"></span> Live · 1.4k</span>
+          </div>
+          <div class="window-content">
+            <div class="prompt-panel">
+              <div class="panel-label">AI session / Claude</div>
+              <div class="message">
+                <b>Developer · 14:32:08</b>
+                Add optimistic updates to the task board and roll back on API failure.
+              </div>
+              <div class="message ai">
+                <b>Assistant · 14:32:11</b>
+                I'll introduce a local mutation queue, update the cache immediately, and restore the snapshot if the request fails.
+              </div>
+              <div class="message">
+                <b>Developer · 14:33:02</b>
+                Keep it framework-native. Add a test for the rollback path.
+              </div>
+            </div>
+            <div class="code-panel" aria-hidden="true">
+              <div class="panel-label">src/hooks/useTasks.ts</div>
+              <div class="code-row"><span class="line-no">01</span><span><span class="kw">export function</span> <span class="fn">useMoveTask</span>() {</span></div>
+              <div class="code-row"><span class="line-no">02</span><span>  <span class="kw">const</span> cache = <span class="fn">useCache</span>();</span></div>
+              <div class="code-row"><span class="line-no">03</span><span></span></div>
+              <div class="code-row"><span class="line-no">04</span><span>  <span class="kw">return</span> <span class="fn">useMutation</span>({</span></div>
+              <div class="code-row"><span class="line-no">05</span><span>    mutationFn: moveTask,</span></div>
+              <div class="code-row"><span class="line-no">06</span><span>    onMutate: <span class="kw">async</span> (next) =&gt; {</span></div>
+              <div class="code-row"><span class="line-no">07</span><span>      <span class="kw">await</span> cache.<span class="fn">cancel</span>(<span class="str">'tasks'</span>);</span></div>
+              <div class="code-row"><span class="line-no">08</span><span>      <span class="kw">const</span> previous = cache.<span class="fn">get</span>(<span class="str">'tasks'</span>);</span></div>
+              <div class="code-row"><span class="line-no">09</span><span>      cache.<span class="fn">set</span>(<span class="str">'tasks'</span>, (old) =&gt;</span></div>
+              <div class="code-row"><span class="line-no">10</span><span>        <span class="fn">applyMove</span>(old, next)</span></div>
+              <div class="code-row"><span class="line-no">11</span><span>      );</span></div>
+              <div class="code-row"><span class="line-no">12</span><span>      <span class="kw">return</span> { previous };</span></div>
+              <div class="code-row"><span class="line-no">13</span><span>    },</span></div>
+              <div class="code-row"><span class="line-no">14</span><span>    <span class="cm">// restore snapshot on failure</span></span></div>
+              <div class="code-row"><span class="line-no">15</span><span>    onError: (_, __, ctx) =&gt;</span></div>
+              <div class="code-row"><span class="line-no">16</span><span>      cache.<span class="fn">set</span>(<span class="str">'tasks'</span>, ctx.previous)</span></div>
+              <div class="code-row"><span class="line-no">17</span><span>  });</span></div>
+              <div class="code-row"><span class="line-no">18</span><span>}</span></div>
+            </div>
+          </div>
+          <div class="stream-footer">
+            <div class="streamer">
+              <span class="streamer-icon">M</span>
+              <span><strong>@maya_codes</strong><br>Shipping an AI-native project board</span>
+            </div>
+            <span class="fork-pill">⑂ Fork repo · 328</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        PROMPT → GENERATE → REVIEW → COMMIT → SHIP → FORK → PROMPT → GENERATE → REVIEW → COMMIT → SHIP → FORK → PROMPT → GENERATE → REVIEW → COMMIT → SHIP → FORK → PROMPT → GENERATE → REVIEW → COMMIT → SHIP → FORK →
+      </div>
+    </div>
+
+    <section id="how">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">01 / The workflow</div>
+            <h2>From blank repo<br>to live product.</h2>
+          </div>
+          <p class="section-intro">
+            Streamforge puts the complete AI-assisted development loop on screen—not just the polished result. Follow the reasoning, watch the code change, and take the work in your own direction.
+          </p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">[ 01 ]</span>
+            <h3>Connect your stack</h3>
+            <p>Link your repository, editor, and AI assistant. Streamforge arranges the full building context into one clean broadcast.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">[ 02 ]</span>
+            <h3>Build in public</h3>
+            <p>Share prompts, model output, code diffs, tests, and commits as they happen—with sensitive files automatically excluded.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">[ 03 ]</span>
+            <h3>Fork the outcome</h3>
+            <p>Viewers can jump to any commit, clone the exact state, and continue building without retracing the whole session.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">02 / Built for the loop</div>
+            <h2>See how the<br>software thinks.</h2>
+          </div>
+          <p class="section-intro">
+            More signal than a screen share. Every broadcast is a navigable record of the decisions, generations, and changes behind the code.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_01 // PROMPT FEED</span>
+              <div>
+                <h3>Every prompt. Every response.</h3>
+                <p>Watch the conversation beside the code. Follow context across models and understand why the implementation took its final shape.</p>
+              </div>
+            </div>
+            <div class="feature-visual" aria-hidden="true">
+              <div class="prompt-stack">
+                <div class="prompt-card"><strong>YOU / 09:41</strong><br>Refactor the parser to stream tokens without buffering the full response.</div>
+                <div class="prompt-card"><strong>MODEL / 09:41</strong><br>I'll convert the parser into an async generator and preserve backpressure through the pipeline...</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_02 // TIME TRAVEL</span>
+              <div>
+                <h3>Scrub through the build.</h3>
+                <p>Jump from prompt to diff to commit. Revisit the precise moment an idea became running code, with the stream and repository kept in sync.</p>
+              </div>
+            </div>
+            <div class="feature-visual" aria-hidden="true">
+              <div class="timeline">
+                <span class="timeline-tag">COMMIT 7F3A2C</span>
+                <svg viewBox="0 0 500 130" preserveAspectRatio="none">
+                  <polyline points="0,105 55,88 100,95 155,44 205,68 260,20 315,48 370,39 420,76 500,16" fill="none" stroke="#30d8ff" stroke-width="3"/>
+                  <circle cx="155" cy="44" r="7" fill="#ff3eb5"/>
+                  <circle cx="260" cy="20" r="7" fill="#c8ff00"/>
+                  <circle cx="420" cy="76" r="7" fill="#8a5cff"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <span class="feature-index">FEATURE_03 // INSTANT FORKS</span>
+              <div>
+                <h3>Don't just watch. Fork it.</h3>
+                <p>Clone any public stream at its latest commit—or branch from an earlier checkpoint. Start with working context, not an empty directory.</p>
+              </div>
+            </div>
+            <div class="feature-visual" aria-hidden="true">
+              <div class="repo-card">
+                <div class="repo-head"><span>maya/agent-dashboard</span><span>PUBLIC</span></div>
+                <div class="repo-row"><span>◫ src/components</span><span>2m ago</span></div>
+                <div class="repo-row"><span>◫ src/hooks</span><span>1m ago</span></div>
+                <div class="repo-row"><span>◇ package.json</span><span>8m ago</span></div>
+                <div class="repo-row"><span>⑂ 328 forks</span><span>★ 1.8k</span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-wrap" id="signup">
+      <div class="shell">
+        <div class="cta">
+          <div class="cta-grid">
+            <div>
+              <div class="section-kicker" style="color:#07070a;">03 / Open your build</div>
+              <h2>Your next commit deserves an audience.</h2>
+              <p>Join the early-access list for creator tools, reserved usernames, and first access to live repository forking.</p>
+            </div>
+            <div>
+              <form class="signup" action="#" method="post">
+                <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Work email</label>
+                <input id="email" name="email" type="email" placeholder="DEV@COMPANY.COM" required>
+                <button type="submit">Request access →</button>
+              </form>
+              <div class="form-note">No spam. Just product drops and your invite.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <span>© 2025 Streamforge // Built live</span>
+    <div class="footer-links">
+      <a href="#">X / Twitter</a>
+      <a href="#">GitHub</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+</body>
+</html>

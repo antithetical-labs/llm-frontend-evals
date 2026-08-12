@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | Operations for Creators</title>
+    <style>
+        /* CSS Reset & Base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --bg: #050505;
+            --fg: #FAFAFA;
+            --acid-green: #D4FF00;
+            --acid-pink: #FF00E6;
+            --acid-cyan: #00FFFF;
+            --acid-blue: #2A00FF;
+            --grid-color: rgba(212, 255, 0, 0.15);
+            
+            --font-head: 'Impact', 'Arial Black', sans-serif;
+            --font-body: 'Courier New', Courier, monospace;
+            --font-ui: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-head);
+            text-transform: uppercase;
+            font-weight: normal;
+            line-height: 1;
+        }
+
+        /* Utility */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: var(--bg);
+            background-color: var(--acid-green);
+            padding: 15px 30px;
+            border: 3px solid var(--fg);
+            box-shadow: 8px 8px 0px var(--acid-pink);
+            transition: transform 0.1s, box-shadow 0.1s;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px var(--acid-pink);
+        }
+
+        .btn-cyan {
+            background-color: var(--acid-cyan);
+            box-shadow: 8px 8px 0px var(--acid-blue);
+        }
+        .btn-cyan:hover {
+            box-shadow: 4px 4px 0px var(--acid-blue);
+        }
+
+        /* Marquee */
+        .marquee {
+            width: 100vw;
+            background: var(--acid-pink);
+            color: var(--bg);
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 2px solid var(--fg);
+            border-bottom: 2px solid var(--fg);
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: scroll 15s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 2px solid var(--acid-green);
+            position: relative;
+            z-index: 10;
+            background: var(--bg);
+        }
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: var(--font-head);
+            font-size: 2.5rem;
+            color: var(--acid-green);
+            text-shadow: 3px 3px 0px var(--acid-blue);
+            letter-spacing: 2px;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 100px 0 120px;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            color: var(--fg);
+            text-shadow: 
+                -4px -4px 0 var(--acid-cyan),
+                4px 4px 0 var(--acid-pink);
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            background: var(--bg);
+            padding: 10px;
+            border: 1px solid var(--acid-green);
+            color: var(--acid-green);
+        }
+
+        /* How it Works */
+        .how-it-works {
+            padding: 80px 0;
+            background: var(--acid-blue);
+            color: var(--fg);
+            border-bottom: 5px solid var(--acid-cyan);
+        }
+        .how-it-works h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 4px 4px 0 var(--bg);
+        }
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .step {
+            flex: 1 1 300px;
+            background: var(--bg);
+            padding: 30px;
+            border: 3px solid var(--acid-cyan);
+            box-shadow: 10px 10px 0 var(--acid-pink);
+            position: relative;
+        }
+        .step-num {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            background: var(--acid-green);
+            color: var(--bg);
+            font-family: var(--font-head);
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--fg);
+        }
+        .step h3 {
+            color: var(--acid-cyan);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        /* Features */
+        .features {
+            padding: 100px 0;
+        }
+        .feature-block {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 100px;
+            gap: 40px;
+        }
+        .feature-block:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .feature-content {
+            flex: 1 1 400px;
+        }
+        .feature-visual {
+            flex: 1 1 400px;
+            height: 350px;
+            background: #111;
+            border: 4px solid var(--fg);
+            position: relative;
+        }
+        
+        /* Specific Feature Styling */
+        .feat-1 h2 { color: var(--acid-pink); font-size: 3.5rem; margin-bottom: 20px; text-shadow: 3px 3px 0 var(--acid-blue); }
+        .feat-1 .feature-visual { border-color: var(--acid-pink); box-shadow: -15px 15px 0 var(--acid-blue); background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px); }
+        
+        .feat-2 h2 { color: var(--acid-green); font-size: 3.5rem; margin-bottom: 20px; text-shadow: 3px 3px 0 #000; -webkit-text-stroke: 1px var(--acid-green); }
+        .feat-2 .feature-visual { border-color: var(--acid-green); box-shadow: 15px 15px 0 var(--acid-cyan); }
+        
+        .feat-3 h2 { color: var(--acid-cyan); font-size: 3.5rem; margin-bottom: 20px; text-shadow: 3px 3px 0 var(--acid-pink); }
+        .feat-3 .feature-visual { border-color: var(--acid-cyan); box-shadow: -15px -15px 0 var(--acid-green); }
+
+        .mockup-ui {
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            border: 2px solid var(--fg);
+            padding: 20px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mockup-bar { background: var(--fg); height: 20px; width: 50%; margin-bottom: 10px;}
+        .mockup-line { background: #333; height: 10px; width: 100%; }
+        .mockup-line.short { width: 70%; }
+
+        /* CTA Section */
+        .cta {
+            background: var(--acid-pink);
+            padding: 100px 0;
+            text-align: center;
+            color: var(--bg);
+            border-top: 10px solid var(--acid-green);
+        }
+        .cta h2 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            margin-bottom: 30px;
+            color: var(--bg);
+            text-shadow: 3px 3px 0 var(--acid-cyan);
+        }
+        .cta-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        .cta-form input {
+            flex: 1 1 250px;
+            padding: 15px;
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            border: 3px solid var(--bg);
+            background: var(--fg);
+            color: var(--bg);
+            outline: none;
+        }
+        .cta-form input:focus {
+            background: var(--acid-cyan);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 2px dashed #333;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">BACKLOT</div>
+            <a href="#signup" class="btn">Login</a>
+        </div>
+    </header>
+
+    <div class="marquee">
+        <div class="marquee-content">
+            /// NO MORE SPREADSHEETS /// CHASE THE BAG /// F*CK ACCOUNTING /// TRACK PAYOUTS /// NEVER MISS A DEADLINE /// NO MORE SPREADSHEETS /// CHASE THE BAG /// F*CK ACCOUNTING /// TRACK PAYOUTS /// NEVER MISS A DEADLINE ///
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <h1>STOP DROPPING<br>THE BAG.</h1>
+            <p>The anti-spreadsheet ops tool for full-time creators. Consolidate your brand deals, invoices, deliverables, and payouts in one brutally efficient place.</p>
+            <a href="#signup" class="btn btn-cyan">Start Tracking Now</a>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2>HOW TO NOT BE BROKE:</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>DUMP CONTRACTS</h3>
+                    <p>Forward your brand deal emails or upload the PDFs. Backlot extracts the deliverables, dates, and money automatically.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>DO THE WORK</h3>
+                    <p>See exactly what you need to film, edit, and post today. We yell at you if a sponsor deadline is approaching.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>GET PAID</h3>
+                    <p>One-click invoice generation. Automated follow-ups. See your split between YouTube AdSense, Twitch, and Brand Deals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features container">
+        
+        <div class="feature-block feat-1">
+            <div class="feature-content">
+                <h2>ONE TRUTH FOR BRAND DEALS</h2>
+                <p>Stop searching through email threads to figure out if you owe a 60-second integration or a dedicated video. We put every deliverable, revision round, and exclusivity clause into a clean, digital dashboard.</p>
+            </div>
+            <div class="feature-visual">
+                <div class="mockup-ui">
+                    <div class="mockup-bar" style="background: var(--acid-pink);"></div>
+                    <div class="mockup-line"></div>
+                    <div class="mockup-line short"></div>
+                    <div style="margin-top:20px; font-weight:bold; color:var(--acid-pink);">STATUS: AWAITING APPROVAL</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block feat-2">
+            <div class="feature-content">
+                <h2>INVOICES THAT NAG FOR YOU</h2>
+                <p>Net-30? Net-60? Who cares. Generate the invoice, send it through Backlot, and let our system automatically harass the brand's accounting department until the wire hits your bank account.</p>
+            </div>
+            <div class="feature-visual">
+                <div class="mockup-ui">
+                    <div class="mockup-bar" style="background: var(--acid-green);"></div>
+                    <div class="mockup-line" style="background: var(--acid-green); width:30%;"></div>
+                    <div style="font-size:3rem; font-family:var(--font-head); color:var(--acid-green); margin-top:10px;">$15,000</div>
+                    <div class="mockup-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block feat-3">
+            <div class="feature-content">
+                <h2>PLATFORM PAYOUT TRACKING</h2>
+                <p>Plug in your YouTube, TikTok, and Twitch data. See exactly how much you're making per platform versus brand deals. Finally understand your actual monthly runway without needing a finance degree.</p>
+            </div>
+            <div class="feature-visual">
+                <div class="mockup-ui">
+                    <div class="mockup-bar" style="background: var(--acid-cyan);"></div>
+                    <div style="display:flex; gap:10px; margin-top:20px; height:100%; align-items:flex-end;">
+                        <div style="background:var(--acid-cyan); width:33%; height:80%;"></div>
+                        <div style="background:var(--acid-pink); width:33%; height:40%;"></div>
+                        <div style="background:var(--acid-green); width:33%; height:100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section id="signup" class="cta">
+        <div class="container">
+            <h2>GO FULL GOBLIN MODE ON YOUR OPS.</h2>
+            <form class="cta-form" action="#" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="ENTER YOUR EMAIL..." required>
+                <button type="submit" class="btn">GET EARLY ACCESS</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 BACKLOT INC. /// BUILT FOR CREATORS, NOT ACCOUNTANTS.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

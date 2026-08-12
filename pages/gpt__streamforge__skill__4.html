@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Streamforge is the live-streaming platform for developers building software with AI assistants. Watch every prompt, code change, and model response, then fork the repository.">
+  <title>Streamforge | Watch software get built</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #edf4f1;
+      --ink-muted: #9baca7;
+      --ink-faint: #6f817c;
+      --surface-0: #08100e;
+      --surface-1: #0d1714;
+      --surface-2: #13201c;
+      --surface-3: #1a2924;
+      --line: #2a3b35;
+      --line-bright: #41574f;
+      --mint: #76f0bb;
+      --mint-strong: #9af7ce;
+      --mint-deep: #183d30;
+      --ember: #ff6b45;
+      --ember-deep: #54271e;
+      --amber: #f4c66a;
+      --error: #ff806b;
+      --success: #76f0bb;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.625rem;
+      --radius-lg: 0.875rem;
+      --shadow-raised: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
+      --page: min(74rem, calc(100% - 2rem));
+      --sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", "Liberation Mono", Menlo, Consolas, monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--surface-0);
+    }
+
+    body {
+      margin: 0;
+      min-width: 20rem;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(118, 240, 187, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(118, 240, 187, 0.025) 1px, transparent 1px),
+        var(--surface-0);
+      background-size: 3rem 3rem;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    a,
+    input {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 100;
+      padding: 0.75rem 1rem;
+      transform: translateY(-150%);
+      border-radius: var(--radius-sm);
+      background: var(--mint);
+      color: #07110d;
+      font-weight: 800;
+      transition: transform 150ms var(--ease);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .shell {
+      width: var(--page);
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 16, 14, 0.92);
+    }
+
+    .nav {
+      min-height: 4.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 2.75rem;
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: grid;
+      place-items: center;
+      color: var(--mint);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border: 2px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .brand-mark::before {
+      inset: 0.2rem;
+    }
+
+    .brand-mark::after {
+      inset: 0.55rem;
+      border-color: var(--ember);
+    }
+
+    .brand-text span {
+      color: var(--mint);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .nav-link,
+    .button {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      font-weight: 750;
+      line-height: 1;
+      transition:
+        background-color 150ms var(--ease),
+        border-color 150ms var(--ease),
+        color 150ms var(--ease),
+        transform 150ms var(--ease);
+    }
+
+    .nav-link {
+      padding: 0.75rem 1rem;
+      color: var(--ink-muted);
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+      background: var(--surface-2);
+    }
+
+    .button {
+      gap: 0.65rem;
+      padding: 0.8rem 1.1rem;
+      border: 1px solid var(--line-bright);
+      background: var(--surface-2);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .button:hover {
+      border-color: var(--mint);
+      background: var(--surface-3);
+      color: var(--mint-strong);
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button-primary {
+      border-color: var(--mint);
+      background: var(--mint);
+      color: #07110d;
+    }
+
+    .button-primary:hover {
+      border-color: var(--mint-strong);
+      background: var(--mint-strong);
+      color: #07110d;
+    }
+
+    .button[disabled],
+    .button[aria-disabled="true"] {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    .hero {
+      position: relative;
+      padding: 6rem 0 6.5rem;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 28rem;
+      height: 28rem;
+      top: -14rem;
+      right: -8rem;
+      border: 1px solid rgba(118, 240, 187, 0.2);
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.83fr) minmax(35rem, 1.17fr);
+      align-items: center;
+      gap: 4rem;
+    }
+
+    .live-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 1.5rem;
+      color: var(--ink-muted);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 50%;
+      background: var(--ember);
+      box-shadow: 0 0 0 0.3rem rgba(255, 107, 69, 0.16);
+      animation: pulse 2.2s ease-out infinite;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin-bottom: 1.5rem;
+      font-size: clamp(3.4rem, 6.6vw, 6.75rem);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+      font-weight: 850;
+    }
+
+    h1 .code-word {
+      display: block;
+      color: var(--mint);
+      font-family: var(--mono);
+      font-size: 0.86em;
+      letter-spacing: -0.09em;
+    }
+
+    .hero-copy {
+      max-width: 35rem;
+      margin-bottom: 2rem;
+      color: var(--ink-muted);
+      font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .hero-proof {
+      margin: 1.25rem 0 0;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    .stream-window {
+      position: relative;
+      min-width: 0;
+      border: 1px solid var(--line-bright);
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      box-shadow: var(--shadow-raised);
+      overflow: hidden;
+    }
+
+    .stream-window::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3px,
+        rgba(255, 255, 255, 0.012) 4px
+      );
+    }
+
+    .window-bar {
+      min-height: 3.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      background: #101b18;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+    }
+
+    .window-title {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-width: 0;
+      color: var(--ink-muted);
+    }
+
+    .window-title strong {
+      color: var(--ink);
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 0.25rem;
+      background: var(--ember-deep);
+      color: #ffad97;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .viewer-count {
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+
+    .stream-grid {
+      min-height: 31rem;
+      display: grid;
+      grid-template-columns: 0.92fr 1.35fr;
+    }
+
+    .prompt-pane,
+    .code-pane {
+      min-width: 0;
+    }
+
+    .prompt-pane {
+      border-right: 1px solid var(--line);
+      background: #0b1412;
+    }
+
+    .pane-label {
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.85rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-faint);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .model-tag {
+      color: var(--mint);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .prompt-feed {
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      line-height: 1.55;
+    }
+
+    .message {
+      margin-bottom: 1.1rem;
+      padding-left: 0.85rem;
+      border-left: 2px solid var(--line-bright);
+    }
+
+    .message.user {
+      border-color: var(--ember);
+    }
+
+    .message.agent {
+      border-color: var(--mint);
+    }
+
+    .message-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+      color: var(--ink-faint);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .message p {
+      margin-bottom: 0;
+      color: #c5d2ce;
+    }
+
+    .tool-call {
+      display: block;
+      margin-top: 0.6rem;
+      padding: 0.55rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      color: var(--amber);
+    }
+
+    .code-pane {
+      background: #0c1513;
+    }
+
+    .file-tabs {
+      height: 2.5rem;
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+    }
+
+    .file-tab {
+      display: flex;
+      align-items: center;
+      padding: 0 0.8rem;
+      color: var(--ink-faint);
+      border-right: 1px solid var(--line);
+    }
+
+    .file-tab.active {
+      color: var(--ink);
+      background: var(--surface-2);
+      box-shadow: inset 0 -2px var(--mint);
+    }
+
+    .code {
+      margin: 0;
+      padding: 1rem 0;
+      overflow: hidden;
+      color: #d1ddd9;
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      line-height: 1.72;
+      counter-reset: line;
+    }
+
+    .code-line {
+      display: block;
+      min-width: max-content;
+      padding-right: 1rem;
+    }
+
+    .code-line::before {
+      content: counter(line);
+      counter-increment: line;
+      display: inline-block;
+      width: 2.8rem;
+      margin-right: 0.8rem;
+      color: #52645e;
+      text-align: right;
+      user-select: none;
+    }
+
+    .code-line.changed {
+      background: rgba(118, 240, 187, 0.08);
+      box-shadow: inset 2px 0 var(--mint);
+    }
+
+    .kw { color: #ff997f; }
+    .fn { color: #84d7ff; }
+    .str { color: #f4c66a; }
+    .prop { color: #9af7ce; }
+    .comment { color: #647871; }
+
+    .stream-footer {
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 0.85rem;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .commit {
+      color: var(--ink-muted);
+    }
+
+    .commit strong {
+      color: var(--mint);
+    }
+
+    .fork-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .section {
+      padding: 7rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 0.55fr 1.45fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .section-kicker {
+      color: var(--mint);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 750;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      max-width: 18ch;
+      margin-bottom: 0;
+      font-size: clamp(2.25rem, 4.5vw, 4.75rem);
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line-bright);
+    }
+
+    .step {
+      position: relative;
+      padding: 2rem 2rem 0 0;
+    }
+
+    .step + .step {
+      padding-left: 2rem;
+      border-left: 1px solid var(--line);
+    }
+
+    .step-number {
+      display: inline-block;
+      margin-bottom: 2.5rem;
+      color: var(--ember);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .step h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.3rem;
+      letter-spacing: -0.025em;
+    }
+
+    .step p {
+      max-width: 32ch;
+      margin-bottom: 0;
+      color: var(--ink-muted);
+    }
+
+    .features {
+      padding-bottom: 2rem;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: center;
+      gap: 5rem;
+      padding: 5rem 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .feature:nth-child(even) .feature-copy {
+      order: 2;
+    }
+
+    .feature:nth-child(even) .feature-art {
+      order: 1;
+    }
+
+    .feature-index {
+      display: block;
+      margin-bottom: 1.25rem;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .feature h3 {
+      max-width: 13ch;
+      margin-bottom: 1.25rem;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      line-height: 1.04;
+      letter-spacing: -0.05em;
+    }
+
+    .feature-copy p {
+      max-width: 37rem;
+      margin-bottom: 1.5rem;
+      color: var(--ink-muted);
+      font-size: 1.05rem;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 0.65rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--mint);
+      font-weight: 900;
+    }
+
+    .feature-art {
+      min-height: 22rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      overflow: hidden;
+    }
+
+    .timeline {
+      width: min(90%, 31rem);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 4.5rem 1.5rem 1fr;
+      align-items: center;
+      min-height: 3.4rem;
+    }
+
+    .timeline-time {
+      color: var(--ink-faint);
+    }
+
+    .timeline-node {
+      position: relative;
+      width: 0.65rem;
+      height: 0.65rem;
+      border: 2px solid var(--mint);
+      border-radius: 50%;
+      background: var(--surface-1);
+    }
+
+    .timeline-node::after {
+      content: "";
+      position: absolute;
+      top: 0.65rem;
+      left: 0.2rem;
+      width: 1px;
+      height: 2.75rem;
+      background: var(--line-bright);
+    }
+
+    .timeline-row:last-child .timeline-node::after {
+      display: none;
+    }
+
+    .timeline-event {
+      padding: 0.65rem 0.8rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      color: var(--ink-muted);
+    }
+
+    .timeline-event strong {
+      color: var(--ink);
+    }
+
+    .diff-card {
+      width: min(88%, 32rem);
+      border: 1px solid var(--line-bright);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+    }
+
+    .diff-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--ink-muted);
+    }
+
+    .diff-body {
+      padding: 0.75rem 0;
+      line-height: 1.85;
+    }
+
+    .diff-line {
+      display: block;
+      padding: 0 0.9rem;
+    }
+
+    .diff-line.minus {
+      color: #ffad9a;
+      background: rgba(255, 107, 69, 0.09);
+    }
+
+    .diff-line.plus {
+      color: var(--mint-strong);
+      background: rgba(118, 240, 187, 0.09);
+    }
+
+    .repo-graph {
+      position: relative;
+      width: min(88%, 31rem);
+      min-height: 15rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .repo-node {
+      position: absolute;
+      min-width: 8.5rem;
+      padding: 0.8rem;
+      border: 1px solid var(--line-bright);
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      color: var(--ink-muted);
+    }
+
+    .repo-node strong {
+      display: block;
+      color: var(--ink);
+    }
+
+    .repo-node.root {
+      top: 5rem;
+      left: 0;
+      border-color: var(--mint);
+    }
+
+    .repo-node.fork-a {
+      top: 0;
+      right: 0;
+    }
+
+    .repo-node.fork-b {
+      right: 0;
+      bottom: 0;
+    }
+
+    .repo-line {
+      position: absolute;
+      left: 8.5rem;
+      width: calc(100% - 17rem);
+      height: 1px;
+      background: var(--line-bright);
+      transform-origin: left center;
+    }
+
+    .repo-line.a {
+      top: 7rem;
+      transform: rotate(-24deg);
+    }
+
+    .repo-line.b {
+      top: 7.7rem;
+      transform: rotate(24deg);
+    }
+
+    .cta {
+      padding: 7rem 0;
+    }
+
+    .cta-panel {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: end;
+      gap: 4rem;
+      padding: clamp(2rem, 5vw, 4.5rem);
+      border: 1px solid var(--mint);
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(135deg, rgba(118, 240, 187, 0.09), transparent 44%),
+        var(--surface-1);
+      overflow: hidden;
+    }
+
+    .cta-panel::after {
+      content: "</>";
+      position: absolute;
+      top: -1rem;
+      right: 1.5rem;
+      color: rgba(118, 240, 187, 0.07);
+      font-family: var(--mono);
+      font-size: 10rem;
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .cta h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 11ch;
+      margin-bottom: 1rem;
+      font-size: clamp(2.6rem, 5vw, 5.25rem);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+    }
+
+    .cta-copy {
+      max-width: 39rem;
+      margin-bottom: 0;
+      color: var(--ink-muted);
+      font-size: 1.08rem;
+    }
+
+    .signup-form {
+      position: relative;
+      z-index: 1;
+    }
+
+    .signup-form label {
+      display: block;
+      margin-bottom: 0.55rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.65rem;
+    }
+
+    .signup-form input {
+      min-width: 0;
+      min-height: 3.25rem;
+      flex: 1;
+      padding: 0.8rem 0.9rem;
+      border: 1px solid var(--line-bright);
+      border-radius: var(--radius-sm);
+      outline: none;
+      background: var(--surface-0);
+      color: var(--ink);
+      transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
+    }
+
+    .signup-form input::placeholder {
+      color: var(--ink-faint);
+    }
+
+    .signup-form input:hover {
+      border-color: var(--ink-muted);
+    }
+
+    .signup-form input:focus-visible {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(244, 198, 106, 0.18);
+      outline: none;
+    }
+
+    .signup-form input:user-invalid {
+      border-color: var(--error);
+    }
+
+    .form-note {
+      margin: 0.65rem 0 0;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .form-status {
+      display: none;
+      margin-top: 0.65rem;
+      color: var(--success);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .signup-form.is-success .form-status {
+      display: block;
+    }
+
+    .signup-form.is-loading .button {
+      color: transparent;
+      pointer-events: none;
+    }
+
+    .signup-form.is-loading .button::after {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(7, 17, 13, 0.3);
+      border-top-color: #07110d;
+      border-radius: 50%;
+      animation: spin 700ms linear infinite;
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-inner {
+      min-height: 6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      color: var(--ink-faint);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .footer-links a {
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .footer-links a:hover {
+      color: var(--mint);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 107, 69, 0.4); }
+      65%, 100% { box-shadow: 0 0 0 0.55rem rgba(255, 107, 69, 0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 62rem) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy-wrap {
+        max-width: 48rem;
+      }
+
+      h1 {
+        max-width: 12ch;
+      }
+
+      .stream-window {
+        max-width: 50rem;
+      }
+
+      .section-heading {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .feature {
+        gap: 3rem;
+      }
+
+      .cta-panel {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .signup-form {
+        max-width: 38rem;
+      }
+    }
+
+    @media (max-width: 46rem) {
+      .nav-links .nav-link {
+        display: none;
+      }
+
+      .hero {
+        padding: 4.5rem 0;
+      }
+
+      h1 {
+        font-size: clamp(3.2rem, 15vw, 5.5rem);
+      }
+
+      .stream-grid {
+        min-height: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .prompt-feed {
+        min-height: 15rem;
+      }
+
+      .code-pane {
+        min-height: 23rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        padding: 2rem 0;
+      }
+
+      .step + .step {
+        padding-left: 0;
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .step-number {
+        margin-bottom: 1rem;
+      }
+
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .feature:nth-child(even) .feature-copy,
+      .feature:nth-child(even) .feature-art {
+        order: initial;
+      }
+
+      .feature-art {
+        min-height: 19rem;
+      }
+
+      .repo-node {
+        min-width: 7rem;
+      }
+
+      .repo-line {
+        left: 7rem;
+        width: calc(100% - 14rem);
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .form-row .button {
+        min-height: 3.25rem;
+      }
+
+      .footer-inner {
+        padding: 1.5rem 0;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">stream<span>forge</span></span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" href="#how">How it works</a>
+        <a class="nav-link" href="#features">Features</a>
+        <a class="button" href="#signup">Start streaming</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-grid shell">
+        <div class="hero-copy-wrap">
+          <div class="live-note">
+            <span class="live-dot" aria-hidden="true"></span>
+            Developers building live
+          </div>
+          <h1>
+            Watch software
+            <span class="code-word">take shape.</span>
+          </h1>
+          <p class="hero-copy">
+            Streamforge lets developers broadcast the full AI-assisted build:
+            every prompt, model response, code change, and commit. Watch the work,
+            learn the decisions, then fork the repository.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#signup">
+              Start your first stream
+              <span aria-hidden="true">→</span>
+            </a>
+            <a class="button" href="#how">See how it works</a>
+          </div>
+          <p class="hero-proof">Public beta · Free for individual developers</p>
+        </div>
+
+        <div class="stream-window" aria-label="Example live coding stream interface">
+          <div class="window-bar">
+            <div class="window-title">
+              <span class="live-badge"><span aria-hidden="true">●</span> LIVE</span>
+              <span><strong>maya-dev</strong> / agent-router</span>
+            </div>
+            <span class="viewer-count">1,284 watching</span>
+          </div>
+
+          <div class="stream-grid">
+            <div class="prompt-pane">
+              <div class="pane-label">
+                <span>Assistant feed</span>
+                <span class="model-tag">sonnet-4</span>
+              </div>
+              <div class="prompt-feed">
+                <div class="message user">
+                  <div class="message-meta">
+                    <span>Prompt</span>
+                    <span>14:32:08</span>
+                  </div>
+                  <p>Add automatic retry with exponential backoff. Keep the request API unchanged.</p>
+                </div>
+                <div class="message agent">
+                  <div class="message-meta">
+                    <span>Assistant</span>
+                    <span>14:32:11</span>
+                  </div>
+                  <p>I will add a retry wrapper with jitter and preserve the existing return type.</p>
+                  <span class="tool-call">↳ editing src/client.ts</span>
+                </div>
+                <div class="message agent">
+                  <div class="message-meta">
+                    <span>Assistant</span>
+                    <span>14:32:19</span>
+                  </div>
+                  <p>Running the request suite now.</p>
+                  <span class="tool-call">✓ 24 tests passed in 1.8s</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-pane">
+              <div class="file-tabs" aria-hidden="true">
+                <span class="file-tab active">client.ts</span>
+                <span class="file-tab">client.test.ts</span>
+              </div>
+              <pre class="code" aria-label="TypeScript code"><code><span class="code-line"><span class="kw">export async function</span> <span class="fn">request</span>(</span><span class="code-line">  input: RequestInfo,</span><span class="code-line">  options: RequestInit = {}</span><span class="code-line">) {</span><span class="code-line changed">  <span class="kw">const</span> maxAttempts = <span class="prop">3</span>;</span><span class="code-line changed"></span><span class="code-line changed">  <span class="kw">for</span> (<span class="kw">let</span> attempt = <span class="prop">0</span>;</span><span class="code-line changed">       attempt &lt; maxAttempts;</span><span class="code-line changed">       attempt++) {</span><span class="code-line">    <span class="kw">try</span> {</span><span class="code-line">      <span class="kw">return await</span> <span class="fn">fetch</span>(</span><span class="code-line">        input, options</span><span class="code-line">      );</span><span class="code-line">    } <span class="kw">catch</span> (error) {</span><span class="code-line changed">      <span class="kw">if</span> (attempt === <span class="prop">2</span>)</span><span class="code-line changed">        <span class="kw">throw</span> error;</span><span class="code-line changed">      <span class="kw">await</span> <span class="fn">delay</span>(</span><span class="code-line changed">        <span class="prop">250</span> * <span class="prop">2</span> ** attempt</span><span class="code-line changed">      );</span><span class="code-line">    }</span><span class="code-line">  }</span><span class="code-line">}</span></code></pre>
+            </div>
+          </div>
+
+          <div class="stream-footer">
+            <span class="commit"><strong>+18</strong> <span style="color:#ff997f">−2</span> · tests passing</span>
+            <span class="fork-action">⑂ Fork repository <span aria-hidden="true">→</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="shell">
+        <div class="section-heading">
+          <div class="section-kicker">How it works</div>
+          <h2 class="section-title">The whole build, not just the polished result.</h2>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01 / Connect</span>
+            <h3>Link your workspace</h3>
+            <p>Connect a repository and your AI coding assistant. Streamforge captures the build context without interrupting your flow.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">02 / Broadcast</span>
+            <h3>Build in public</h3>
+            <p>Your audience sees prompts, responses, edits, terminal output, and commits synchronized into one live timeline.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">03 / Fork</span>
+            <h3>Turn watching into making</h3>
+            <p>Every stream points to a working repository. Viewers can fork any checkpoint and continue from the exact moment that inspired them.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" id="features">
+      <div class="shell">
+        <div class="section-heading">
+          <div class="section-kicker">Built for real work</div>
+          <h2 class="section-title">A live stream with engineering context.</h2>
+        </div>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-index">FEATURE 01</span>
+            <h3>Prompts and code stay in sync</h3>
+            <p>
+              Follow the reasoning behind each change. Streamforge aligns assistant
+              conversations, file edits, terminal commands, and commits on a single
+              timestamped track.
+            </p>
+            <ul class="feature-list">
+              <li>Jump from a prompt to its exact diff</li>
+              <li>Search transcripts after the stream</li>
+              <li>Review model and tool activity separately</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Timeline linking prompts, tool calls, code changes, and commits">
+            <div class="timeline">
+              <div class="timeline-row">
+                <span class="timeline-time">14:32:08</span>
+                <span class="timeline-node"></span>
+                <span class="timeline-event"><strong>Prompt</strong> · Add retry logic</span>
+              </div>
+              <div class="timeline-row">
+                <span class="timeline-time">14:32:11</span>
+                <span class="timeline-node"></span>
+                <span class="timeline-event"><strong>Tool</strong> · Read client.ts</span>
+              </div>
+              <div class="timeline-row">
+                <span class="timeline-time">14:32:19</span>
+                <span class="timeline-node"></span>
+                <span class="timeline-event"><strong>Diff</strong> · +18 −2</span>
+              </div>
+              <div class="timeline-row">
+                <span class="timeline-time">14:33:02</span>
+                <span class="timeline-node"></span>
+                <span class="timeline-event"><strong>Commit</strong> · 7bd93e1</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-index">FEATURE 02</span>
+            <h3>See decisions, not screen noise</h3>
+            <p>
+              The stream view prioritizes meaningful engineering events. Viewers can
+              inspect a diff, expand terminal output, or follow the assistant without
+              squinting at a compressed desktop recording.
+            </p>
+            <ul class="feature-list">
+              <li>Readable source at every screen size</li>
+              <li>Automatic secret and token redaction</li>
+              <li>Bookmarks for key build moments</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Readable source code difference">
+            <div class="diff-card">
+              <div class="diff-head">
+                <span>src/client.ts</span>
+                <span>+4 −1</span>
+              </div>
+              <div class="diff-body">
+                <span class="diff-line">@@ request(input, options)</span>
+                <span class="diff-line minus">− return fetch(input, options);</span>
+                <span class="diff-line plus">+ return withRetry(() =&gt;</span>
+                <span class="diff-line plus">+ &nbsp;fetch(input, options),</span>
+                <span class="diff-line plus">+ &nbsp;{ attempts: 3 }</span>
+                <span class="diff-line plus">+ );</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-index">FEATURE 03</span>
+            <h3>Fork from the moment it clicked</h3>
+            <p>
+              Inspiration should compile. Fork the repository at any recorded
+              checkpoint, with the code, setup notes, and build context needed to
+              take the idea in your own direction.
+            </p>
+            <ul class="feature-list">
+              <li>One-step repository forks</li>
+              <li>Checkpoint-specific setup instructions</li>
+              <li>Attribution linked to the original stream</li>
+            </ul>
+          </div>
+          <div class="feature-art" aria-label="Repository branching into two viewer forks">
+            <div class="repo-graph">
+              <div class="repo-node root">
+                <strong>agent-router</strong>
+                7bd93e1 · live
+              </div>
+              <span class="repo-line a" aria-hidden="true"></span>
+              <span class="repo-line b" aria-hidden="true"></span>
+              <div class="repo-node fork-a">
+                <strong>liam / fork</strong>
+                edge-runtime
+              </div>
+              <div class="repo-node fork-b">
+                <strong>nora / fork</strong>
+                local-models
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta" id="signup">
+      <div class="shell">
+        <div class="cta-panel">
+          <div>
+            <h2>Build where others can learn.</h2>
+            <p class="cta-copy">
+              Join the public beta and turn your next AI-assisted coding session
+              into a stream developers can watch, understand, and fork.
+            </p>
+          </div>
+
+          <form class="signup-form" action="#" method="post">
+            <label for="email">Work email</label>
+            <div class="form-row">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="you@company.dev"
+                aria-describedby="email-note email-status"
+                required
+              >
+              <button class="button button-primary" type="submit">Request access</button>
+            </div>
+            <p class="form-note" id="email-note">No card required. We will only send product updates.</p>
+            <p class="form-status" id="email-status" role="status">✓ Access request received.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner shell">
+      <span>© 2025 Streamforge. Built for developers in progress.</span>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

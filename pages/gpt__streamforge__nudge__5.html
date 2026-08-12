@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is where developers livestream software being built with AI assistants. Watch every prompt, inspect every diff, and fork the repository.">
+  <title>Streamforge — Watch software happen</title>
+  <style>
+    :root {
+      --ink: #11110f;
+      --paper: #f2f0e8;
+      --panel: #e5e2d7;
+      --signal: #c8ff36;
+      --hot: #ff5c35;
+      --muted: #6b6a62;
+      --line: #11110f;
+      --white: #fffef8;
+      --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(17, 17, 15, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 15, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      border-bottom: 2px solid var(--line);
+      background: rgba(242, 240, 232, .95);
+    }
+
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      margin-right: auto;
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      background: var(--ink);
+      border-radius: 50%;
+    }
+
+    .logo-mark::before,
+    .logo-mark::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 2px solid var(--signal);
+      border-radius: 50%;
+    }
+
+    .logo-mark::after {
+      inset: 10px;
+      background: var(--signal);
+      border: 0;
+    }
+
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 5px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 2px solid var(--ink);
+      background: var(--signal);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform .15s ease, box-shadow .15s ease;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .button.dark {
+      background: var(--ink);
+      color: var(--white);
+      box-shadow: 4px 4px 0 var(--hot);
+    }
+
+    .hero {
+      padding: 70px 0 76px;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .82fr) minmax(540px, 1.18fr);
+      gap: 54px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 22px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--hot);
+      box-shadow: 0 0 0 4px rgba(255, 92, 53, .18);
+    }
+
+    h1 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(58px, 7.2vw, 108px);
+      line-height: .87;
+      letter-spacing: -.075em;
+      font-weight: 900;
+    }
+
+    h1 .outline {
+      color: var(--paper);
+      -webkit-text-stroke: 2px var(--ink);
+      text-shadow: 4px 4px 0 var(--signal);
+    }
+
+    .hero-copy {
+      max-width: 600px;
+      margin: 30px 0 0;
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.5;
+      letter-spacing: -.02em;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 32px;
+    }
+
+    .microcopy {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .stream-window {
+      position: relative;
+      border: 2px solid var(--ink);
+      background: var(--ink);
+      box-shadow: 12px 12px 0 var(--signal);
+      transform: rotate(1deg);
+    }
+
+    .window-bar {
+      height: 43px;
+      display: flex;
+      align-items: center;
+      padding: 0 13px;
+      border-bottom: 1px solid #4b4b46;
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+      margin-right: 13px;
+    }
+
+    .window-dots i {
+      display: block;
+      width: 9px;
+      height: 9px;
+      border: 1px solid #aaa99f;
+      border-radius: 50%;
+    }
+
+    .stream-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--hot);
+      font-weight: 800;
+    }
+
+    .stream-body {
+      display: grid;
+      grid-template-columns: 44% 56%;
+      min-height: 436px;
+    }
+
+    .prompt-pane {
+      border-right: 1px solid #4b4b46;
+      padding: 17px;
+      color: #dbdad2;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .pane-title {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 17px;
+      color: #8e8d86;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-left: 3px solid var(--hot);
+      background: #23231f;
+    }
+
+    .message.assistant {
+      border-color: var(--signal);
+    }
+
+    .message b {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--hot);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .message.assistant b {
+      color: var(--signal);
+    }
+
+    .streamer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 23px;
+      padding-top: 15px;
+      border-top: 1px solid #41413c;
+    }
+
+    .avatar {
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #706f68;
+      background: var(--signal);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .streamer strong {
+      display: block;
+      color: var(--white);
+      font-size: 11px;
+    }
+
+    .streamer span {
+      color: #8e8d86;
+      font-size: 9px;
+    }
+
+    .code-pane {
+      padding: 17px 0;
+      overflow: hidden;
+      color: #d8d7d0;
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.72;
+    }
+
+    .code-pane .pane-title {
+      padding: 0 17px;
+    }
+
+    .code-line {
+      display: block;
+      min-width: 410px;
+      padding: 0 17px;
+      white-space: pre;
+    }
+
+    .code-line.add {
+      background: rgba(200, 255, 54, .09);
+      color: #dfff83;
+    }
+
+    .code-line.del {
+      background: rgba(255, 92, 53, .1);
+      color: #ff896c;
+    }
+
+    .ln {
+      display: inline-block;
+      width: 28px;
+      color: #5f5f59;
+      user-select: none;
+    }
+
+    .kw { color: #ff896c; }
+    .fn { color: #dfff83; }
+    .str { color: #f5d47a; }
+    .comment { color: #71716a; }
+
+    .stream-footer {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 48px;
+      padding: 8px 14px;
+      border-top: 1px solid #4b4b46;
+      color: #aaa99f;
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .fork-pill {
+      margin-left: auto;
+      padding: 7px 10px;
+      background: var(--signal);
+      color: var(--ink);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ticker {
+      border-block: 2px solid var(--ink);
+      background: var(--signal);
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      width: max-content;
+      padding: 12px 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      word-spacing: 12px;
+    }
+
+    .section {
+      padding: 96px 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .section-title {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(38px, 5vw, 67px);
+      line-height: .97;
+      letter-spacing: -.055em;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 52px;
+      border: 2px solid var(--ink);
+      background: var(--white);
+    }
+
+    .step {
+      min-height: 245px;
+      padding: 25px;
+      border-right: 2px solid var(--ink);
+    }
+
+    .step:last-child {
+      border-right: 0;
+    }
+
+    .step-no {
+      display: inline-grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      margin-bottom: 45px;
+      border: 2px solid var(--ink);
+      background: var(--hot);
+      font-family: var(--mono);
+      font-weight: 900;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .step h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      letter-spacing: -.04em;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .features {
+      padding-top: 20px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 400px;
+      border-top: 2px solid var(--ink);
+      align-items: stretch;
+    }
+
+    .feature:last-child {
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .feature-copy {
+      padding: 64px 7vw 64px 0;
+      align-self: center;
+    }
+
+    .feature:nth-child(even) .feature-copy {
+      order: 2;
+      padding: 64px 0 64px 7vw;
+    }
+
+    .feature-no {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .feature h3 {
+      max-width: 500px;
+      margin: 18px 0 17px;
+      font-size: clamp(35px, 4vw, 57px);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+
+    .feature p {
+      max-width: 520px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .feature-art {
+      min-height: 400px;
+      display: grid;
+      place-items: center;
+      padding: 38px;
+      border-left: 2px solid var(--ink);
+      background: var(--panel);
+    }
+
+    .feature:nth-child(even) .feature-art {
+      order: 1;
+      border-right: 2px solid var(--ink);
+      border-left: 0;
+    }
+
+    .terminal-card {
+      width: min(100%, 455px);
+      border: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 11px;
+      box-shadow: 8px 8px 0 var(--hot);
+    }
+
+    .terminal-head {
+      padding: 11px 14px;
+      border-bottom: 1px solid #4c4c47;
+      color: #92928b;
+    }
+
+    .terminal-content {
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    .terminal-content .green {
+      color: var(--signal);
+    }
+
+    .diff-card {
+      width: min(100%, 450px);
+      transform: rotate(-2deg);
+      border: 2px solid var(--ink);
+      background: var(--white);
+      box-shadow: 9px 9px 0 var(--signal);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .diff-card header {
+      display: flex;
+      justify-content: space-between;
+      padding: 13px;
+      border-bottom: 2px solid var(--ink);
+      font-weight: 900;
+    }
+
+    .diff-card div {
+      padding: 6px 14px;
+    }
+
+    .diff-card .plus {
+      background: #dff6a3;
+    }
+
+    .diff-card .minus {
+      background: #ffd1c6;
+    }
+
+    .repo-card {
+      width: min(100%, 430px);
+      border: 2px solid var(--ink);
+      background: var(--white);
+      box-shadow: 10px 10px 0 var(--ink);
+    }
+
+    .repo-top {
+      padding: 20px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .repo-top small {
+      font-family: var(--mono);
+      text-transform: uppercase;
+    }
+
+    .repo-top h4 {
+      margin: 8px 0 0;
+      font-family: var(--mono);
+      font-size: 21px;
+    }
+
+    .repo-list {
+      padding: 8px 20px 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .repo-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid #cbc8be;
+    }
+
+    .repo-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 17px 20px;
+      background: var(--signal);
+      font-family: var(--mono);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .cta {
+      padding: 110px 0;
+    }
+
+    .cta-box {
+      position: relative;
+      padding: 68px;
+      border: 2px solid var(--ink);
+      background: var(--hot);
+      box-shadow: 14px 14px 0 var(--ink);
+      overflow: hidden;
+    }
+
+    .cta-box::after {
+      content: "</>";
+      position: absolute;
+      right: 20px;
+      bottom: -48px;
+      color: rgba(17, 17, 15, .12);
+      font-family: var(--mono);
+      font-size: 180px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .cta-box h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0;
+      font-size: clamp(45px, 6vw, 80px);
+      line-height: .92;
+      letter-spacing: -.065em;
+    }
+
+    .cta-box p {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 22px 0 30px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .signup-form {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      max-width: 650px;
+    }
+
+    .signup-form label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      height: 54px;
+      padding: 0 17px;
+      border: 2px solid var(--ink);
+      border-right: 0;
+      border-radius: 0;
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--mono);
+      outline: none;
+    }
+
+    .signup-form input:focus {
+      box-shadow: inset 0 0 0 3px var(--signal);
+    }
+
+    .signup-form button {
+      min-height: 54px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      background: var(--signal);
+      color: var(--ink);
+      padding: 0 22px;
+      font-family: var(--mono);
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .signup-form button:hover {
+      background: var(--ink);
+      color: var(--signal);
+    }
+
+    footer {
+      padding: 30px 0;
+      border-top: 2px solid var(--ink);
+      background: var(--ink);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .footer-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-row span:first-child {
+      margin-right: auto;
+      color: var(--signal);
+      font-weight: 900;
+    }
+
+    .footer-row a {
+      color: #aaa99f;
+      text-decoration: none;
+    }
+
+    .footer-row a:hover {
+      color: var(--white);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+      }
+
+      .stream-window {
+        width: min(100%, 720px);
+      }
+
+      .feature-copy,
+      .feature:nth-child(even) .feature-copy {
+        padding-inline: 36px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav {
+        min-height: 62px;
+      }
+
+      .nav-link {
+        display: none;
+      }
+
+      .nav .button {
+        min-height: 38px;
+        padding-inline: 12px;
+        font-size: 11px;
+      }
+
+      .hero {
+        padding: 52px 0 60px;
+      }
+
+      h1 {
+        font-size: clamp(54px, 18vw, 82px);
+      }
+
+      .hero-grid {
+        gap: 42px;
+      }
+
+      .stream-body {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-pane {
+        border-right: 0;
+        border-bottom: 1px solid #4b4b46;
+      }
+
+      .code-pane {
+        min-height: 320px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        border-right: 0;
+        border-bottom: 2px solid var(--ink);
+      }
+
+      .step:last-child {
+        border-bottom: 0;
+      }
+
+      .step-no {
+        margin-bottom: 26px;
+      }
+
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-copy,
+      .feature:nth-child(even) .feature-copy {
+        order: 1;
+        padding: 50px 10px;
+      }
+
+      .feature-art,
+      .feature:nth-child(even) .feature-art {
+        order: 2;
+        min-height: 340px;
+        border: 0;
+        border-top: 2px solid var(--ink);
+        padding: 26px;
+      }
+
+      .cta {
+        padding: 76px 0;
+      }
+
+      .cta-box {
+        padding: 42px 25px;
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+
+      .signup-form {
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .signup-form input {
+        flex: none;
+        width: 100%;
+        border-right: 2px solid var(--ink);
+      }
+
+      .footer-row {
+        flex-wrap: wrap;
+      }
+
+      .footer-row span:first-child {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav wrap" aria-label="Main navigation">
+      <a class="logo" href="#" aria-label="Streamforge home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        streamforge_
+      </a>
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#features">Why watch</a>
+      <a class="button" href="#signup">Get early access →</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid wrap">
+        <div>
+          <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Developers are building now</p>
+          <h1>Watch<br>software<br><span class="outline">happen.</span></h1>
+          <p class="hero-copy">
+            Livestreams for people who ship. See the prompt, the model response, the terminal, and every code change—then fork the repo and keep building.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#signup">Join the beta →</a>
+            <a class="button dark" href="#how">See how it works</a>
+          </div>
+          <p class="microcopy">No highlight reels. No mystery. Just the actual build.</p>
+        </div>
+
+        <div class="stream-window" aria-label="Preview of a live Streamforge coding session">
+          <div class="window-bar">
+            <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            streamforge / live / rate-limit-proxy
+            <span class="stream-status"><span class="live-dot"></span> LIVE · 1,284</span>
+          </div>
+
+          <div class="stream-body">
+            <div class="prompt-pane">
+              <div class="pane-title"><span>Assistant thread</span><span>14:32:08</span></div>
+              <div class="message">
+                <b>Jo · prompt</b>
+                Add per-tenant rate limiting. Redis is already available. Keep the middleware transport-agnostic and include tests for burst traffic.
+              </div>
+              <div class="message assistant">
+                <b>Forge · response</b>
+                I’ll create a sliding-window limiter behind an interface, wire the Redis adapter separately, then add deterministic clock-based tests.
+              </div>
+              <div class="streamer">
+                <div class="avatar">JK</div>
+                <div>
+                  <strong>Jo Kim is building</strong>
+                  <span>edge-proxy · TypeScript · Forge 3.5</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-pane">
+              <div class="pane-title"><span>src/limit.ts</span><span>+38 −4</span></div>
+              <span class="code-line"><span class="ln">01</span><span class="kw">export interface</span> Store {</span>
+              <span class="code-line"><span class="ln">02</span>  increment(key: <span class="kw">string</span>): Promise&lt;<span class="kw">number</span>&gt;</span>
+              <span class="code-line"><span class="ln">03</span>  expire(key: <span class="kw">string</span>, ttl: <span class="kw">number</span>): Promise&lt;<span class="kw">void</span>&gt;</span>
+              <span class="code-line"><span class="ln">04</span>}</span>
+              <span class="code-line"><span class="ln">05</span></span>
+              <span class="code-line add"><span class="ln">06</span>+ <span class="kw">export const</span> <span class="fn">createLimiter</span> = (store: Store) =&gt; {</span>
+              <span class="code-line add"><span class="ln">07</span>+   <span class="kw">return async</span> (tenant: <span class="kw">string</span>) =&gt; {</span>
+              <span class="code-line add"><span class="ln">08</span>+     <span class="kw">const</span> bucket = <span class="str">`limit:${tenant}`</span></span>
+              <span class="code-line del"><span class="ln">09</span>-     <span class="kw">const</span> count = cache[bucket] || 0</span>
+              <span class="code-line add"><span class="ln">10</span>+     <span class="kw">const</span> count = <span class="kw">await</span> store.increment(bucket)</span>
+              <span class="code-line add"><span class="ln">11</span>+     <span class="kw">if</span> (count === 1) <span class="kw">await</span> store.expire(bucket, 60)</span>
+              <span class="code-line"><span class="ln">12</span></span>
+              <span class="code-line"><span class="ln">13</span>      <span class="comment">// Allow a small burst over baseline</span></span>
+              <span class="code-line add"><span class="ln">14</span>+     <span class="kw">return</span> { allowed: count &lt;= 120, remaining: 120-count }</span>
+              <span class="code-line add"><span class="ln">15</span>+   }</span>
+              <span class="code-line add"><span class="ln">16</span>+ }</span>
+            </div>
+          </div>
+
+          <div class="stream-footer">
+            <span>● tests 18/18</span>
+            <span>main*</span>
+            <span>00:47:16 elapsed</span>
+            <span class="fork-pill">⑂ Fork repo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        PROMPT → RESPONSE → DIFF → TEST → COMMIT → FORK &nbsp; ◆ &nbsp;
+        PROMPT → RESPONSE → DIFF → TEST → COMMIT → FORK &nbsp; ◆ &nbsp;
+        PROMPT → RESPONSE → DIFF → TEST → COMMIT → FORK
+      </div>
+    </div>
+
+    <section class="section" id="how">
+      <div class="wrap">
+        <p class="section-kicker">// The shortest path from spectator to collaborator</p>
+        <h2 class="section-title">A build log with a pulse.</h2>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-no">01</span>
+            <h3>Drop into a stream</h3>
+            <p>Browse active builds by language, stack, model, or problem—not by thumbnail face.</p>
+          </article>
+          <article class="step">
+            <span class="step-no">02</span>
+            <h3>Follow the whole loop</h3>
+            <p>Prompts, responses, edits, commands, test output, and rollbacks stay synchronized.</p>
+          </article>
+          <article class="step">
+            <span class="step-no">03</span>
+            <h3>Fork at any moment</h3>
+            <p>Clone the exact repository state you’re watching and take the idea somewhere new.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="wrap">
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-no">FEATURE_01 / FULL CONTEXT</span>
+            <h3>See what the model actually saw.</h3>
+            <p>
+              No cleaned-up transcript after the fact. Watch prompts, attached files, tool calls, retries, and model output in sequence. Understand why the code changed—not only what changed.
+            </p>
+          </div>
+          <div class="feature-art">
+            <div class="terminal-card">
+              <div class="terminal-head">assistant_context.log</div>
+              <div class="terminal-content">
+                <span class="green">→ prompt</span> refactor the worker pool<br>
+                <span class="green">→ context</span> 8 files / 14,290 tokens<br>
+                <span class="green">→ tool</span> grep "enqueue(" src/<br>
+                <span class="green">→ tool</span> read src/queue/worker.ts<br>
+                <span class="green">→ thought</span> isolate scheduling first<br>
+                <span class="green">→ patch</span> 3 files changed<br>
+                <span class="green">→ command</span> pnpm test worker<br>
+                <span style="color:#ff896c">× failed</span> handles concurrent shutdown<br>
+                <span class="green">→ retry</span> inspecting race condition…
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-no">FEATURE_02 / LIVE DIFFS</span>
+            <h3>Read the build, not the theater.</h3>
+            <p>
+              Streamforge keeps the repository diff front and center. Pin files, inspect commits, rewind the session, and see exactly which changes came from the developer or the assistant.
+            </p>
+          </div>
+          <div class="feature-art">
+            <div class="diff-card">
+              <header><span>queue.test.ts</span><span>+4 −2</span></header>
+              <div>describe("shutdown", () =&gt; {</div>
+              <div class="minus">- worker.stop()</div>
+              <div class="plus">+ await worker.stop()</div>
+              <div class="plus">+ expect(queue.pending).toBe(0)</div>
+              <div class="plus">+ expect(worker.active).toBe(false)</div>
+              <div>})</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="feature-no">FEATURE_03 / FORKABLE BY DEFAULT</span>
+            <h3>Leave with working code.</h3>
+            <p>
+              Every public stream is attached to a forkable repository. Start from the current head or choose any checkpoint in the timeline—with setup notes and session context included.
+            </p>
+          </div>
+          <div class="feature-art">
+            <div class="repo-card">
+              <div class="repo-top">
+                <small>stream repository</small>
+                <h4>jo-kim / edge-proxy</h4>
+              </div>
+              <div class="repo-list">
+                <div class="repo-row"><span>src/</span><span>2m ago</span></div>
+                <div class="repo-row"><span>tests/</span><span>4m ago</span></div>
+                <div class="repo-row"><span>stream-notes.md</span><span>now</span></div>
+              </div>
+              <div class="repo-action"><span>Fork at 00:47:16</span><span>⑂ 1,284</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta" id="signup">
+      <div class="wrap">
+        <div class="cta-box">
+          <h2>Don’t just watch the future get built. Fork it.</h2>
+          <p>Join the early-access list for creator tools, live sessions, and repositories worth opening in a new tab.</p>
+          <form class="signup-form" action="#" method="post">
+            <label for="email">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.dev" required>
+            <button type="submit">Request access →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-row wrap">
+      <span>streamforge_ © 2025</span>
+      <a href="#">Guidelines</a>
+      <a href="#">Privacy</a>
+      <a href="#">GitHub</a>
+      <a href="#">Status: all systems nominal</a>
+    </div>
+  </footer>
+</body>
+</html>

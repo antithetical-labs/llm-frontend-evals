@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlot — The back office for full-time creators</title>
+<style>
+  :root {
+    --paper: #F6F2EA;
+    --paper-deep: #EDE7DA;
+    --ink: #1E1B16;
+    --ink-soft: #5C564B;
+    --line: #D8D0BF;
+    --accent: #C2452D;
+    --accent-deep: #9E3420;
+    --green: #2E5E43;
+    --green-light: #E3EBDD;
+    --amber: #E8B23A;
+    --card: #FFFFFF;
+    --radius: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.12;
+  }
+
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    font-family: Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 26px; height: 26px;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid; place-items: center;
+    font-size: 0.85rem;
+    font-family: Georgia, serif;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 4px 4px 0 var(--accent);
+  }
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--accent); }
+  .btn-primary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--accent); }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .btn-accent:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); background: var(--accent-deep); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-ghost:hover { background: var(--paper-deep); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 84px 0 72px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .kicker {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: var(--green-light);
+    border: 1px solid var(--green);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    margin-bottom: 26px;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5vw, 3.9rem);
+    margin-bottom: 22px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero p.lede {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    margin-bottom: 34px;
+  }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .hero-note {
+    margin-top: 22px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .hero-note strong { color: var(--ink); }
+
+  /* Hero dashboard mock */
+  .mock {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    box-shadow: 8px 8px 0 var(--ink);
+    overflow: hidden;
+  }
+  .mock-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--ink);
+    background: var(--paper-deep);
+  }
+  .mock-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); }
+  .mock-dot:nth-child(1) { background: var(--accent); }
+  .mock-dot:nth-child(2) { background: var(--amber); }
+  .mock-dot:nth-child(3) { background: var(--green); }
+  .mock-title {
+    margin-left: auto;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+  }
+  .mock-body { padding: 20px; }
+  .mock-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    background: var(--paper);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .mock-row:hover { transform: translateX(4px); border-color: var(--ink); }
+  .mock-row:last-child { margin-bottom: 0; }
+  .mock-row .who { font-weight: 700; font-size: 0.9rem; }
+  .mock-row .what { font-size: 0.78rem; color: var(--ink-soft); }
+  .tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .tag-due { background: #F7E2DC; color: var(--accent-deep); border: 1px solid var(--accent); }
+  .tag-paid { background: var(--green-light); color: var(--green); border: 1px solid var(--green); }
+  .tag-draft { background: #F5ECD6; color: #8A6A12; border: 1px solid var(--amber); }
+  .mock-total {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .mock-total span { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; }
+  .mock-total strong { font-family: Georgia, serif; font-size: 1.5rem; }
+
+  /* ---------- Ticker ---------- */
+  .ticker {
+    background: var(--ink);
+    color: var(--paper);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 13px 0;
+  }
+  .ticker-track {
+    display: inline-block;
+    animation: scroll 32s linear infinite;
+  }
+  .ticker span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 34px;
+  }
+  .ticker b { color: var(--amber); }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 88px 0; }
+  .section-head { max-width: 640px; margin-bottom: 52px; }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: block;
+  }
+  .section-head h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); margin-bottom: 14px; }
+  .section-head p { color: var(--ink-soft); font-size: 1.05rem; }
+
+  /* How it works */
+  .how { background: var(--paper-deep); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .step {
+    padding: 34px 30px 38px;
+    border-right: 2px solid var(--ink);
+    position: relative;
+    transition: background 0.15s ease;
+  }
+  .step:last-child { border-right: none; }
+  .step:hover { background: var(--paper); }
+  .step-num {
+    font-family: Georgia, serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step h3 { font-size: 1.25rem; margin-bottom: 10px; }
+  .step p { color: var(--ink-soft); font-size: 0.95rem; }
+
+  /* Features */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+  }
+  .feature {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    padding: 32px 28px 36px;
+    box-shadow: 6px 6px 0 var(--paper-deep);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .feature:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--paper-deep);
+  }
+  .feature-icon {
+    width: 52px; height: 52px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    display: grid;
+    place-items: center;
+    margin-bottom: 22px;
+  }
+  .feature-icon svg { width: 26px; height: 26px; }
+  .fi-1 { background: #F7E2DC; }
+  .fi-2 { background: var(--green-light); }
+  .fi-3 { background: #F5ECD6; }
+  .feature h3 { font-size: 1.35rem; margin-bottom: 12px; }
+  .feature p { color: var(--ink-soft); font-size: 0.96rem; flex: 1; }
+  .feature ul {
+    list-style: none;
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .feature li {
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 5px 0 5px 22px;
+    position: relative;
+  }
+  .feature li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 12px;
+    width: 10px; height: 10px;
+    background: var(--accent);
+  }
+
+  /* Quote strip */
+  .quote-strip {
+    background: var(--green);
+    color: #fff;
+    padding: 64px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .quote-strip blockquote {
+    font-family: Georgia, serif;
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
+    font-style: italic;
+    max-width: 820px;
+    line-height: 1.4;
+  }
+  .quote-strip cite {
+    display: block;
+    margin-top: 20px;
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+    font-style: normal;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  /* CTA */
+  .cta-box {
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    background: var(--card);
+    box-shadow: 10px 10px 0 var(--accent);
+    padding: 64px 56px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .cta-box h2 { font-size: clamp(1.9rem, 3.4vw, 2.7rem); margin-bottom: 16px; }
+  .cta-box p { color: var(--ink-soft); font-size: 1.05rem; max-width: 42ch; }
+  .signup-form { display: flex; flex-direction: column; gap: 14px; }
+  .signup-form label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .signup-form input {
+    font: inherit;
+    font-size: 1rem;
+    padding: 14px 16px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: box-shadow 0.12s ease;
+  }
+  .signup-form input:focus { box-shadow: 3px 3px 0 var(--ink); background: #fff; }
+  .form-msg {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--green);
+    min-height: 1.4em;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0;
+    margin-top: 88px;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+  }
+  .footer-inner nav { border: none; position: static; display: flex; gap: 24px; }
+  .footer-inner a { color: var(--ink-soft); text-decoration: none; font-weight: 600; }
+  .footer-inner a:hover { color: var(--ink); }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .hero-grid, .cta-box { grid-template-columns: 1fr; }
+    .steps, .features-grid { grid-template-columns: 1fr; }
+    .step { border-right: none; border-bottom: 2px solid var(--ink); }
+    .step:last-child { border-bottom: none; }
+    .nav-links a:not(.btn) { display: none; }
+    .cta-box { padding: 44px 30px; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a class="logo" href="#"><span class="logo-mark">B</span>Backlot</a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#signup" class="btn btn-primary" style="padding:9px 18px;">Get early access</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="kicker">Built for full-time creators</span>
+      <h1>You make the content.<br>Backlot runs the <em>business</em>.</h1>
+      <p class="lede">Brand-deal contracts, invoices, sponsor deadlines, and payouts from every platform — finally in one place, in plain English. No spreadsheets. No finance degree required.</p>
+      <div class="hero-actions">
+        <a href="#signup" class="btn btn-accent">Start free for 30 days</a>
+        <a href="#how" class="btn btn-ghost">See how it works</a>
+      </div>
+      <p class="hero-note"><strong>$4.2M</strong> in creator invoices tracked last quarter. Average late payment caught: <strong>19 days early</strong>.</p>
+    </div>
+
+    <div class="mock" aria-hidden="true">
+      <div class="mock-bar">
+        <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+        <span class="mock-title">BACKLOT / THIS WEEK</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-row">
+          <div><div class="who">Nordic Audio — Sponsorship</div><div class="what">Contract signed · Video due Fri</div></div>
+          <span class="tag tag-due">Due in 3d</span>
+        </div>
+        <div class="mock-row">
+          <div><div class="who">Bloom Skincare — Invoice #041</div><div class="what">$3,800 · Net 30 · Sent Mar 2</div></div>
+          <span class="tag tag-draft">Follow up</span>
+        </div>
+        <div class="mock-row">
+          <div><div class="who">YouTube AdSense — March</div><div class="what">Estimated payout</div></div>
+          <span class="tag tag-paid">Paid</span>
+        </div>
+        <div class="mock-row">
+          <div><div class="who">Twitch + TikTok — March</div><div class="what">Combined payout tracked</div></div>
+          <span class="tag tag-paid">Paid</span>
+        </div>
+        <div class="mock-total">
+          <span>Expected this month</span>
+          <strong id="counter">$0</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <span>Contracts <b>·</b> Invoices <b>·</b> Deadlines <b>·</b> Payouts <b>·</b> Usage rights <b>·</b> Net-30 reminders <b>·</b> Rate history <b>·</b> Tax-ready exports <b>·</b></span><span>Contracts <b>·</b> Invoices <b>·</b> Deadlines <b>·</b> Payouts <b>·</b> Usage rights <b>·</b> Net-30 reminders <b>·</b> Rate history <b>·</b> Tax-ready exports <b>·</b></span>
+  </div>
+</div>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-label">How it works</span>
+      <h2>From inbox chaos to one clear view, in an afternoon.</h2>
+      <p>Backlot is set up for people who'd rather be editing than bookkeeping.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Forward or upload</h3>
+        <p>Send deal emails, contracts, and briefs to your Backlot address. We pull out the brand, the money, the deliverables, and the dates — automatically.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>See every deadline</h3>
+        <p>Your sponsorships become a simple timeline: what's due, what's been delivered, and which invoices need to go out when you hit publish.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get paid, on time</h3>
+        <p>Backlot nudges you before net-30 slips, flags late payers, and shows exactly what each platform and sponsor owes you this month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-label">Features</span>
+      <h2>The back office you never hired.</h2>
+      <p>Everything a creator-business needs, nothing it doesn't. Written for humans, not accountants.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature reveal">
+        <div class="feature-icon fi-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#9E3420" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        </div>
+        <h3>Deals &amp; contracts, decoded</h3>
+        <p>Every brand deal in one pipeline. Backlot reads your contracts and highlights the parts that actually matter to you.</p>
+        <ul>
+          <li>Usage rights &amp; exclusivity flagged</li>
+          <li>Deliverables listed in plain English</li>
+          <li>Renewal and kill-fee reminders</li>
+        </ul>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon fi-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2E5E43" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>
+        </div>
+        <h3>Invoices that chase themselves</h3>
+        <p>Generate a professional invoice the moment a video goes live. Backlot tracks net-30 clocks and drafts the awkward follow-up email for you.</p>
+        <ul>
+          <li>One-click invoices from any deal</li>
+          <li>Automatic late-payment nudges</li>
+          <li>"Who owes me what" dashboard</li>
+        </ul>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon fi-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#8A6A12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>Every platform, one paycheck</h3>
+        <p>YouTube, Twitch, TikTok, Patreon, affiliate links — see your real monthly income across all of them, plus what sponsors still owe.</p>
+        <ul>
+          <li>Per-platform payout tracking</li>
+          <li>Month-over-month income trends</li>
+          <li>Tax-ready export in one click</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="quote-strip">
+  <div class="wrap reveal">
+    <blockquote>"I used to find unpaid invoices three months late, buried in my inbox. Now Backlot tells me the day a payment goes overdue — and I just hit send."</blockquote>
+    <cite>— Maya R., 480K subscribers · full-time since 2022</cite>
+  </div>
+</div>
+
+<section id="signup">
+  <div class="wrap">
+    <div class="cta-box reveal">
+      <div>
+        <span class="section-label">Early access</span>
+        <h2>Stop leaving money in your inbox.</h2>
+        <p>Join the waitlist and get 30 days free at launch. Set up takes one afternoon — your future self (and your accountant) will thank you.</p>
+      </div>
+      <form class="signup-form" id="signupForm" novalidate>
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="you@yourchannel.com" required>
+        <button type="submit" class="btn btn-accent">Join the waitlist</button>
+        <div class="form-msg" id="formMsg" role="status"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span>© 2025 Backlot. Made by people who watch too much YouTube.</span>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#signup">Sign up</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
+
+  // Animated counter in hero mock
+  var counterEl = document.getElementById('counter');
+  var target = 11420, started = false;
+  function animateCounter() {
+    if (started) return;
+    started = true;
+    var start = null, duration = 1600;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      counterEl.textContent = '$' + Math.round(target * eased).toLocaleString();
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  new IntersectionObserver(function (entries, obs) {
+    if (entries[0].isIntersecting) { animateCounter(); obs.disconnect(); }
+  }, { threshold: 0.4 }).observe(counterEl);
+
+  // Sign-up form
+  document.getElementById('signupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('email');
+    var msg = document.getElementById('formMsg');
+    var val = input.value.trim();
+    if (!val || val.indexOf('@') < 1 || val.indexOf('.') < 0) {
+      msg.style.color = '#9E3420';
+      msg.textContent = 'Please enter a valid email address.';
+      input.focus();
+      return;
+    }
+    msg.style.color = '#2E5E43';
+    msg.textContent = 'You\'re on the list — check your inbox for a confirmation.';
+    input.value = '';
+  });
+</script>
+
+</body>
+</html>

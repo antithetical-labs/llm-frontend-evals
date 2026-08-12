@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Streamforge — Watch software get built, prompt by prompt</title>
+<style>
+  :root{
+    --bg:#0b0d12;
+    --bg-2:#11141c;
+    --panel:#151925;
+    --line:#232838;
+    --txt:#e6e9f0;
+    --muted:#939bb0;
+    --accent:#ff5c38;
+    --accent-2:#37e0a0;
+    --violet:#8b7cff;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --maxw: 1140px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--txt);
+    font-family:var(--sans);font-size:17px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky;top:0;z-index:40;
+    background:rgba(11,13,18,.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;gap:28px;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:18px}
+  .spark{
+    width:22px;height:22px;border-radius:6px;
+    background:linear-gradient(140deg,var(--accent),#ff9d38);
+    box-shadow:0 0 18px rgba(255,92,56,.45);
+    position:relative;flex:none;
+  }
+  .spark::after{
+    content:"";position:absolute;inset:6px 9px;background:var(--bg);border-radius:1px;
+    transform:skewX(-14deg);
+  }
+  .nav nav{display:flex;gap:24px;margin-left:auto;font-size:15px;color:var(--muted)}
+  .nav nav a:hover{color:var(--txt)}
+  .btn{
+    display:inline-block;font-weight:600;font-size:15px;
+    padding:11px 20px;border-radius:9px;border:1px solid transparent;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+    cursor:pointer;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 24px -10px rgba(255,92,56,.8)}
+  .btn-primary:hover{background:#ff6f4f}
+  .btn-ghost{border-color:var(--line);color:var(--txt);background:var(--bg-2)}
+  .btn-ghost:hover{border-color:#39405a}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    padding:88px 0 96px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(700px 340px at 12% -5%, rgba(255,92,56,.16), transparent 70%),
+      radial-gradient(620px 320px at 88% 8%, rgba(139,124,255,.16), transparent 70%);
+    pointer-events:none;
+  }
+  .hero::after{
+    content:"";position:absolute;inset:0;
+    background-image:linear-gradient(var(--line) 1px, transparent 1px),
+                     linear-gradient(90deg,var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.28;mask-image:radial-gradient(circle at 50% 0%, #000 40%, transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 0%, #000 40%, transparent 78%);
+    pointer-events:none;
+  }
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .pill{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--muted);background:var(--panel);border:1px solid var(--line);
+    padding:6px 13px;border-radius:100px;margin-bottom:24px;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(255,92,56,.18)}
+  h1{
+    font-size:clamp(2.3rem,4.7vw,3.65rem);line-height:1.05;margin:0 0 20px;
+    letter-spacing:-.035em;font-weight:750;
+  }
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{font-size:19px;color:var(--muted);max-width:52ch;margin:0 0 30px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .fineprint{font-family:var(--mono);font-size:12.5px;color:#6f778d;margin-top:18px}
+
+  /* stream mock */
+  .mock{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;box-shadow:0 40px 80px -40px #000, 0 0 0 1px rgba(255,255,255,.02) inset;
+    font-family:var(--mono);font-size:12.5px;
+  }
+  .mock-bar{
+    display:flex;align-items:center;gap:8px;padding:10px 14px;
+    background:#0f121b;border-bottom:1px solid var(--line);
+  }
+  .live{
+    font-size:10.5px;font-weight:700;letter-spacing:.08em;
+    background:var(--accent);color:#fff;padding:2px 7px;border-radius:4px;
+  }
+  .mock-bar .who{color:var(--muted)}
+  .mock-bar .eyes{margin-left:auto;color:var(--accent-2)}
+  .mock-body{display:grid;grid-template-columns:1fr 1fr}
+  .pane{padding:14px;min-height:250px}
+  .pane + .pane{border-left:1px solid var(--line)}
+  .pane h4{
+    margin:0 0 10px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:#6f778d;font-weight:600;
+  }
+  .prompt{color:#c9cfe0}
+  .prompt .u{color:var(--violet)}
+  .code{white-space:pre;color:#aab2c8;line-height:1.75;overflow:hidden}
+  .k{color:var(--violet)}.s{color:var(--accent-2)}.c{color:#5d6579}.f{color:#ffbf6b}
+  .caret{
+    display:inline-block;width:7px;height:14px;background:var(--accent);
+    vertical-align:-2px;animation:blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  .mock-foot{
+    display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);
+    color:#6f778d;background:#0f121b;flex-wrap:wrap;
+  }
+  .mock-foot span.on{color:var(--accent-2)}
+
+  /* ---------- section shell ---------- */
+  section{padding:92px 0}
+  .eyebrow{
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 14px;
+  }
+  h2{font-size:clamp(1.7rem,3vw,2.35rem);letter-spacing:-.03em;line-height:1.15;margin:0 0 14px;font-weight:730}
+  .sub{color:var(--muted);max-width:60ch;margin:0}
+  .section-head{margin-bottom:52px}
+
+  /* ---------- how it works ---------- */
+  #how{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .step{background:var(--panel);padding:30px 26px}
+  .step .num{
+    font-family:var(--mono);font-size:12.5px;color:var(--accent);border:1px solid var(--line);
+    width:34px;height:34px;display:grid;place-items:center;border-radius:9px;margin-bottom:18px;background:#0f121b;
+  }
+  .step h3{margin:0 0 8px;font-size:17.5px;letter-spacing:-.01em}
+  .step p{margin:0;color:var(--muted);font-size:15.5px}
+
+  /* ---------- features ---------- */
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{
+    background:linear-gradient(180deg,var(--panel),#12151f);
+    border:1px solid var(--line);border-radius:14px;padding:28px 26px;
+    position:relative;transition:border-color .18s ease, transform .18s ease;
+  }
+  .card:hover{border-color:#39405a;transform:translateY(-3px)}
+  .card .ic{
+    width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+    font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:18px;
+    background:rgba(255,92,56,.1);color:var(--accent);border:1px solid rgba(255,92,56,.24);
+  }
+  .card:nth-child(2) .ic{background:rgba(55,224,160,.1);color:var(--accent-2);border-color:rgba(55,224,160,.24)}
+  .card:nth-child(3) .ic{background:rgba(139,124,255,.1);color:var(--violet);border-color:rgba(139,124,255,.24)}
+  .card h3{margin:0 0 10px;font-size:19px;letter-spacing:-.015em}
+  .card p{margin:0 0 16px;color:var(--muted);font-size:15.5px}
+  .card code{
+    display:block;font-family:var(--mono);font-size:12.5px;color:#8f97ad;
+    background:#0e1119;border:1px solid var(--line);border-radius:8px;padding:9px 12px;
+    overflow-x:auto;white-space:nowrap;
+  }
+  .card code b{color:var(--accent-2);font-weight:400}
+
+  /* ---------- cta ---------- */
+  #signup{
+    border-top:1px solid var(--line);
+    background:
+      radial-gradient(600px 300px at 50% 0%, rgba(255,92,56,.14), transparent 70%),
+      var(--bg-2);
+    text-align:center;
+  }
+  .signup-box{max-width:660px;margin:0 auto}
+  form{
+    display:flex;gap:10px;margin:28px auto 0;max-width:480px;
+  }
+  input[type=email]{
+    flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+    padding:13px 15px;border-radius:9px;font-size:15.5px;font-family:var(--sans);
+  }
+  input[type=email]::placeholder{color:#6f778d}
+  input[type=email]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,92,56,.16)}
+  .stats{
+    display:flex;justify-content:center;gap:34px;flex-wrap:wrap;margin-top:40px;
+    font-family:var(--mono);font-size:13px;color:#6f778d;
+  }
+  .stats b{display:block;font-family:var(--sans);font-size:24px;color:var(--txt);letter-spacing:-.02em}
+
+  footer{
+    border-top:1px solid var(--line);padding:28px 0;
+    font-size:14px;color:#6f778d;
+  }
+  .foot{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+  .foot nav{margin-left:auto;display:flex;gap:20px}
+  .foot a:hover{color:var(--txt)}
+
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .steps,.features{grid-template-columns:1fr}
+    .nav nav{display:none}
+    section{padding:68px 0}
+  }
+  @media (max-width:560px){
+    .mock-body{grid-template-columns:1fr}
+    .pane + .pane{border-left:none;border-top:1px solid var(--line)}
+    form{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#"><span class="spark"></span>Streamforge</a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#signup">Pricing</a>
+      <a href="#">Browse streams</a>
+    </nav>
+    <a class="btn btn-primary" href="#signup">Start streaming</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><span class="dot"></span>412 devs building live right now</span>
+      <h1>Watch software get built, <em>prompt by prompt</em>.</h1>
+      <p class="lede">
+        Streamforge is live-streaming for developers who build with AI assistants. Every prompt,
+        every model response, every diff — broadcast as it happens. Like what you see? Fork the
+        repo mid-stream and keep going yourself.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#signup">Claim your handle</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <p class="fineprint">$ npx streamforge go --repo . &nbsp;→&nbsp; live in 8 seconds</p>
+    </div>
+
+    <!-- stream mock -->
+    <div class="mock" aria-hidden="true">
+      <div class="mock-bar">
+        <span class="live">LIVE</span>
+        <span class="who">@mira_dev · rewriting the auth layer, badly</span>
+        <span class="eyes">1,284 watching</span>
+      </div>
+      <div class="mock-body">
+        <div class="pane">
+          <h4>Prompt stream</h4>
+          <p class="prompt"><span class="u">mira ▸</span> the session cookie isn't rotating on
+          privilege change. refactor <span class="s">createSession()</span> so it issues a new
+          token and revokes the old one atomically.</p>
+          <p class="prompt" style="color:#6f778d">claude-sonnet ▸ Reading <span class="s">auth/session.ts</span>… found 2 call sites. Proposing a transactional rotate<span class="caret"></span></p>
+        </div>
+        <div class="pane">
+          <h4>session.ts · +18 −6</h4>
+<div class="code"><span class="c">// rotate on privilege change</span>
+<span class="k">export async function</span> <span class="f">rotate</span>(sid) {
+  <span class="k">return</span> db.<span class="f">tx</span>(<span class="k">async</span> (t) =&gt; {
+    <span class="k">const</span> next = <span class="k">await</span> t.<span class="f">issue</span>({
+      user: sid.user,
+      ttl: <span class="s">'15m'</span>,
+    });
+    <span class="k">await</span> t.<span class="f">revoke</span>(sid.id);
+    <span class="k">return</span> next;
+  });
+}</div>
+        </div>
+      </div>
+      <div class="mock-foot">
+        <span>⑂ 231 forks</span>
+        <span class="on">● tests 42/42</span>
+        <span>⌘ 3h 12m elapsed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p>
+      <h2>Three moving parts. No production ceremony.</h2>
+      <p class="sub">Point the CLI at a repo, wire up your assistant, and go. Streamforge handles capture, sync, and the fork button.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Attach the CLI</h3>
+        <p>One command in your project root. Streamforge tails your assistant's session — prompts, tool calls, responses — and mirrors your working tree over an encrypted channel. Secrets and <code style="font-family:var(--mono);font-size:13px">.env</code> paths are excluded by default.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Broadcast the loop</h3>
+        <p>Viewers get three synced panes: the prompt thread, the model's raw output, and a live diff of the code. Scrub back to any moment to see exactly which prompt produced which line.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Anyone forks it</h3>
+        <p>A fork captures the repo at that exact frame <em>plus</em> the full prompt history as context. Clone it, hand it to your own assistant, take the build somewhere else.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Built for people who ship</p>
+      <h2>Not a webcam pointed at a terminal.</h2>
+      <p class="sub">Streamforge understands repos, prompts and diffs as first-class objects — so the stream is searchable, replayable, and executable.</p>
+    </div>
+    <div class="features">
+      <div class="card">
+        <div class="ic">⑂</div>
+        <h3>Fork at any frame</h3>
+        <p>Grab the tree as it existed at 01:42:07, with the reasoning that got it there. Forks arrive with a <span style="font-family:var(--mono);font-size:14px">CONTEXT.md</span> your assistant can pick up cold.</p>
+        <code>$ streamforge fork mira/auth-layer <b>--at 01:42:07</b></code>
+      </div>
+      <div class="card">
+        <div class="ic">⌕</div>
+        <h3>Searchable prompt archive</h3>
+        <p>Every stream is indexed by prompt text, file path, language and model. Find the exact moment someone got a stubborn migration to pass — and read the four prompts that failed first.</p>
+        <code>search: <b>"pgvector index"</b> · 1,904 prompts · 63 streams</code>
+      </div>
+      <div class="card">
+        <div class="ic">◧</div>
+        <h3>Diff-synced replay</h3>
+        <p>Replays are deterministic, not video. Step through the build commit by commit, expand any tool call, and copy the code that actually landed instead of squinting at 1080p.</p>
+        <code>replay · <b>step 47/312</b> · +18 −6 · tests 42/42 ✓</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="signup">
+  <div class="wrap signup-box">
+    <p class="eyebrow">Open beta</p>
+    <h2>Start your first stream tonight.</h2>
+    <p class="sub" style="margin:0 auto">Free while we're in beta: unlimited public streams, 30-day replay retention, and unlimited forks. Private streams and team channels land next quarter.</p>
+    <form onsubmit="return false">
+      <input type="email" placeholder="you@company.dev" aria-label="Email address" required>
+      <button class="btn btn-primary" type="submit">Get my invite</button>
+    </form>
+    <p class="fineprint" style="text-align:center">No credit card. No sales call. We'll email you a CLI token and one link.</p>
+    <div class="stats">
+      <div><b>18,400</b>devs streaming</div>
+      <div><b>241k</b>prompts archived</div>
+      <div><b>76k</b>repos forked</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#" style="font-size:16px"><span class="spark"></span>Streamforge</a>
+    <nav>
+      <a href="#">Docs</a>
+      <a href="#">CLI</a>
+      <a href="#">Status</a>
+      <a href="#">Privacy</a>
+    </nav>
+  </div>
+  <div class="wrap" style="margin-top:14px">© 2025 Streamforge Labs — built live, on Streamforge.</div>
+</footer>
+
+</body>
+</html>

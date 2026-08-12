@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Streamforge is where developers live-stream building software with AI assistants. Watch every prompt, model response, and code change—then fork the repository.">
+  <title>Streamforge — Watch software get built</title>
+  <style>
+    :root {
+      --bg: #080b10;
+      --bg-soft: #0d1118;
+      --panel: #111721;
+      --panel-2: #151c27;
+      --line: #263040;
+      --line-soft: rgba(255, 255, 255, 0.08);
+      --text: #f4f7fb;
+      --muted: #97a3b6;
+      --green: #7bf1a8;
+      --green-deep: #3dcc7b;
+      --purple: #b49cff;
+      --blue: #7bc8ff;
+      --orange: #ffbc7a;
+      --radius: 18px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 72% 12%, rgba(89, 232, 144, 0.11), transparent 27rem),
+        radial-gradient(circle at 15% 34%, rgba(122, 108, 255, 0.09), transparent 30rem),
+        var(--bg);
+      font-family: var(--sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: 0.24;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .container {
+      width: min(1160px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 17px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      border: 1px solid rgba(123, 241, 168, 0.35);
+      border-radius: 9px;
+      color: var(--green);
+      background: rgba(123, 241, 168, 0.08);
+      box-shadow: inset 0 0 18px rgba(123, 241, 168, 0.06);
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 550;
+    }
+
+    .nav-links a {
+      transition: color 160ms ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .hero {
+      padding: 82px 0 92px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 24px;
+      padding: 7px 11px;
+      border: 1px solid rgba(123, 241, 168, 0.22);
+      border-radius: 999px;
+      color: #baf8d0;
+      background: rgba(123, 241, 168, 0.06);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(123, 241, 168, 0.11), 0 0 16px rgba(123, 241, 168, 0.7);
+    }
+
+    h1 {
+      max-width: 920px;
+      margin: 0 auto;
+      font-size: clamp(48px, 7vw, 82px);
+      line-height: 0.99;
+      letter-spacing: -0.065em;
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: linear-gradient(110deg, var(--green), #d4f9df 44%, var(--purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      margin: 27px auto 0;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 20px);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 19px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      border-color: var(--green);
+      color: #07110b;
+      background: var(--green);
+      box-shadow: 0 10px 30px rgba(70, 217, 125, 0.18);
+    }
+
+    .button-primary:hover {
+      background: #99f6ba;
+    }
+
+    .button-secondary {
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .button-secondary:hover {
+      border-color: #465267;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .broadcast {
+      position: relative;
+      max-width: 1060px;
+      margin: 64px auto 0;
+      padding: 1px;
+      border-radius: 19px;
+      background: linear-gradient(135deg, rgba(123, 241, 168, 0.52), rgba(180, 156, 255, 0.14) 45%, rgba(123, 200, 255, 0.33));
+      box-shadow: 0 35px 90px rgba(0, 0, 0, 0.42);
+      text-align: left;
+    }
+
+    .broadcast::after {
+      position: absolute;
+      inset: auto 12% -35px;
+      z-index: -1;
+      height: 70px;
+      border-radius: 50%;
+      content: "";
+      background: rgba(98, 233, 149, 0.08);
+      filter: blur(35px);
+    }
+
+    .app {
+      overflow: hidden;
+      border-radius: 18px;
+      background: #0c1118;
+    }
+
+    .app-bar {
+      display: flex;
+      min-height: 49px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line-soft);
+      background: #101620;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3a4452;
+    }
+
+    .stream-title {
+      overflow: hidden;
+      color: #bcc6d5;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .live-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #ffd4d4;
+    }
+
+    .live-label::before {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      content: "";
+      background: #ff6767;
+      box-shadow: 0 0 9px rgba(255, 103, 103, 0.8);
+    }
+
+    .app-grid {
+      display: grid;
+      min-height: 460px;
+      grid-template-columns: 1.1fr 1.45fr;
+    }
+
+    .prompt-pane {
+      border-right: 1px solid var(--line-soft);
+      background: #0f151e;
+    }
+
+    .code-pane {
+      background: #0b1017;
+    }
+
+    .pane-heading {
+      display: flex;
+      height: 41px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--line-soft);
+      color: #7f8da1;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .agent {
+      color: var(--green);
+    }
+
+    .chat {
+      display: grid;
+      gap: 18px;
+      padding: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .message {
+      position: relative;
+      padding-left: 19px;
+      color: #a8b4c6;
+    }
+
+    .message::before {
+      position: absolute;
+      top: 5px;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      border: 1px solid #637086;
+      border-radius: 3px;
+      content: "";
+    }
+
+    .message.user::before {
+      border-color: var(--purple);
+      background: rgba(180, 156, 255, 0.22);
+    }
+
+    .message.ai::before {
+      border-color: var(--green);
+      border-radius: 50%;
+      background: rgba(123, 241, 168, 0.22);
+    }
+
+    .message strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #e3e8f0;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .message.ai {
+      padding: 13px 14px 13px 33px;
+      border: 1px solid rgba(123, 241, 168, 0.1);
+      border-radius: 10px;
+      background: rgba(123, 241, 168, 0.035);
+    }
+
+    .message.ai::before {
+      top: 18px;
+      left: 14px;
+    }
+
+    .tool-call {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      color: #8e9caf;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .tool-call span {
+      color: var(--blue);
+    }
+
+    .code-tabs {
+      justify-content: flex-start;
+      gap: 20px;
+      text-transform: none;
+    }
+
+    .active-tab {
+      height: 41px;
+      padding-top: 14px;
+      border-bottom: 2px solid var(--green);
+      color: #d9e1ec;
+    }
+
+    .code {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      padding: 18px 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.85;
+    }
+
+    .line-numbers {
+      padding-right: 12px;
+      color: #3f4a5b;
+      text-align: right;
+      user-select: none;
+    }
+
+    .code-lines {
+      overflow: hidden;
+      padding-right: 18px;
+      color: #b8c4d5;
+      white-space: pre;
+    }
+
+    .kw { color: var(--purple); }
+    .fn { color: var(--blue); }
+    .str { color: var(--green); }
+    .type { color: var(--orange); }
+    .comment { color: #596679; }
+    .added {
+      display: inline-block;
+      width: 100%;
+      background: rgba(62, 204, 123, 0.08);
+      box-shadow: inset 2px 0 var(--green);
+    }
+
+    .app-footer {
+      display: flex;
+      min-height: 47px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 16px;
+      border-top: 1px solid var(--line-soft);
+      color: #8490a2;
+      background: #101620;
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .viewer-stack {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatars {
+      display: flex;
+    }
+
+    .avatar {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      margin-left: -5px;
+      place-items: center;
+      border: 2px solid #101620;
+      border-radius: 50%;
+      color: #0b1017;
+      background: var(--blue);
+      font-family: var(--sans);
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .avatar:nth-child(2) { background: var(--purple); }
+    .avatar:nth-child(3) { background: var(--orange); }
+
+    .repo-state {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .repo-state .synced {
+      color: var(--green);
+    }
+
+    section {
+      padding: 104px 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 13px;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      max-width: 650px;
+      margin: 0;
+      font-size: clamp(34px, 4.5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    .section-copy {
+      max-width: 620px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .how {
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .steps {
+      display: grid;
+      margin-top: 54px;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+    }
+
+    .step {
+      position: relative;
+      padding: 30px 30px 0 0;
+    }
+
+    .step:not(:last-child) {
+      margin-right: 30px;
+      border-right: 1px solid var(--line);
+    }
+
+    .step-number {
+      display: inline-grid;
+      width: 35px;
+      height: 35px;
+      margin-bottom: 25px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--green);
+      background: var(--panel);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .step h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.025em;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .features {
+      padding-top: 70px;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 22px;
+      margin-top: 58px;
+    }
+
+    .feature {
+      display: grid;
+      min-height: 345px;
+      overflow: hidden;
+      grid-template-columns: 0.9fr 1.1fr;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008));
+    }
+
+    .feature:nth-child(even) {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .feature:nth-child(even) .feature-content {
+      order: 2;
+    }
+
+    .feature-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(30px, 5vw, 58px);
+    }
+
+    .feature-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      margin-bottom: 24px;
+      place-items: center;
+      border: 1px solid rgba(123, 241, 168, 0.25);
+      border-radius: 10px;
+      color: var(--green);
+      background: rgba(123, 241, 168, 0.07);
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    .feature h3 {
+      margin: 0 0 13px;
+      font-size: clamp(25px, 3vw, 34px);
+      letter-spacing: -0.04em;
+    }
+
+    .feature p {
+      max-width: 450px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .feature-visual {
+      position: relative;
+      display: grid;
+      min-height: 300px;
+      overflow: hidden;
+      place-items: center;
+      border-left: 1px solid var(--line-soft);
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        #0c1118;
+      background-size: 32px 32px;
+    }
+
+    .feature:nth-child(even) .feature-visual {
+      border-right: 1px solid var(--line-soft);
+      border-left: 0;
+    }
+
+    .mini-chat {
+      width: min(78%, 390px);
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(17, 23, 33, 0.94);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .mini-row {
+      display: flex;
+      gap: 10px;
+      padding: 11px 0;
+      color: #9aa7b9;
+    }
+
+    .mini-row + .mini-row {
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .mini-badge {
+      flex: 0 0 auto;
+      color: var(--purple);
+    }
+
+    .mini-row.ai-row .mini-badge {
+      color: var(--green);
+    }
+
+    .timeline {
+      width: min(78%, 410px);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .commit {
+      position: relative;
+      display: grid;
+      min-height: 61px;
+      align-items: center;
+      grid-template-columns: 24px 1fr auto;
+      gap: 13px;
+      color: #a8b4c4;
+    }
+
+    .commit:not(:last-child)::after {
+      position: absolute;
+      top: 39px;
+      bottom: -12px;
+      left: 10px;
+      width: 1px;
+      content: "";
+      background: #344052;
+    }
+
+    .commit-dot {
+      z-index: 1;
+      width: 21px;
+      height: 21px;
+      border: 1px solid rgba(123, 241, 168, 0.35);
+      border-radius: 50%;
+      background: #13211a;
+      box-shadow: inset 0 0 0 6px #0c1118;
+    }
+
+    .commit-id {
+      color: #607086;
+    }
+
+    .fork-card {
+      width: min(78%, 400px);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #111721;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .fork-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      color: #d4dbe5;
+    }
+
+    .public {
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #77859a;
+      font-size: 8px;
+    }
+
+    .fork-body {
+      padding: 18px 16px;
+      color: #8896aa;
+    }
+
+    .fork-path {
+      margin-bottom: 17px;
+      color: var(--blue);
+    }
+
+    .fork-button {
+      display: flex;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(123, 241, 168, 0.34);
+      border-radius: 7px;
+      color: #08110b;
+      background: var(--green);
+      font-family: var(--sans);
+      font-weight: 800;
+    }
+
+    .cta {
+      padding-top: 95px;
+    }
+
+    .cta-panel {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(45px, 8vw, 85px) 24px;
+      border: 1px solid rgba(123, 241, 168, 0.25);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(123, 241, 168, 0.15), transparent 45%),
+        #0e141c;
+      text-align: center;
+    }
+
+    .cta-panel::before,
+    .cta-panel::after {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border: 1px solid rgba(123, 241, 168, 0.1);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .cta-panel::before {
+      top: -150px;
+      left: -80px;
+    }
+
+    .cta-panel::after {
+      right: -70px;
+      bottom: -170px;
+    }
+
+    .cta-panel h2 {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: clamp(38px, 5.5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: -0.05em;
+    }
+
+    .cta-panel p {
+      max-width: 540px;
+      margin: 18px auto 29px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .signup-form {
+      display: flex;
+      max-width: 490px;
+      margin: 0 auto;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #090d13;
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 0 13px;
+      border: 0;
+      outline: none;
+      color: var(--text);
+      background: transparent;
+    }
+
+    .signup-form input::placeholder {
+      color: #687487;
+    }
+
+    .signup-form button {
+      min-height: 42px;
+      padding: 0 17px;
+      border: 0;
+      border-radius: 8px;
+      color: #07110b;
+      background: var(--green);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .form-note {
+      margin-top: 13px !important;
+      color: #647185 !important;
+      font-family: var(--mono);
+      font-size: 10px !important;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 32px;
+      padding-bottom: 38px;
+      color: #657186;
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    @media (max-width: 800px) {
+      .nav-links a:not(.nav-cta) {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 55px;
+      }
+
+      .app-grid {
+        min-height: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .code-pane {
+        display: none;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step:not(:last-child) {
+        margin-right: 0;
+        padding-bottom: 30px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature:nth-child(even) .feature-content {
+        order: initial;
+      }
+
+      .feature-visual,
+      .feature:nth-child(even) .feature-visual {
+        border-top: 1px solid var(--line-soft);
+        border-right: 0;
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        width: min(100% - 28px, 1160px);
+      }
+
+      .nav {
+        height: 66px;
+      }
+
+      .hero {
+        padding-bottom: 72px;
+      }
+
+      h1 {
+        font-size: clamp(43px, 13vw, 60px);
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .broadcast {
+        margin-top: 44px;
+      }
+
+      .app-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px 16px;
+      }
+
+      section {
+        padding: 78px 0;
+      }
+
+      .feature-content {
+        padding: 32px 25px;
+      }
+
+      .signup-form {
+        gap: 7px;
+        flex-direction: column;
+        padding: 7px;
+      }
+
+      .signup-form input {
+        min-height: 42px;
+      }
+
+      footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Streamforge home">
+        <span class="brand-mark">&gt;_</span>
+        <span>streamforge</span>
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="nav-cta" href="#signup">Get early access</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <div class="eyebrow"><span class="live-dot"></span> Developers are building live</div>
+      <h1>Watch software<br><span class="gradient-text">get built.</span></h1>
+      <p class="hero-copy">
+        Live streams for developers building with AI. See every prompt, inspect every response,
+        follow the code as it changes—and fork the result.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#signup">Join the private beta <span>→</span></a>
+        <a class="button button-secondary" href="#how"><span>▶</span> See how it works</a>
+      </div>
+
+      <div class="broadcast" aria-label="Example Streamforge live stream interface">
+        <div class="app">
+          <div class="app-bar">
+            <div class="window-dots"><i></i><i></i><i></i></div>
+            <div class="stream-title">maya-dev / shipping an AI issue triage agent</div>
+            <div class="live-label">LIVE · 1:24:08</div>
+          </div>
+
+          <div class="app-grid">
+            <div class="prompt-pane">
+              <div class="pane-heading">
+                <span>Assistant session</span>
+                <span class="agent">Claude · connected</span>
+              </div>
+              <div class="chat">
+                <div class="message user">
+                  <strong>Maya</strong>
+                  Add a confidence score to each triaged issue. Keep the API backwards-compatible
+                  and write tests for uncertain classifications.
+                </div>
+                <div class="message ai">
+                  <strong>Assistant</strong>
+                  I’ll extend the classification result with an optional confidence field, then add
+                  boundary tests without changing existing response contracts.
+                  <div class="tool-call"><span>read</span> src/triage/classifier.ts</div>
+                  <div class="tool-call"><span>edit</span> src/triage/types.ts +2 −0</div>
+                </div>
+                <div class="message user">
+                  <strong>Maya</strong>
+                  Good. Use 0.65 as the uncertain threshold and expose it as config.
+                </div>
+              </div>
+            </div>
+
+            <div class="code-pane">
+              <div class="pane-heading code-tabs">
+                <span class="active-tab">classifier.ts</span>
+                <span>types.ts</span>
+                <span>classifier.test.ts</span>
+              </div>
+              <div class="code">
+                <div class="line-numbers">18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div>
+                <div class="code-lines"><span class="kw">export async function</span> <span class="fn">classifyIssue</span>(
+  issue: <span class="type">Issue</span>,
+  config: <span class="type">TriageConfig</span>
+): <span class="type">Promise&lt;Classification&gt;</span> {
+  <span class="kw">const</span> result = <span class="kw">await</span> model.<span class="fn">classify</span>(issue);
+<span class="added">  <span class="kw">const</span> confidence = result.confidence ?? <span class="type">0</span>;</span>
+<span class="added">  <span class="kw">const</span> uncertain = confidence &lt; config.threshold;</span>
+
+  <span class="kw">return</span> {
+    label: result.label,
+<span class="added">    confidence,</span>
+<span class="added">    uncertain</span>
+  };
+}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-footer">
+            <div class="viewer-stack">
+              <div class="avatars">
+                <span class="avatar">AK</span>
+                <span class="avatar">JL</span>
+                <span class="avatar">RN</span>
+              </div>
+              <span>284 watching</span>
+            </div>
+            <div class="repo-state">
+              <span>streamforge-labs/issue-agent</span>
+              <span class="synced">● synced</span>
+              <span>⑂ 73 forks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how" id="how">
+      <div class="container">
+        <p class="section-kicker">// how it works</p>
+        <h2 class="section-title">More signal than a tutorial. More context than a commit.</h2>
+        <p class="section-copy">
+          Streamforge captures the full development loop, from rough idea to working implementation.
+        </p>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01</span>
+            <h3>Start building</h3>
+            <p>Connect your editor, AI assistant, and repository. Streamforge keeps everything synchronized as you work.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">02</span>
+            <h3>Share the process</h3>
+            <p>Viewers follow prompts, model reasoning, terminal output, and code diffs in one focused workspace.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">03</span>
+            <h3>Fork the outcome</h3>
+            <p>Every stream stays attached to a reproducible repository, ready to clone, fork, and extend.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features container" id="features">
+      <p class="section-kicker">// built for working developers</p>
+      <h2 class="section-title">See the decisions behind the diff.</h2>
+      <p class="section-copy">
+        No highlight reels or hand-waved steps. Watch real developers reason, revise, and ship with AI.
+      </p>
+
+      <div class="feature-list">
+        <article class="feature">
+          <div class="feature-content">
+            <span class="feature-icon">⌁</span>
+            <h3>Prompts in context</h3>
+            <p>
+              Follow the complete conversation between developer and model beside the code it affects.
+              Tool calls, retries, corrections, and dead ends stay visible.
+            </p>
+          </div>
+          <div class="feature-visual" aria-hidden="true">
+            <div class="mini-chat">
+              <div class="mini-row">
+                <span class="mini-badge">YOU</span>
+                <span>Refactor the queue worker so retries use exponential backoff.</span>
+              </div>
+              <div class="mini-row ai-row">
+                <span class="mini-badge">AI</span>
+                <span>I found retry logic in two paths. I’ll extract one strategy and preserve current defaults.</span>
+              </div>
+              <div class="mini-row">
+                <span class="mini-badge">YOU</span>
+                <span>Cap it at five minutes and add jitter.</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-content">
+            <span class="feature-icon">Δ</span>
+            <h3>Code that tells a story</h3>
+            <p>
+              Move through the stream as a timeline of meaningful changes. Jump from a prompt to its
+              diff, inspect test output, and understand why the implementation evolved.
+            </p>
+          </div>
+          <div class="feature-visual" aria-hidden="true">
+            <div class="timeline">
+              <div class="commit">
+                <span class="commit-dot"></span>
+                <span>Add retry strategy interface</span>
+                <span class="commit-id">a4f81c</span>
+              </div>
+              <div class="commit">
+                <span class="commit-dot"></span>
+                <span>Implement capped backoff + jitter</span>
+                <span class="commit-id">72de09</span>
+              </div>
+              <div class="commit">
+                <span class="commit-dot"></span>
+                <span>Add deterministic timing tests</span>
+                <span class="commit-id">c9b420</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-content">
+            <span class="feature-icon">⑂</span>
+            <h3>Fork while it’s fresh</h3>
+            <p>
+              Go from watching to building in one click. Fork the exact repository state at any point
+              in the stream, with setup notes and AI context included.
+            </p>
+          </div>
+          <div class="feature-visual" aria-hidden="true">
+            <div class="fork-card">
+              <div class="fork-head">
+                <span>maya-dev / issue-agent</span>
+                <span class="public">PUBLIC</span>
+              </div>
+              <div class="fork-body">
+                <div class="fork-path">main @ c9b420d</div>
+                <p>Includes 14 files, environment template, session context, and setup instructions.</p>
+                <div class="fork-button">⑂ Fork repository</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta container" id="signup">
+      <div class="cta-panel">
+        <p class="section-kicker">// opening soon</p>
+        <h2>Build in public.<br><span class="gradient-text">Learn in real time.</span></h2>
+        <p>Join the private beta for early access to streams, creator tools, and forkable sessions.</p>
+        <form class="signup-form" action="#" method="post">
+          <label for="email" style="position:absolute;left:-9999px;">Work email</label>
+          <input id="email" name="email" type="email" placeholder="you@company.dev" required>
+          <button type="submit">Request access →</button>
+        </form>
+        <p class="form-note">No spam. Just product updates and your beta invite.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <a class="brand" href="#">
+      <span class="brand-mark">&gt;_</span>
+      <span>streamforge</span>
+    </a>
+    <span>© 2025 Streamforge. Software is better with context.</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">X / Twitter</a>
+    </div>
+  </footer>
+</body>
+</html>

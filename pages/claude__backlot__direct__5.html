@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BACKLOT — Operations for full-time creators</title>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#080A09;
+  --bg-2:#0D100E;
+  --panel:#101412;
+  --line:rgba(214,255,63,0.14);
+  --line-soft:rgba(214,255,63,0.06);
+  --acid:#D4FF3F;
+  --acid-dim:#A8CC2C;
+  --mag:#FF2D9B;
+  --violet:#7A5CFF;
+  --ink:#EDEFED;
+  --mute:#8B928D;
+  --mute-2:#C9CFCB;
+  --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --disp: "Archivo", "Helvetica Neue", Helvetica, "Arial Narrow", Arial, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --snap: 160ms cubic-bezier(.2,.8,.2,1);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ============ TEXTURE LAYERS ============ */
+body::before{ /* lattice */
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(to right, var(--line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(120% 90% at 50% 0%, #000 30%, rgba(0,0,0,.35) 100%);
+}
+body::after{ /* grain */
+  content:"";
+  position:fixed; inset:-50%; z-index:9999; pointer-events:none;
+  opacity:.045;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+}
+.scan{
+  position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
+  mix-blend-mode:overlay;
+}
+
+/* ============ PRIMITIVES ============ */
+.wrap{width:100%; max-width:1440px; margin:0 auto; padding:0 clamp(16px,3vw,40px); position:relative; z-index:1}
+.mono{font-family:var(--mono); text-transform:uppercase; letter-spacing:.13em; font-size:.72rem}
+.eyebrow{ font-family:var(--mono); text-transform:uppercase; letter-spacing:.16em; font-size:.7rem; color:var(--acid) }
+.eyebrow span{color:var(--mute)}
+h1,h2,h3{font-family:var(--disp); font-weight:900; letter-spacing:-.035em; line-height:.88; margin:0; text-transform:uppercase}
+h1{font-size:clamp(3rem,10.5vw,9.5rem)}
+h2{font-size:clamp(2.2rem,5.6vw,4.6rem)}
+h3{font-size:clamp(1.35rem,2.1vw,1.85rem); letter-spacing:-.02em}
+p{margin:0}
+.lede{color:var(--mute-2); max-width:56ch; font-size:clamp(1rem,1.15vw,1.15rem)}
+.small{color:var(--mute); font-size:.92rem; max-width:52ch}
+.chrome{
+  background:linear-gradient(168deg,#FFFFFF 0%,#8A9298 26%,#F2F4F5 47%,#4A5157 66%,#E6EAEA 88%,#6E767B 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.acid{color:var(--acid)}
+.rule{height:1px; background:var(--line); width:100%}
+.hair{border:1px solid var(--line)}
+.tag{
+  display:inline-flex; align-items:center; gap:.5em;
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:.12em; font-size:.66rem;
+  padding:.42em .85em; border-radius:999px; border:1px solid var(--line); color:var(--mute-2);
+  background:rgba(212,255,63,.04); white-space:nowrap;
+}
+.tag.on{background:var(--acid); color:#0A0B0D; border-color:var(--acid); font-weight:700}
+.tag.warn{background:rgba(255,45,155,.12); border-color:rgba(255,45,155,.5); color:#FF7CC0}
+.dot{width:6px;height:6px;border-radius:999px;background:var(--acid);box-shadow:0 0 8px var(--acid)}
+.dot.m{background:var(--mag);box-shadow:0 0 8px var(--mag)}
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; gap:.7em;
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:.13em; font-size:.74rem; font-weight:700;
+  padding:1.15em 1.7em; border:1px solid var(--acid); background:var(--acid); color:#0A0B0D;
+  text-decoration:none; border-radius:0; cursor:pointer;
+  transition:background var(--snap), color var(--snap), box-shadow var(--snap), transform var(--snap);
+  box-shadow:0 0 0 rgba(212,255,63,0);
+}
+.btn:hover{background:transparent; color:var(--acid); box-shadow:0 0 26px rgba(212,255,63,.32); transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn.ghost:hover{background:var(--ink); color:#0A0B0D; border-color:var(--ink); box-shadow:none}
+
+/* ============ NAV ============ */
+header{
+  position:sticky; top:0; z-index:80;
+  background:rgba(8,10,9,.72); backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex; align-items:center; gap:2rem; height:62px}
+.logo{display:flex; align-items:baseline; gap:.55rem; text-decoration:none; color:var(--ink)}
+.logo b{font-family:var(--disp); font-weight:900; font-size:1.32rem; letter-spacing:-.06em; text-transform:uppercase}
+.logo i{font-style:normal; color:var(--acid); font-family:var(--mono); font-size:.6rem; letter-spacing:.18em; border:1px solid var(--line); padding:.2em .45em}
+.nav nav{display:flex; gap:1.6rem; margin-left:auto}
+.nav nav a{color:var(--mute); text-decoration:none; font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; transition:color var(--snap)}
+.nav nav a:hover{color:var(--acid)}
+.nav .btn{padding:.8em 1.2em}
+@media(max-width:860px){ .nav nav{display:none} }
+
+/* ============ MARQUEE ============ */
+.marq{
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  background:var(--bg-2); overflow:hidden; position:relative; z-index:2;
+}
+.marq.lime{background:var(--acid); border-color:var(--acid)}
+.marq-track{display:flex; width:max-content; animation:slide 34s linear infinite}
+.marq.lime .marq-track{animation-duration:26s}
+.marq-track span{
+  font-family:var(--mono); text-transform:uppercase; letter-spacing:.2em; font-size:.7rem;
+  padding:.85em 0; white-space:nowrap; color:var(--mute-2);
+}
+.marq.lime .marq-track span{color:#0A0B0D; font-weight:700}
+.marq-track span i{font-style:normal; color:var(--acid); padding:0 1.1em}
+.marq.lime .marq-track span i{color:rgba(10,11,13,.45)}
+@keyframes slide{from{transform:translate3d(0,0,0)} to{transform:translate3d(-50%,0,0)}}
+
+/* ============ HERO ============ */
+.hero{position:relative; padding:clamp(3.5rem,8vh,7rem) 0 0; overflow:hidden}
+.hero .halo{
+  position:absolute; left:50%; top:-28vh; transform:translateX(-50%);
+  width:120vw; height:70vh; pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(212,255,63,.16), rgba(122,92,255,.08) 45%, transparent 72%);
+}
+.hero-grid{display:grid; grid-template-columns:repeat(12,1fr); gap:clamp(18px,2vw,28px); align-items:start}
+.hero-l{grid-column:1/8}
+.hero-r{grid-column:9/13; padding-top:clamp(0px,7vw,120px)}
+.hero h1{margin:.7rem 0 0}
+.hero h1 em{font-style:normal; display:block}
+.hero-tags{display:flex; flex-wrap:wrap; gap:.45rem; margin-top:1.6rem}
+.cta-row{display:flex; flex-wrap:wrap; gap:.7rem; align-items:center; margin-top:2rem}
+.cta-note{font-family:var(--mono); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:var(--mute)}
+@media(max-width:960px){
+  .hero-l,.hero-r{grid-column:1/13}
+  .hero-r{padding-top:2.5rem}
+}
+
+/* big number stack */
+.stat{border-top:1px solid var(--line); padding:.9rem 0}
+.stat b{display:block; font-family:var(--disp); font-weight:900; font-size:clamp(2.1rem,3.4vw,3.1rem); letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums}
+.stat small{display:block; font-family:var(--mono); font-size:.63rem; letter-spacing:.15em; text-transform:uppercase; color:var(--mute); margin-top:.5rem}
+
+/* ============ APP MOCK ============ */
+.mockwrap{margin-top:clamp(3rem,6vw,5.5rem); position:relative; padding-bottom:clamp(2rem,5vw,4rem)}
+.mock{
+  position:relative; border:1px solid var(--line); background:linear-gradient(180deg,#0E120F,#0A0C0B);
+  box-shadow:0 -1px 0 rgba(212,255,63,.25), 0 40px 120px rgba(0,0,0,.7);
+}
+.mock-bar{display:flex; align-items:center; gap:.8rem; padding:.7rem 1rem; border-bottom:1px solid var(--line); background:#0B0E0C}
+.mock-bar .dots{display:flex; gap:5px}
+.mock-bar .dots i{width:8px;height:8px;border-radius:999px;background:#252A26;display:block}
+.mock-bar .dots i:first-child{background:var(--acid)}
+.mock-body{display:grid; grid-template-columns:190px 1fr; min-height:420px}
+.mock-side{border-right:1px solid var(--line); padding:1rem .9rem; display:flex; flex-direction:column; gap:.35rem; background:#090C0A}
+.mock-side a{
+  display:flex; justify-content:space-between; gap:.5rem; text-decoration:none; color:var(--mute);
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; padding:.6em .55em; border:1px solid transparent;
+  transition:all var(--snap);
+}
+.mock-side a:hover{color:var(--ink); border-color:var(--line)}
+.mock-side a.sel{background:var(--acid); color:#0A0B0D; font-weight:700}
+.mock-side a u{text-decoration:none; opacity:.6}
+.mock-main{padding:clamp(1rem,2vw,1.6rem)}
+.mock-head{display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:1.3rem}
+.mock-head b{font-family:var(--disp); font-weight:900; font-size:clamp(1.6rem,3vw,2.4rem); letter-spacing:-.04em; font-variant-numeric:tabular-nums; display:block}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin-bottom:1.3rem}
+.kpi{background:#0B0E0C; padding:.9rem}
+.kpi small{display:block; font-family:var(--mono); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--mute)}
+.kpi b{display:block; font-family:var(--disp); font-weight:900; font-size:1.5rem; letter-spacing:-.03em; margin-top:.4rem; font-variant-numeric:tabular-nums}
+.kpi.hot b{color:var(--acid)}
+.tbl{width:100%; border-collapse:collapse; font-size:.86rem}
+.tbl th{
+  text-align:left; font-family:var(--mono); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--mute); font-weight:400; padding:.6rem .7rem; border-bottom:1px solid var(--line);
+}
+.tbl td{padding:.85rem .7rem; border-bottom:1px solid rgba(255,255,255,.05); color:var(--mute-2); white-space:nowrap}
+.tbl tr:hover td{background:rgba(212,255,63,.035); color:var(--ink)}
+.tbl td.n{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink)}
+.tbl td:first-child{color:var(--ink); font-weight:600}
+.tblscroll{overflow-x:auto}
+.badge-float{
+  position:absolute; right:-6px; top:-22px; transform:rotate(6deg); z-index:5;
+  background:var(--mag); color:#fff; font-family:var(--mono); font-size:.62rem; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:700; padding:.6em .9em; border-radius:999px;
+  box-shadow:0 0 24px rgba(255,45,155,.4);
+}
+@media(max-width:760px){ .mock-body{grid-template-columns:1fr} .mock-side{flex-direction:row; overflow-x:auto; border-right:0; border-bottom:1px solid var(--line)} }
+
+/* ============ SECTION SHELL ============ */
+section{position:relative; z-index:1}
+.sec{padding:clamp(4.5rem,11vh,9rem) 0}
+.sec-head{display:grid; grid-template-columns:repeat(12,1fr); gap:clamp(18px,2vw,28px); align-items:end; margin-bottom:clamp(2.5rem,5vw,4rem)}
+.sec-head h2{grid-column:1/8}
+.sec-head .side{grid-column:9/13; padding-bottom:.5rem}
+@media(max-width:960px){ .sec-head h2,.sec-head .side{grid-column:1/13} }
+
+/* ============ HOW IT WORKS ============ */
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line)}
+.step{background:var(--panel); padding:clamp(1.4rem,2.4vw,2.2rem); position:relative; transition:background var(--snap)}
+.step:hover{background:#141915}
+.step em{
+  font-style:normal; font-family:var(--disp); font-weight:900; font-size:clamp(3rem,6vw,5rem);
+  letter-spacing:-.06em; line-height:.8; display:block; color:transparent;
+  -webkit-text-stroke:1px rgba(212,255,63,.55);
+}
+.step h3{margin:1.2rem 0 .7rem}
+.step .small{margin-bottom:1.2rem}
+.step .wire{
+  border:1px solid var(--line); background:#0A0D0B; padding:.7rem;
+  display:flex; flex-direction:column; gap:.45rem;
+}
+.wire-row{display:flex; align-items:center; justify-content:space-between; gap:.6rem; font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--mute)}
+.wire-row b{color:var(--ink); font-variant-numeric:tabular-nums}
+.bar{height:4px; background:rgba(255,255,255,.07); position:relative; overflow:hidden}
+.bar i{position:absolute; inset:0 auto 0 0; background:var(--acid); display:block}
+@media(max-width:860px){ .steps{grid-template-columns:1fr} }
+
+/* ============ FEATURES (bento) ============ */
+.bento{display:grid; grid-template-columns:repeat(12,1fr); gap:clamp(14px,1.6vw,22px)}
+.card{
+  border:1px solid var(--line); background:var(--panel); padding:clamp(1.4rem,2.4vw,2.4rem);
+  position:relative; overflow:hidden; transition:border-color var(--snap), transform var(--snap), background var(--snap);
+}
+.card:hover{border-color:rgba(212,255,63,.42); transform:translateY(-2px)}
+.card .num{position:absolute; right:1rem; top:.7rem; font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; color:rgba(255,255,255,.18)}
+.card .lbl{font-family:var(--mono); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--acid); display:flex; align-items:center; gap:.5rem}
+.card h3{margin:1.1rem 0 .8rem; max-width:22ch}
+.f1{grid-column:1/8}
+.f2{grid-column:8/13}
+.f3{grid-column:1/6}
+.f4{grid-column:6/13}
+@media(max-width:960px){ .f1,.f2,.f3,.f4{grid-column:1/13} }
+
+.chips{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1.4rem}
+.panel-in{margin-top:1.6rem; border:1px solid var(--line); background:#0A0D0B; padding:1rem}
+.list{list-style:none; margin:1.4rem 0 0; padding:0; display:flex; flex-direction:column; gap:.6rem}
+.list li{display:flex; gap:.7rem; align-items:flex-start; font-size:.92rem; color:var(--mute-2)}
+.list li::before{content:"//"; font-family:var(--mono); font-size:.7rem; color:var(--acid); line-height:1.7}
+.plat{display:grid; grid-template-columns:1fr auto auto; gap:.5rem 1rem; align-items:center; font-family:var(--mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; padding:.55rem 0; border-bottom:1px solid rgba(255,255,255,.06)}
+.plat:last-child{border-bottom:0}
+.plat b{font-variant-numeric:tabular-nums; color:var(--ink); font-size:.82rem; letter-spacing:0}
+.plat span{color:var(--mute)}
+.plat .up{color:var(--acid)}
+.plat .dn{color:var(--mag)}
+
+/* countdown block */
+.dl{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); margin-top:1.5rem}
+.dl-row{background:#0A0D0B; padding:.8rem .9rem; display:flex; align-items:center; gap:.9rem; justify-content:space-between}
+.dl-row .nm{font-size:.9rem; font-weight:600}
+.dl-row .t{font-family:var(--mono); font-size:.66rem; letter-spacing:.12em; color:var(--acid); font-variant-numeric:tabular-nums}
+.dl-row .t.red{color:var(--mag)}
+
+/* ============ CTA ============ */
+.cta{
+  position:relative; overflow:hidden;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(70% 120% at 50% 110%, rgba(212,255,63,.16), transparent 70%),
+    #0A0D0B;
+  padding:clamp(4rem,10vh,8rem) 0;
+}
+.cta-in{display:grid; grid-template-columns:repeat(12,1fr); gap:clamp(20px,3vw,40px); align-items:center}
+.cta-copy{grid-column:1/7}
+.cta-form{grid-column:8/13}
+.cta h2{font-size:clamp(2.4rem,7vw,6rem)}
+form{margin-top:0; border:1px solid var(--line); background:rgba(8,10,9,.7); padding:clamp(1.2rem,2vw,1.8rem); backdrop-filter:blur(8px)}
+.field{display:flex; flex-direction:column; gap:.45rem; margin-bottom:1rem}
+.field label{font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--mute)}
+.field input, .field select{
+  appearance:none; width:100%; background:#0C100E; border:1px solid var(--line); color:var(--ink);
+  padding:.95em 1em; font-family:var(--mono); font-size:.8rem; letter-spacing:.04em; border-radius:0;
+  transition:border-color var(--snap), box-shadow var(--snap);
+}
+.field input::placeholder{color:#5C635E}
+.field input:focus, .field select:focus{outline:none; border-color:var(--acid); box-shadow:0 0 0 3px rgba(212,255,63,.12)}
+form .btn{width:100%; justify-content:center; margin-top:.3rem}
+.fine{font-family:var(--mono); font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mute); margin-top:1rem; line-height:1.9}
+@media(max-width:960px){ .cta-copy,.cta-form{grid-column:1/13} }
+
+/* ============ FOOTER ============ */
+footer{padding:2.5rem 0 3.5rem}
+.foot{display:flex; flex-wrap:wrap; gap:1.2rem; align-items:center; justify-content:space-between}
+.foot nav{display:flex; flex-wrap:wrap; gap:1.2rem}
+.foot a{color:var(--mute); text-decoration:none; font-family:var(--mono); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; transition:color var(--snap)}
+.foot a:hover{color:var(--acid)}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important; scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#"><b>Backlot</b><i>OPS</i></a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#deals">Deals</a>
+      <a href="#payouts">Payouts</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <a class="btn" href="#signup">Get early access</a>
+  </div>
+</header>
+
+<div class="marq">
+  <div class="marq-track">
+    <span>CONTRACT SIGNED<i>·</i>INVOICE #0412 PAID<i>·</i>DEADLINE T-3 DAYS<i>·</i>YOUTUBE PAYOUT CLEARED<i>·</i>USAGE RIGHTS EXPIRE 04.19<i>·</i>NET-30 REMINDER SENT<i>·</i>DELIVERABLE 2/3 APPROVED<i>·</i>TIKTOK RPM UPDATED<i>·</i></span>
+    <span>CONTRACT SIGNED<i>·</i>INVOICE #0412 PAID<i>·</i>DEADLINE T-3 DAYS<i>·</i>YOUTUBE PAYOUT CLEARED<i>·</i>USAGE RIGHTS EXPIRE 04.19<i>·</i>NET-30 REMINDER SENT<i>·</i>DELIVERABLE 2/3 APPROVED<i>·</i>TIKTOK RPM UPDATED<i>·</i></span>
+  </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="halo"></div>
+  <div class="scan"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-l">
+        <p class="eyebrow">01 <span>/</span> OPERATIONS FOR FULL-TIME CREATORS</p>
+        <h1>
+          Every deal.<br>
+          Every deadline.<br>
+          <em class="chrome">Every dollar.</em>
+        </h1>
+        <div class="hero-tags">
+          <span class="tag"><i class="dot"></i>Brand contracts</span>
+          <span class="tag">Invoices</span>
+          <span class="tag">Sponsor deadlines</span>
+          <span class="tag">Per-platform payouts</span>
+          <span class="tag warn"><i class="dot m"></i>No spreadsheets</span>
+        </div>
+        <div class="cta-row">
+          <a class="btn" href="#signup">Claim your spot</a>
+          <a class="btn ghost" href="#how">See how it works</a>
+        </div>
+        <p class="cta-note" style="margin-top:1rem">Free while in beta · No card · Import your first deal in 4 minutes</p>
+      </div>
+
+      <div class="hero-r">
+        <p class="lede">You didn’t start making videos to chase net-30 terms and reconcile four payout dashboards. Backlot runs the business side so you can go back to the edit.</p>
+        <div style="margin-top:2.2rem">
+          <div class="stat"><b>$0</b><small>Dollars you should be losing to forgotten invoices</small></div>
+          <div class="stat"><b>4</b><small>Platforms tracked in one payout ledger</small></div>
+          <div class="stat"><b>1</b><small>Place where the whole business lives</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP MOCK -->
+    <div class="mockwrap">
+      <div class="badge-float">Actual product view</div>
+      <div class="mock">
+        <div class="scan"></div>
+        <div class="mock-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="mono" style="color:var(--mute)">backlot.app / workspace / q2-2025</span>
+          <span class="tag on" style="margin-left:auto">All synced</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-side">
+            <a class="sel" href="#">Overview <u>⌘1</u></a>
+            <a href="#">Deals <u>12</u></a>
+            <a href="#">Invoices <u>5</u></a>
+            <a href="#">Deadlines <u>3</u></a>
+            <a href="#">Payouts <u>4</u></a>
+            <a href="#">Contracts <u>18</u></a>
+          </div>
+          <div class="mock-main">
+            <div class="mock-head">
+              <div>
+                <small class="mono" style="color:var(--mute)">Booked this quarter</small>
+                <b>$41,850.00</b>
+              </div>
+              <div style="display:flex; gap:.4rem; flex-wrap:wrap">
+                <span class="tag"><i class="dot"></i>3 paid</span>
+                <span class="tag warn">2 overdue</span>
+              </div>
+            </div>
+
+            <div class="kpis">
+              <div class="kpi hot"><small>Awaiting payment</small><b>$18,400</b></div>
+              <div class="kpi"><small>Next deadline</small><b>T-3d</b></div>
+              <div class="kpi"><small>Platform payouts</small><b>$6,212</b></div>
+              <div class="kpi"><small>Avg. days to pay</small><b>34</b></div>
+            </div>
+
+            <div class="tblscroll">
+              <table class="tbl">
+                <thead>
+                  <tr><th>Sponsor</th><th>Deliverable</th><th>Fee</th><th>Terms</th><th>Due</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Kestrel Audio</td><td>1× integration, 60s</td><td class="n">$12,000</td><td class="n">Net-30</td><td class="n">04.19</td><td><span class="tag warn">Overdue 6d</span></td></tr>
+                  <tr><td>Northlane VPN</td><td>2× shorts + story</td><td class="n">$4,400</td><td class="n">Net-15</td><td class="n">04.26</td><td><span class="tag">Invoiced</span></td></tr>
+                  <tr><td>Fold Coffee</td><td>Dedicated video</td><td class="n">$9,750</td><td class="n">50/50</td><td class="n">05.02</td><td><span class="tag on">Paid</span></td></tr>
+                  <tr><td>Mono Keyboards</td><td>1× integration, 90s</td><td class="n">$7,200</td><td class="n">Net-30</td><td class="n">05.11</td><td><span class="tag">Drafting</span></td></tr>
+                  <tr><td>Halo Fitness</td><td>3× shorts</td><td class="n">$3,300</td><td class="n">Net-30</td><td class="n">05.18</td><td><span class="tag">Signed</span></td></tr>
+                  <tr><td>Ridgeway Tools</td><td>Livestream slot</td><td class="n">$5,200</td><td class="n">Net-45</td><td class="n">05.29</td><td><span class="tag">Negotiating</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marq lime">
+  <div class="marq-track">
+    <span>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i></span>
+    <span>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i>STOP GUESSING WHAT YOU'RE OWED<i>◆</i></span>
+  </div>
+</div>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Three steps.<br>Then it runs itself.</h2>
+      <div class="side">
+        <p class="eyebrow" style="margin-bottom:.8rem">02 <span>/</span> SETUP</p>
+        <p class="small">No onboarding call. No accountant. No 40-tab spreadsheet you inherited from a Discord server in 2022.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <em>01</em>
+        <h3>Drop the contract in</h3>
+        <p class="small">Forward the email or drag the PDF. Backlot pulls the fee, the deliverables, the usage window, the exclusivity clause and the payment terms — and tells you in plain English what you actually agreed to.</p>
+        <div class="wire">
+          <div class="wire-row"><span>Parsing kestrel_v3.pdf</span><b>100%</b></div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="wire-row"><span>Fee detected</span><b>$12,000</b></div>
+          <div class="wire-row"><span>Terms detected</span><b>NET-30</b></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <em>02</em>
+        <h3>Deadlines build themselves</h3>
+        <p class="small">Every deliverable and revision window becomes a dated task on one timeline. You get one nudge, at the right time, with the sponsor's name on it. Not eleven notifications about nothing.</p>
+        <div class="wire">
+          <div class="wire-row"><span>Rough cut → sponsor</span><b>T-3d</b></div>
+          <div class="bar"><i style="width:78%"></i></div>
+          <div class="wire-row"><span>Revision window</span><b>T-8d</b></div>
+          <div class="bar"><i style="width:42%; background:var(--mag)"></i></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <em>03</em>
+        <h3>Money gets chased</h3>
+        <p class="small">Invoices go out the second a deliverable is approved, in the format each brand's AP team wants. Late payers get followed up automatically. You see one number: what's landing, and when.</p>
+        <div class="wire">
+          <div class="wire-row"><span>Invoice #0412 sent</span><b>04.02</b></div>
+          <div class="wire-row"><span>Reminder 1 sent</span><b>04.19</b></div>
+          <div class="wire-row"><span>Expected clear</span><b>$18,400</b></div>
+          <div class="bar"><i style="width:64%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ============ FEATURES ============ -->
+<section class="sec" id="deals">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Built for the<br><span class="acid">business</span> of the channel</h2>
+      <div class="side">
+        <p class="eyebrow" style="margin-bottom:.8rem">03 <span>/</span> FEATURES</p>
+        <p class="small">Three things creators lose money on. All three, closed.</p>
+      </div>
+    </div>
+
+    <div class="bento">
+      <!-- F1 -->
+      <div class="card f1">
+        <span class="num">FEAT_01</span>
+        <p class="lbl"><i class="dot"></i>Contract vault</p>
+        <h3>Every deal, in plain language</h3>
+        <p class="small">Signed contracts, rate cards, amendments and old versions in one searchable shelf — tagged by sponsor, fee and expiry. Backlot flags the clauses that cost creators money: perpetual usage, category exclusivity, unpaid revision loops.</p>
+        <div class="panel-in">
+          <div class="wire-row" style="margin-bottom:.7rem"><span>Flagged in kestrel_audio_v3.pdf</span><span class="tag warn">3 issues</span></div>
+          <ul class="list" style="margin-top:0">
+            <li>Usage rights are <strong style="color:var(--ink)">perpetual, all media</strong> — normally +30% fee.</li>
+            <li>Category exclusivity blocks all audio brands for <strong style="color:var(--ink)">6 months</strong>.</li>
+            <li>Unlimited revisions with no cap. Suggest capping at two.</li>
+          </ul>
+        </div>
+        <div class="chips">
+          <span class="tag">18 contracts</span>
+          <span class="tag">Full-text search</span>
+          <span class="tag">Version history</span>
+          <span class="tag">Expiry alerts</span>
+        </div>
+      </div>
+
+      <!-- F2 -->
+      <div class="card f2">
+        <span class="num">FEAT_02</span>
+        <p class="lbl"><i class="dot m"></i>Deadline board</p>
+        <h3>Nothing slips, nothing surprises you</h3>
+        <p class="small">One timeline for every sponsor obligation, sitting next to your own upload schedule — so you can see the week that's about to break before it breaks.</p>
+        <div class="dl">
+          <div class="dl-row"><span class="nm">Kestrel — rough cut</span><span class="t red">T-3D</span></div>
+          <div class="dl-row"><span class="nm">Northlane — 2× shorts</span><span class="t">T-9D</span></div>
+          <div class="dl-row"><span class="nm">Fold — final delivery</span><span class="t">T-14D</span></div>
+          <div class="dl-row"><span class="nm">Mono — script approval</span><span class="t">T-21D</span></div>
+        </div>
+        <div class="chips">
+          <span class="tag">Calendar sync</span>
+          <span class="tag">Smart nudges</span>
+          <span class="tag">Capacity warnings</span>
+        </div>
+      </div>
+
+      <!-- F3 -->
+      <div class="card f3">
+        <span class="num">FEAT_03</span>
+        <p class="lbl"><i class="dot"></i>Invoicing</p>
+        <h3>Send it, then forget it</h3>
+        <p class="small">Approved deliverable triggers the invoice. PO numbers, VAT, W-9s and each brand's portal quirks are stored once. Follow-ups fire on their own — politely, on your behalf.</p>
+        <ul class="list">
+          <li>Auto-generate from contract terms</li>
+          <li>Escalating late-payment reminders</li>
+          <li>Multi-currency + tax handled</li>
+          <li>Export straight to your accountant</li>
+        </ul>
+      </div>
+
+      <!-- F4 -->
+      <div class="card f4" id="payouts">
+        <span class="num">FEAT_04</span>
+        <p class="lbl"><i class="dot"></i>Per-platform payout tracking</p>
+        <h3>Four dashboards, one honest number</h3>
+        <p class="small">AdSense, TikTok, Reels bonuses, Twitch, Patreon, affiliate links — pulled together with brand income into a single ledger. You finally see what a month actually earns, and where it comes from.</p>
+        <div class="panel-in">
+          <div class="plat"><span>YouTube AdSense</span><b>$3,412.08</b><span class="up">▲ 12%</span></div>
+          <div class="plat"><span>TikTok Rewards</span><b>$986.40</b><span class="dn">▼ 4%</span></div>
+          <div class="plat"><span>Instagram Bonuses</span><b>$610.00</b><span class="up">▲ 3%</span></div>
+          <div class="plat"><span>Affiliate / storefront</span><b>$1,204.19</b><span class="up">▲ 21%</span></div>
+          <div class="plat" style="border-top:1px solid var(--line); margin-top:.4rem; padding-top:.8rem"><span style="color:var(--acid)">Brand deals (booked)</span><b>$41,850.00</b><span class="up">▲ 38%</span></div>
+        </div>
+        <div class="chips">
+          <span class="tag on">Total: $48,062.67</span>
+          <span class="tag">Monthly rollup</span>
+          <span class="tag">Tax-ready export</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta" id="signup">
+  <div class="scan"></div>
+  <div class="wrap cta-in">
+    <div class="cta-copy">
+      <p class="eyebrow" style="margin-bottom:1.2rem">04 <span>/</span> EARLY ACCESS · 240 SEATS LEFT</p>
+      <h2>Go back<br>to the <span class="chrome">edit.</span></h2>
+      <p class="lede" style="margin-top:1.6rem">Backlot is free for the whole beta. Bring in one live deal and see the difference by the end of the week. Cancel anytime — your contracts and exports are always yours.</p>
+      <div class="chips" style="margin-top:1.8rem">
+        <span class="tag"><i class="dot"></i>No card required</span>
+        <span class="tag">Setup in 4 min</span>
+        <span class="tag">Import from Notion / Sheets</span>
+      </div>
+    </div>
+
+    <div class="cta-form">
+      <form onsubmit="event.preventDefault(); this.innerHTML='<p class=\'eyebrow\'>REQUEST RECEIVED</p><h3 style=\'margin:1rem 0\'>You&rsquo;re on the list.</h3><p class=\'small\'>Check your inbox — access details land within 24 hours.</p>';">
+        <p class="eyebrow" style="margin-bottom:1.3rem">REQUEST ACCESS</p>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required placeholder="you@channel.com">
+        </div>
+        <div class="field">
+          <label for="handle">Main channel</label>
+          <input id="handle" type="text" required placeholder="@yourhandle">
+        </div>
+        <div class="field">
+          <label for="deals">Brand deals per month</label>
+          <select id="deals">
+            <option>1 – 2</option>
+            <option selected>3 – 5</option>
+            <option>6 – 10</option>
+            <option>10+</option>
+          </select>
+        </div>
+        <button class="btn" type="submit">Get early access →</button>
+        <p class="fine">We only email about your account.<br>No newsletter. No “creator economy” takes.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#"><b>Backlot</b><i>OPS</i></a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#deals">Features</a>
+      <a href="#payouts">Payouts</a>
+      <a href="#signup">Early access</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </nav>
+    <p class="mono" style="color:#5C635E">© 2025 BACKLOT — BUILT FOR PEOPLE WHO PRESS RECORD</p>
+  </div>
+</footer>
+
+</body>
+</html>

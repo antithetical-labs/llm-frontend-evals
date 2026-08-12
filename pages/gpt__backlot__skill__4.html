@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Backlot keeps creator contracts, invoices, sponsor deadlines, and platform payouts in one organized workspace.">
+  <title>Backlot | Run the business behind your content</title>
+  <style>
+    :root {
+      --ink: #162329;
+      --ink-soft: #455358;
+      --paper: #f4f0e6;
+      --paper-light: #fffdf7;
+      --paper-dark: #ded7c8;
+      --signal: #e3482e;
+      --signal-dark: #ad2b18;
+      --marker: #f0c84a;
+      --success: #2e7355;
+      --error: #ad2b18;
+      --white: #ffffff;
+
+      --font-display: Georgia, "Times New Roman", serif;
+      --font-body: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-24: 6rem;
+
+      --radius-sm: 0.25rem;
+      --radius-md: 0.625rem;
+      --shadow-raised: 0.5rem 0.5rem 0 var(--ink);
+      --shadow-small: 0.25rem 0.25rem 0 var(--ink);
+
+      --fast: 120ms;
+      --medium: 240ms;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --max-width: 74rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0.18;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    .button {
+      min-height: 2.75rem;
+    }
+
+    :focus-visible {
+      outline: 0.2rem solid var(--marker);
+      outline-offset: 0.2rem;
+    }
+
+    .shell {
+      width: min(calc(100% - 2rem), var(--max-width));
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: var(--space-4);
+      left: var(--space-4);
+      z-index: 100;
+      padding: var(--space-3) var(--space-4);
+      color: var(--paper-light);
+      background: var(--ink);
+      transform: translateY(-200%);
+      transition: transform var(--fast) var(--ease);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      border-bottom: 0.125rem solid var(--ink);
+      background: var(--paper);
+    }
+
+    .nav {
+      min-height: 4.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-6);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-mark {
+      width: 2.35rem;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 0.125rem solid var(--ink);
+      background: var(--signal);
+      color: var(--paper-light);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      box-shadow: 0.18rem 0.18rem 0 var(--ink);
+      transform: rotate(-3deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+    }
+
+    .nav-links > a:not(.button) {
+      text-decoration-thickness: 0.08rem;
+      text-underline-offset: 0.3rem;
+      font-weight: 700;
+    }
+
+    .nav-links > a:not(.button):hover {
+      color: var(--signal-dark);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 0.7rem 1.1rem;
+      border: 0.125rem solid var(--ink);
+      border-radius: var(--radius-sm);
+      color: var(--paper-light);
+      background: var(--ink);
+      font-weight: 800;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+      transition:
+        transform var(--fast) var(--ease),
+        box-shadow var(--fast) var(--ease),
+        background-color var(--fast) var(--ease);
+    }
+
+    .button:hover {
+      transform: translate(-0.15rem, -0.15rem);
+      box-shadow: var(--shadow-small);
+    }
+
+    .button:active {
+      transform: translate(0.1rem, 0.1rem);
+      box-shadow: none;
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .button-signal {
+      color: var(--paper-light);
+      background: var(--signal);
+    }
+
+    .button-signal:hover {
+      background: var(--signal-dark);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding-block: var(--space-16) var(--space-24);
+      border-bottom: 0.125rem solid var(--ink);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(30rem, 1.1fr);
+      align-items: center;
+      gap: clamp(3rem, 7vw, 6rem);
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin: 0 0 var(--space-6);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 1.6rem;
+      height: 0.65rem;
+      background: var(--signal);
+      border: 0.1rem solid var(--ink);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-display);
+      line-height: 1.08;
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin-bottom: var(--space-6);
+      font-size: clamp(3rem, 7vw, 6.8rem);
+      letter-spacing: -0.065em;
+    }
+
+    h1 span {
+      position: relative;
+      display: inline-block;
+      color: var(--signal);
+    }
+
+    h1 span::after {
+      content: "";
+      position: absolute;
+      left: -1%;
+      right: -4%;
+      bottom: 0.04em;
+      height: 0.1em;
+      background: var(--marker);
+      z-index: -1;
+      transform: rotate(-1deg);
+    }
+
+    .hero-copy > p {
+      max-width: 36rem;
+      margin-bottom: var(--space-8);
+      color: var(--ink-soft);
+      font-size: 1.2rem;
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .quiet-note {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+
+    .workspace-wrap {
+      position: relative;
+      padding: var(--space-6) 0 0 var(--space-6);
+    }
+
+    .timecode {
+      position: absolute;
+      top: 0;
+      right: var(--space-6);
+      z-index: 3;
+      padding: var(--space-2) var(--space-3);
+      border: 0.125rem solid var(--ink);
+      background: var(--marker);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      transform: rotate(2deg);
+    }
+
+    .workspace {
+      position: relative;
+      border: 0.15rem solid var(--ink);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--paper-light);
+      box-shadow: var(--shadow-raised);
+      transform: rotate(0.6deg);
+    }
+
+    .workspace-top {
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding-inline: var(--space-4);
+      border-bottom: 0.125rem solid var(--ink);
+      background: var(--ink);
+      color: var(--paper-light);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .workspace-top strong {
+      margin-right: auto;
+      letter-spacing: 0.05em;
+    }
+
+    .light {
+      width: 0.65rem;
+      height: 0.65rem;
+      border: 0.08rem solid var(--paper-light);
+      border-radius: 50%;
+      background: var(--signal);
+    }
+
+    .light:nth-child(3) {
+      background: var(--marker);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.45fr 0.85fr;
+      min-height: 31rem;
+    }
+
+    .deal-list {
+      padding: var(--space-6);
+      border-right: 0.125rem solid var(--ink);
+    }
+
+    .panel-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .count {
+      padding: 0 var(--space-2);
+      border: 0.08rem solid var(--ink);
+      background: var(--paper);
+    }
+
+    .deal {
+      padding: var(--space-4) 0;
+      border-top: 0.08rem solid var(--paper-dark);
+    }
+
+    .deal:last-child {
+      border-bottom: 0.08rem solid var(--paper-dark);
+    }
+
+    .deal-heading,
+    .deal-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+
+    .deal-heading {
+      margin-bottom: var(--space-2);
+      font-weight: 800;
+    }
+
+    .deal-heading span:last-child {
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+
+    .deal-meta {
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-weight: 700;
+    }
+
+    .status::before {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status.due {
+      color: var(--signal-dark);
+    }
+
+    .status.paid {
+      color: var(--success);
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .deadline {
+      flex: 1;
+      padding: var(--space-6);
+      border-bottom: 0.125rem solid var(--ink);
+      background: var(--marker);
+    }
+
+    .deadline-date {
+      margin: var(--space-4) 0 var(--space-2);
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 0.9;
+    }
+
+    .deadline p {
+      margin-bottom: 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .payout {
+      padding: var(--space-6);
+      background: var(--paper);
+    }
+
+    .payout-total {
+      margin-bottom: var(--space-4);
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .platform-row {
+      display: flex;
+      justify-content: space-between;
+      padding-block: var(--space-2);
+      border-top: 0.08rem solid var(--paper-dark);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .section {
+      padding-block: var(--space-24);
+    }
+
+    .section-dark {
+      color: var(--paper-light);
+      background: var(--ink);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 0.65fr 1.35fr;
+      gap: var(--space-8);
+      align-items: end;
+      margin-bottom: var(--space-16);
+    }
+
+    .section-heading h2 {
+      max-width: 12ch;
+      margin-bottom: 0;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      letter-spacing: -0.045em;
+    }
+
+    .section-heading p {
+      max-width: 42rem;
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .section-dark .section-heading p {
+      color: #c4cdca;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 0.125rem solid var(--paper-light);
+    }
+
+    .workflow-step {
+      position: relative;
+      min-height: 17rem;
+      padding: var(--space-8);
+    }
+
+    .workflow-step + .workflow-step {
+      border-left: 0.125rem solid var(--paper-light);
+    }
+
+    .step-number {
+      display: block;
+      margin-bottom: var(--space-12);
+      color: var(--marker);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .workflow h3 {
+      margin-bottom: var(--space-3);
+      font-size: 1.65rem;
+    }
+
+    .workflow p {
+      margin-bottom: 0;
+      color: #c4cdca;
+    }
+
+    .features {
+      display: grid;
+      gap: var(--space-24);
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: clamp(2rem, 7vw, 6rem);
+      align-items: center;
+    }
+
+    .feature:nth-child(even) .feature-copy {
+      order: 2;
+    }
+
+    .feature:nth-child(even) .feature-visual {
+      order: 1;
+    }
+
+    .feature-copy h3 {
+      max-width: 13ch;
+      margin-bottom: var(--space-4);
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: -0.04em;
+    }
+
+    .feature-copy > p {
+      max-width: 35rem;
+      color: var(--ink-soft);
+      font-size: 1.08rem;
+    }
+
+    .feature-list {
+      margin: var(--space-6) 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+      border-top: 0.08rem solid var(--paper-dark);
+      font-weight: 700;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .feature-visual {
+      min-height: 22rem;
+      display: grid;
+      align-content: center;
+      padding: clamp(1.5rem, 5vw, 3rem);
+      border: 0.15rem solid var(--ink);
+      border-radius: var(--radius-md);
+      background: var(--paper-light);
+      box-shadow: var(--shadow-raised);
+    }
+
+    .contract-sheet {
+      width: min(100%, 25rem);
+      margin-inline: auto;
+      padding: var(--space-6);
+      border: 0.1rem solid var(--ink);
+      background: var(--white);
+      transform: rotate(-2deg);
+    }
+
+    .sheet-title {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-8);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .sheet-line {
+      height: 0.45rem;
+      margin-bottom: var(--space-3);
+      background: var(--paper-dark);
+    }
+
+    .sheet-line.short {
+      width: 62%;
+    }
+
+    .stamp {
+      width: fit-content;
+      margin: var(--space-8) 0 0 auto;
+      padding: var(--space-2) var(--space-3);
+      border: 0.18rem solid var(--signal);
+      color: var(--signal);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      transform: rotate(-7deg);
+    }
+
+    .invoice-stack {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .invoice-row {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr auto;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border: 0.1rem solid var(--ink);
+      background: var(--white);
+    }
+
+    .invoice-row:nth-child(2) {
+      margin-left: var(--space-6);
+    }
+
+    .invoice-row:nth-child(3) {
+      margin-left: var(--space-12);
+    }
+
+    .invoice-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: grid;
+      place-items: center;
+      border: 0.1rem solid var(--ink);
+      background: var(--marker);
+      font-family: var(--font-mono);
+      font-weight: 900;
+    }
+
+    .invoice-row strong,
+    .invoice-row small {
+      display: block;
+    }
+
+    .invoice-row small {
+      color: var(--ink-soft);
+    }
+
+    .invoice-row > strong {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .payout-board {
+      border: 0.1rem solid var(--ink);
+      background: var(--ink);
+    }
+
+    .payout-board-header {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-4);
+      color: var(--paper-light);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .payout-board-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border-top: 0.1rem solid var(--ink);
+      background: var(--paper-light);
+    }
+
+    .payout-board-row span:nth-child(2),
+    .payout-board-row strong {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .payout-board-row strong {
+      color: var(--success);
+    }
+
+    .cta-section {
+      padding-block: var(--space-24);
+      border-top: 0.125rem solid var(--ink);
+      background: var(--marker);
+    }
+
+    .cta-box {
+      display: grid;
+      grid-template-columns: 1fr minmax(24rem, 0.75fr);
+      gap: clamp(3rem, 8vw, 7rem);
+      align-items: center;
+    }
+
+    .cta-box h2 {
+      max-width: 12ch;
+      margin-bottom: var(--space-4);
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      letter-spacing: -0.055em;
+    }
+
+    .cta-box p {
+      max-width: 40rem;
+      margin-bottom: 0;
+      font-size: 1.12rem;
+    }
+
+    .signup-form {
+      padding: var(--space-6);
+      border: 0.15rem solid var(--ink);
+      background: var(--paper-light);
+      box-shadow: var(--shadow-raised);
+    }
+
+    .signup-form label {
+      display: block;
+      margin-bottom: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .form-row {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .signup-form input {
+      width: 100%;
+      min-height: 3rem;
+      padding: 0.75rem;
+      border: 0.125rem solid var(--ink);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      background: var(--white);
+    }
+
+    .signup-form input:hover {
+      border-color: var(--signal);
+    }
+
+    .signup-form input:focus {
+      border-color: var(--signal);
+      outline: 0.2rem solid rgba(240, 200, 74, 0.7);
+      outline-offset: 0.1rem;
+    }
+
+    .signup-form input:user-invalid {
+      border-color: var(--error);
+    }
+
+    .form-note {
+      margin: var(--space-3) 0 0;
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+    }
+
+    .site-footer {
+      padding-block: var(--space-8);
+      color: var(--paper-light);
+      background: var(--ink);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-6);
+      align-items: center;
+    }
+
+    .footer-inner p {
+      margin: 0;
+      color: #c4cdca;
+      font-size: 0.85rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+    }
+
+    .footer-links a {
+      color: var(--paper-light);
+      font-size: 0.85rem;
+      text-underline-offset: 0.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .section-heading,
+      .feature,
+      .cta-box {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-grid {
+        gap: var(--space-16);
+      }
+
+      .workspace-wrap {
+        width: min(100%, 42rem);
+      }
+
+      .section-heading {
+        align-items: start;
+      }
+
+      .workflow {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow-step {
+        min-height: auto;
+      }
+
+      .workflow-step + .workflow-step {
+        border-left: 0;
+        border-top: 0.125rem solid var(--paper-light);
+      }
+
+      .feature:nth-child(even) .feature-copy,
+      .feature:nth-child(even) .feature-visual {
+        order: initial;
+      }
+
+      .feature-visual {
+        min-height: 19rem;
+      }
+
+      .cta-box {
+        align-items: start;
+      }
+
+      .signup-form {
+        max-width: 38rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(calc(100% - 1.25rem), var(--max-width));
+      }
+
+      .nav-links > a:not(.button) {
+        display: none;
+      }
+
+      .hero,
+      .section,
+      .cta-section {
+        padding-block: var(--space-16);
+      }
+
+      h1 {
+        font-size: clamp(3rem, 16vw, 5rem);
+      }
+
+      .workspace-wrap {
+        padding-left: 0;
+      }
+
+      .workspace {
+        box-shadow: 0.3rem 0.3rem 0 var(--ink);
+        transform: none;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .deal-list {
+        border-right: 0;
+        border-bottom: 0.125rem solid var(--ink);
+      }
+
+      .side-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .deadline {
+        border-right: 0.125rem solid var(--ink);
+        border-bottom: 0;
+      }
+
+      .deadline-date {
+        font-size: 2.5rem;
+      }
+
+      .section-heading {
+        margin-bottom: var(--space-12);
+      }
+
+      .features {
+        gap: var(--space-16);
+      }
+
+      .feature-visual {
+        padding: var(--space-4);
+        box-shadow: 0.3rem 0.3rem 0 var(--ink);
+      }
+
+      .invoice-row:nth-child(2),
+      .invoice-row:nth-child(3) {
+        margin-left: 0;
+      }
+
+      .payout-board-row {
+        grid-template-columns: 1fr auto;
+      }
+
+      .payout-board-row span:nth-child(2) {
+        display: none;
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Primary navigation">
+      <a class="brand" href="#" aria-label="Backlot home">
+        <span class="brand-mark" aria-hidden="true">BL</span>
+        Backlot
+      </a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a class="button" href="#signup">Join early access</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-grid shell">
+        <div class="hero-copy">
+          <p class="kicker">Creator operations, one take</p>
+          <h1>Run the business behind your <span>content.</span></h1>
+          <p>
+            Backlot keeps contracts, invoices, sponsor deadlines, and platform payouts on one clear production board. No finance degree required.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-signal" href="#signup">Get early access</a>
+            <span class="quiet-note">Free during private beta</span>
+          </div>
+        </div>
+
+        <div class="workspace-wrap" aria-label="Preview of the Backlot workspace">
+          <div class="timecode">LIVE 09:41:22</div>
+          <div class="workspace">
+            <div class="workspace-top">
+              <strong>BACKLOT / MAY OVERVIEW</strong>
+              <span class="light" aria-hidden="true"></span>
+              <span class="light" aria-hidden="true"></span>
+            </div>
+
+            <div class="dashboard">
+              <div class="deal-list">
+                <div class="panel-label">
+                  <span>Active brand deals</span>
+                  <span class="count">04</span>
+                </div>
+
+                <div class="deal">
+                  <div class="deal-heading">
+                    <span>Field Notes Co.</span>
+                    <span>$6,400</span>
+                  </div>
+                  <div class="deal-meta">
+                    <span>Video integration</span>
+                    <span class="status due">Draft due Fri</span>
+                  </div>
+                </div>
+
+                <div class="deal">
+                  <div class="deal-heading">
+                    <span>Orbit Audio</span>
+                    <span>$3,250</span>
+                  </div>
+                  <div class="deal-meta">
+                    <span>Short-form package</span>
+                    <span class="status paid">Paid</span>
+                  </div>
+                </div>
+
+                <div class="deal">
+                  <div class="deal-heading">
+                    <span>Northstar Coffee</span>
+                    <span>$4,800</span>
+                  </div>
+                  <div class="deal-meta">
+                    <span>Dedicated video</span>
+                    <span class="status due">Invoice due</span>
+                  </div>
+                </div>
+
+                <div class="deal">
+                  <div class="deal-heading">
+                    <span>Halftone Mobile</span>
+                    <span>$2,100</span>
+                  </div>
+                  <div class="deal-meta">
+                    <span>Three vertical clips</span>
+                    <span>Brief received</span>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="side-panel" aria-label="Upcoming deadline and payouts">
+                <div class="deadline">
+                  <div class="panel-label">Next deadline</div>
+                  <div class="deadline-date">24<br>MAY</div>
+                  <p>Field Notes draft review</p>
+                </div>
+                <div class="payout">
+                  <div class="panel-label">Platform payouts</div>
+                  <div class="payout-total">$8,942</div>
+                  <div class="platform-row">
+                    <span>YouTube</span>
+                    <strong>$6,104</strong>
+                  </div>
+                  <div class="platform-row">
+                    <span>TikTok</span>
+                    <strong>$1,790</strong>
+                  </div>
+                  <div class="platform-row">
+                    <span>Patreon</span>
+                    <strong>$1,048</strong>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="how-it-works">
+      <div class="shell">
+        <div class="section-heading">
+          <h2>From signed deal to money in.</h2>
+          <p>
+            Backlot follows the real life of a creator deal, keeping each document, due date, deliverable, and payment attached to the same job.
+          </p>
+        </div>
+
+        <div class="workflow">
+          <article class="workflow-step">
+            <span class="step-number">STEP 01 / BOOK IT</span>
+            <h3>Add the deal</h3>
+            <p>Drop in the contract, fee, contact, and deliverables while the details are fresh.</p>
+          </article>
+
+          <article class="workflow-step">
+            <span class="step-number">STEP 02 / MAKE IT</span>
+            <h3>Track the work</h3>
+            <p>See draft dates, posting windows, revisions, and approvals without digging through email.</p>
+          </article>
+
+          <article class="workflow-step">
+            <span class="step-number">STEP 03 / GET PAID</span>
+            <h3>Close the loop</h3>
+            <p>Send the invoice, record the payout, and know exactly what is still outstanding.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="shell features">
+        <article class="feature">
+          <div class="feature-copy">
+            <p class="kicker">Deal desk</p>
+            <h3>Every agreement gets a home.</h3>
+            <p>
+              Keep signed contracts beside the rate, usage terms, revision limits, and brand contact. The details you need are visible before you say yes to anything extra.
+            </p>
+            <ul class="feature-list">
+              <li>Contract and brief storage</li>
+              <li>Usage rights at a glance</li>
+              <li>Deliverables tied to each deal</li>
+            </ul>
+          </div>
+
+          <div class="feature-visual" aria-label="Contract summary example">
+            <div class="contract-sheet">
+              <div class="sheet-title">
+                <span>CAMPAIGN AGREEMENT</span>
+                <span>BL-1042</span>
+              </div>
+              <div class="sheet-line"></div>
+              <div class="sheet-line"></div>
+              <div class="sheet-line short"></div>
+              <div class="sheet-line"></div>
+              <div class="sheet-line short"></div>
+              <div class="stamp">SIGNED + FILED</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <p class="kicker">Invoice queue</p>
+            <h3>Know who owes you what.</h3>
+            <p>
+              Turn completed work into a clean invoice, then track it from sent to paid. Backlot keeps late payments visible without making your week feel like accounting class.
+            </p>
+            <ul class="feature-list">
+              <li>Simple invoice creation</li>
+              <li>Due and overdue reminders</li>
+              <li>Payment status by sponsor</li>
+            </ul>
+          </div>
+
+          <div class="feature-visual" aria-label="Invoice tracking example">
+            <div class="invoice-stack">
+              <div class="invoice-row">
+                <span class="invoice-icon" aria-hidden="true">$</span>
+                <span><strong>Northstar Coffee</strong><small>Due May 28</small></span>
+                <strong>$4,800</strong>
+              </div>
+              <div class="invoice-row">
+                <span class="invoice-icon" aria-hidden="true">✓</span>
+                <span><strong>Orbit Audio</strong><small>Paid May 18</small></span>
+                <strong>$3,250</strong>
+              </div>
+              <div class="invoice-row">
+                <span class="invoice-icon" aria-hidden="true">!</span>
+                <span><strong>Juniper Skin</strong><small>8 days overdue</small></span>
+                <strong>$1,950</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <p class="kicker">Income monitor</p>
+            <h3>See the whole income picture.</h3>
+            <p>
+              Track sponsor payments beside YouTube, TikTok, membership, and affiliate income. Compare what landed with what is still expected this month.
+            </p>
+            <ul class="feature-list">
+              <li>Per-platform payout tracking</li>
+              <li>Monthly income overview</li>
+              <li>Expected versus received totals</li>
+            </ul>
+          </div>
+
+          <div class="feature-visual" aria-label="Platform payout tracking example">
+            <div class="payout-board">
+              <div class="payout-board-header">
+                <span>MAY PAYOUTS</span>
+                <span>RECEIVED</span>
+              </div>
+              <div class="payout-board-row">
+                <span>YouTube</span>
+                <span>May 21</span>
+                <strong>$6,104</strong>
+              </div>
+              <div class="payout-board-row">
+                <span>TikTok</span>
+                <span>May 18</span>
+                <strong>$1,790</strong>
+              </div>
+              <div class="payout-board-row">
+                <span>Patreon</span>
+                <span>May 05</span>
+                <strong>$1,048</strong>
+              </div>
+              <div class="payout-board-row">
+                <span>Affiliate</span>
+                <span>Expected</span>
+                <strong>$740</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+      <div class="cta-box shell">
+        <div>
+          <p class="kicker">Private beta</p>
+          <h2>Your content is the job. Backlot runs the office.</h2>
+          <p>Join the early access list and help shape the operations tool built for full-time creators.</p>
+        </div>
+
+        <form class="signup-form" action="#" method="post">
+          <label for="email">Your work email</label>
+          <div class="form-row">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@yourstudio.com"
+              required
+              aria-describedby="signup-note"
+            >
+            <button class="button button-signal" type="submit">Join early access</button>
+          </div>
+          <p class="form-note" id="signup-note">No spam. Just beta updates and your invitation when a spot opens.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner shell">
+      <p>© 2025 Backlot. Built for creators who mean business.</p>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="mailto:hello@backlot.example">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Backlot organizes brand deals, contracts, invoices, sponsor deadlines, and platform payouts for full-time creators.">
+  <title>Backlot — Creator ops, all in one place</title>
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f5f2e8;
+      --acid: #c8ff00;
+      --pink: #ff4fbd;
+      --orange: #ff6b24;
+      --cyan: #1ce6ff;
+      --purple: #8b5cff;
+      --white: #ffffff;
+      --border: 2px solid var(--ink);
+      --shadow: 6px 6px 0 var(--ink);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(17,17,17,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17,17,17,.055) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 0;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 950;
+      letter-spacing: -.06em;
+    }
+
+    .logo-mark {
+      display: grid;
+      place-items: center;
+      width: 35px;
+      height: 35px;
+      border: var(--border);
+      border-radius: 9px;
+      background: var(--acid);
+      box-shadow: 3px 3px 0 var(--ink);
+      transform: rotate(-5deg);
+    }
+
+    .logo-mark span {
+      transform: rotate(5deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      padding: 0 22px;
+      border: var(--border);
+      border-radius: 999px;
+      background: var(--acid);
+      box-shadow: 4px 4px 0 var(--ink);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .button:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 4px solid var(--cyan);
+      outline-offset: 3px;
+    }
+
+    .button.dark {
+      color: var(--white);
+      background: var(--ink);
+      box-shadow: 4px 4px 0 var(--pink);
+    }
+
+    .button.dark:hover {
+      box-shadow: 2px 2px 0 var(--pink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      align-items: center;
+      gap: clamp(38px, 6vw, 84px);
+      min-height: 720px;
+      padding: 70px 0 100px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 24px;
+      padding: 8px 12px;
+      border: var(--border);
+      border-radius: 999px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: .75rem;
+      font-weight: 900;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 3px rgba(255,79,189,.2);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 26px;
+      font-size: clamp(4rem, 8.2vw, 7.7rem);
+      line-height: .82;
+      letter-spacing: -.085em;
+      font-weight: 950;
+    }
+
+    .highlight {
+      position: relative;
+      display: inline-block;
+      z-index: 0;
+    }
+
+    .highlight::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      left: -2%;
+      right: -4%;
+      bottom: 3%;
+      height: 28%;
+      border: 2px solid var(--ink);
+      background: var(--acid);
+      transform: rotate(-2deg);
+    }
+
+    .hero-copy > p {
+      max-width: 560px;
+      margin-bottom: 30px;
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      font-weight: 620;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .microcopy {
+      font-size: .78rem;
+      font-weight: 800;
+      opacity: .68;
+    }
+
+    .dashboard-wrap {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .orb {
+      position: absolute;
+      z-index: -2;
+      width: 380px;
+      height: 380px;
+      right: -80px;
+      top: -80px;
+      border: var(--border);
+      border-radius: 48% 52% 42% 58%;
+      background: var(--pink);
+      filter: saturate(1.1);
+      transform: rotate(12deg);
+    }
+
+    .burst {
+      position: absolute;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 116px;
+      height: 116px;
+      right: -24px;
+      bottom: -30px;
+      border: var(--border);
+      background: var(--acid);
+      clip-path: polygon(50% 0, 60% 28%, 82% 10%, 75% 37%, 100% 40%, 74% 53%, 92% 76%, 65% 68%, 60% 100%, 48% 72%, 25% 93%, 32% 64%, 0 65%, 27% 49%, 6% 28%, 36% 34%);
+      font-size: .76rem;
+      font-weight: 950;
+      line-height: 1.05;
+      text-align: center;
+      text-transform: uppercase;
+      transform: rotate(10deg);
+    }
+
+    .dashboard {
+      padding: 15px;
+      border: var(--border);
+      border-radius: 28px;
+      background: var(--ink);
+      box-shadow: 12px 12px 0 var(--cyan);
+      transform: rotate(1.5deg);
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 4px 14px;
+      color: var(--white);
+      font-size: .72rem;
+      font-weight: 850;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dots i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .dots i:nth-child(2) { background: var(--acid); }
+    .dots i:nth-child(3) { background: var(--cyan); }
+
+    .dashboard-inner {
+      padding: 19px;
+      border-radius: 16px;
+      background: #f8f8f1;
+    }
+
+    .dash-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .dash-header small,
+    .card-label {
+      display: block;
+      margin-bottom: 2px;
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .55;
+    }
+
+    .dash-header strong {
+      font-size: 1.55rem;
+      letter-spacing: -.05em;
+    }
+
+    .live {
+      padding: 6px 9px;
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      background: var(--acid);
+      font-size: .6rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card,
+    .deal-card {
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .stat-card {
+      padding: 13px;
+    }
+
+    .stat-card.pink { background: #ffd6ef; }
+    .stat-card.cyan { background: #c9f8ff; }
+
+    .stat-card b {
+      font-size: 1.35rem;
+      letter-spacing: -.05em;
+    }
+
+    .deal-card {
+      margin-top: 13px;
+      padding: 14px;
+    }
+
+    .deal-row {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px dashed rgba(17,17,17,.28);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+
+    .deal-row:last-child {
+      border-bottom: 0;
+    }
+
+    .status {
+      padding: 4px 7px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--acid);
+      font-size: .55rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .status.pink {
+      background: #ffd6ef;
+    }
+
+    .marquee {
+      overflow: hidden;
+      border-block: var(--border);
+      background: var(--ink);
+      color: var(--acid);
+      transform: rotate(-1deg) scale(1.02);
+    }
+
+    .marquee-track {
+      width: max-content;
+      padding: 13px 0;
+      font-size: .82rem;
+      font-weight: 950;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      word-spacing: 1rem;
+    }
+
+    section {
+      padding: 110px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr .65fr;
+      align-items: end;
+      gap: 30px;
+      margin-bottom: 54px;
+    }
+
+    h2 {
+      max-width: 800px;
+      margin-bottom: 0;
+      font-size: clamp(2.8rem, 6.5vw, 5.8rem);
+      line-height: .9;
+      letter-spacing: -.075em;
+    }
+
+    .section-head p {
+      margin-bottom: 6px;
+      font-size: 1.08rem;
+      font-weight: 650;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 235px;
+      padding: 26px;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .step:nth-child(1) { background: var(--acid); transform: rotate(-1deg); }
+    .step:nth-child(2) { background: var(--pink); transform: translateY(16px) rotate(1deg); }
+    .step:nth-child(3) { background: var(--cyan); transform: rotate(-1deg); }
+
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      margin-bottom: 34px;
+      border: var(--border);
+      border-radius: 50%;
+      background: var(--white);
+      font-weight: 950;
+    }
+
+    .step h3 {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+      letter-spacing: -.045em;
+    }
+
+    .step p {
+      margin-bottom: 0;
+      font-weight: 650;
+    }
+
+    .features {
+      padding-top: 130px;
+    }
+
+    .feature-stack {
+      display: grid;
+      gap: 32px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: .86fr 1.14fr;
+      min-height: 410px;
+      overflow: hidden;
+      border: var(--border);
+      border-radius: 30px;
+      background: var(--white);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+
+    .feature:nth-child(even) {
+      grid-template-columns: 1.14fr .86fr;
+    }
+
+    .feature:nth-child(even) .feature-copy {
+      order: 2;
+    }
+
+    .feature-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(34px, 5vw, 64px);
+    }
+
+    .tag {
+      align-self: flex-start;
+      margin-bottom: 22px;
+      padding: 7px 10px;
+      border: 1.5px solid var(--ink);
+      border-radius: 5px;
+      background: var(--acid);
+      font-size: .68rem;
+      font-weight: 950;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+    }
+
+    .feature h3 {
+      margin-bottom: 18px;
+      font-size: clamp(2.1rem, 4vw, 3.7rem);
+      line-height: .94;
+      letter-spacing: -.065em;
+    }
+
+    .feature-copy p {
+      max-width: 480px;
+      margin-bottom: 0;
+      font-size: 1.05rem;
+      font-weight: 610;
+    }
+
+    .visual {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      padding: 34px;
+      border-left: var(--border);
+      background: var(--pink);
+      overflow: hidden;
+    }
+
+    .feature:nth-child(even) .visual {
+      border-right: var(--border);
+      border-left: 0;
+      background: var(--cyan);
+    }
+
+    .feature:nth-child(3) .visual {
+      background: var(--acid);
+    }
+
+    .visual::before {
+      content: "";
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      border: 2px solid rgba(17,17,17,.5);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(255,255,255,.18), 0 0 0 58px rgba(17,17,17,.08);
+    }
+
+    .ui-card {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 390px);
+      padding: 18px;
+      border: var(--border);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 7px 7px 0 var(--ink);
+      transform: rotate(-2deg);
+    }
+
+    .feature:nth-child(even) .ui-card {
+      transform: rotate(2deg);
+    }
+
+    .ui-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 13px;
+      border-bottom: 2px solid var(--ink);
+      font-size: .85rem;
+      font-weight: 950;
+    }
+
+    .ui-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px dashed rgba(17,17,17,.35);
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .ui-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 2px;
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--white);
+      font-size: .58rem;
+      text-transform: uppercase;
+    }
+
+    .bar {
+      width: 120px;
+      height: 9px;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--white);
+    }
+
+    .bar span {
+      display: block;
+      width: 72%;
+      height: 100%;
+      background: var(--orange);
+    }
+
+    .platforms {
+      display: flex;
+      gap: 7px;
+    }
+
+    .platforms i {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border: 1px solid var(--ink);
+      border-radius: 7px;
+      background: var(--white);
+      font-style: normal;
+      font-size: .62rem;
+      font-weight: 950;
+    }
+
+    .cta {
+      position: relative;
+      overflow: hidden;
+      margin: 35px auto 90px;
+      padding: clamp(45px, 8vw, 90px);
+      border: var(--border);
+      border-radius: 34px;
+      background: var(--purple);
+      color: var(--white);
+      box-shadow: 12px 12px 0 var(--ink);
+      text-align: center;
+    }
+
+    .cta::before,
+    .cta::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: var(--border);
+      background: var(--acid);
+      transform: rotate(28deg);
+    }
+
+    .cta::before {
+      left: -115px;
+      top: -100px;
+    }
+
+    .cta::after {
+      right: -120px;
+      bottom: -105px;
+      background: var(--pink);
+    }
+
+    .cta h2 {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto 22px;
+      font-size: clamp(3rem, 7vw, 6.4rem);
+    }
+
+    .cta p {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto 34px;
+      font-size: 1.12rem;
+      font-weight: 650;
+    }
+
+    .signup-form {
+      position: relative;
+      display: flex;
+      gap: 10px;
+      max-width: 590px;
+      margin: auto;
+      padding: 8px;
+      border: var(--border);
+      border-radius: 999px;
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .signup-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 0 18px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .signup-form .button {
+      border-radius: 999px;
+      box-shadow: none;
+    }
+
+    .form-note {
+      margin-top: 17px !important;
+      margin-bottom: 0 !important;
+      font-size: .75rem !important;
+      opacity: .78;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px 0 34px;
+      border-top: var(--border);
+      font-size: .78rem;
+      font-weight: 750;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    @media (max-width: 850px) {
+      .nav-links a:not(.button) {
+        display: none;
+      }
+
+      .hero,
+      .section-head,
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 55px;
+      }
+
+      .dashboard-wrap {
+        width: min(600px, 100%);
+        margin: 15px auto 0;
+      }
+
+      .section-head {
+        align-items: start;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step:nth-child(2) {
+        transform: rotate(1deg);
+      }
+
+      .feature:nth-child(even) .feature-copy {
+        order: 0;
+      }
+
+      .visual,
+      .feature:nth-child(even) .visual {
+        border-top: var(--border);
+        border-right: 0;
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .nav {
+        padding-top: 14px;
+      }
+
+      .nav .button {
+        min-height: 42px;
+        padding-inline: 15px;
+        font-size: .78rem;
+      }
+
+      h1 {
+        font-size: clamp(3.5rem, 19vw, 5.3rem);
+      }
+
+      section {
+        padding: 85px 0;
+      }
+
+      .dashboard {
+        box-shadow: 7px 7px 0 var(--cyan);
+      }
+
+      .orb {
+        width: 260px;
+        height: 260px;
+        right: -90px;
+      }
+
+      .burst {
+        right: -5px;
+        width: 94px;
+        height: 94px;
+        font-size: .62rem;
+      }
+
+      .deal-row {
+        grid-template-columns: 1fr auto;
+      }
+
+      .deal-row > span:nth-child(2) {
+        display: none;
+      }
+
+      .feature-copy {
+        padding: 36px 25px;
+      }
+
+      .visual {
+        padding: 25px 18px;
+      }
+
+      .cta {
+        padding: 55px 20px;
+        border-radius: 25px;
+      }
+
+      .signup-form {
+        flex-direction: column;
+        border-radius: 20px;
+      }
+
+      .signup-form input {
+        min-height: 48px;
+        text-align: center;
+      }
+
+      footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="logo" href="#" aria-label="Backlot home">
+        <span class="logo-mark"><span>B</span></span>
+        BACKLOT
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a class="button" href="#signup">Get early access →</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Operations for full-time creators</p>
+        <h1>Your content is live. Your ops are <span class="highlight">handled.</span></h1>
+        <p>Backlot keeps brand contracts, invoices, sponsor deadlines, and platform payouts together—without turning you into a finance person.</p>
+        <div class="hero-actions">
+          <a class="button dark" href="#signup">Join the waitlist <span aria-hidden="true">↗</span></a>
+          <span class="microcopy">Free to join · Built for solo creators</span>
+        </div>
+      </div>
+
+      <div class="dashboard-wrap" aria-label="Backlot dashboard preview">
+        <div class="orb" aria-hidden="true"></div>
+        <div class="dashboard">
+          <div class="window-bar">
+            <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span>BACKLOT / HQ</span>
+          </div>
+          <div class="dashboard-inner">
+            <div class="dash-header">
+              <div>
+                <small>Expected this month</small>
+                <strong>$18,420</strong>
+              </div>
+              <span class="live">● On track</span>
+            </div>
+            <div class="stat-grid">
+              <div class="stat-card pink">
+                <span class="card-label">Open deals</span>
+                <b>06</b>
+              </div>
+              <div class="stat-card cyan">
+                <span class="card-label">Due this week</span>
+                <b>03</b>
+              </div>
+            </div>
+            <div class="deal-card">
+              <span class="card-label">Active work</span>
+              <div class="deal-row">
+                <span>Nova Audio</span>
+                <span>Video · Jun 18</span>
+                <span class="status">Drafting</span>
+              </div>
+              <div class="deal-row">
+                <span>Field Notes</span>
+                <span>Shorts · Jun 22</span>
+                <span class="status pink">Review</span>
+              </div>
+              <div class="deal-row">
+                <span>Vanta Gear</span>
+                <span>Video · Jun 29</span>
+                <span class="status">Booked</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="burst" aria-hidden="true">No more<br>spreadsheet<br>spirals</div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        CONTRACTS ✦ INVOICES ✦ DEADLINES ✦ PAYOUTS ✦ DEALS ✦ CONTRACTS ✦ INVOICES ✦ DEADLINES ✦ PAYOUTS ✦ DEALS ✦
+      </div>
+    </div>
+
+    <section id="how">
+      <div class="shell">
+        <div class="section-head">
+          <h2>From chaos to clear in three moves.</h2>
+          <p>Your business backend should feel as intuitive as your editing timeline. Backlot keeps the admin light and the next step obvious.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <span class="step-number">01</span>
+            <h3>Add your income streams</h3>
+            <p>Bring in brand deals and platform earnings from YouTube, TikTok, Instagram, and beyond.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">02</span>
+            <h3>Drop in the details</h3>
+            <p>Attach contracts, deliverables, due dates, usage terms, and payment milestones to every deal.</p>
+          </article>
+          <article class="step">
+            <span class="step-number">03</span>
+            <h3>Know what’s next</h3>
+            <p>See what needs filming, invoicing, chasing, or celebrating—without digging through your inbox.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features shell" id="features">
+      <div class="section-head">
+        <h2>The business side, minus the business fog.</h2>
+        <p>One clean command center for the work behind your work.</p>
+      </div>
+
+      <div class="feature-stack">
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="tag">Deal control</span>
+            <h3>Every sponsor detail. Zero inbox archaeology.</h3>
+            <p>Store contracts, contacts, rates, usage rights, revisions, and deliverables on one deal page. You’ll always know what you agreed to.</p>
+          </div>
+          <div class="visual" aria-hidden="true">
+            <div class="ui-card">
+              <div class="ui-title">
+                <span>NOVA AUDIO</span>
+                <span class="pill">Active</span>
+              </div>
+              <div class="ui-line">
+                <span>Contract</span>
+                <strong>Signed ✓</strong>
+              </div>
+              <div class="ui-line">
+                <span>Deliverable</span>
+                <strong>60-sec integration</strong>
+              </div>
+              <div class="ui-line">
+                <span>Usage rights</span>
+                <strong>90 days</strong>
+              </div>
+              <div class="ui-line">
+                <span>Deal value</span>
+                <strong>$7,500</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="tag">Deadline radar</span>
+            <h3>See the crunch before it becomes a crisis.</h3>
+            <p>Track briefs, drafts, approvals, publish dates, and invoice follow-ups in a creator-friendly timeline built around real deliverables.</p>
+          </div>
+          <div class="visual" aria-hidden="true">
+            <div class="ui-card">
+              <div class="ui-title">
+                <span>THIS WEEK</span>
+                <span>3 tasks</span>
+              </div>
+              <div class="ui-line">
+                <span>MON · Upload rough cut</span>
+                <span class="pill">Today</span>
+              </div>
+              <div class="ui-line">
+                <span>WED · Brand approval</span>
+                <span class="pill">Waiting</span>
+              </div>
+              <div class="ui-line">
+                <span>FRI · Publish + invoice</span>
+                <span class="bar"><span></span></span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <span class="tag">Money view</span>
+            <h3>Know what you made—and what’s still missing.</h3>
+            <p>Track sponsor invoices beside per-platform payouts, so cash flow makes sense at a glance. No accounting degree, no mystery math.</p>
+          </div>
+          <div class="visual" aria-hidden="true">
+            <div class="ui-card">
+              <div class="ui-title">
+                <span>JUNE INCOME</span>
+                <strong>$18,420</strong>
+              </div>
+              <div class="ui-line">
+                <span>Platform payouts</span>
+                <span class="platforms"><i>YT</i><i>TT</i><i>IG</i></span>
+              </div>
+              <div class="ui-line">
+                <span>Brand deals paid</span>
+                <strong>$10,750</strong>
+              </div>
+              <div class="ui-line">
+                <span>Outstanding</span>
+                <span class="pill">$3,200</span>
+              </div>
+              <div class="ui-line">
+                <span>Next payout</span>
+                <strong>Jun 21</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta shell" id="signup">
+      <h2>Make content. Not admin.</h2>
+      <p>Join the Backlot early-access list and be first to run your creator business from one beautifully organized place.</p>
+      <form class="signup-form" action="#" method="post">
+        <label for="email" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@creator.com" required>
+        <button class="button" type="submit">Get early access →</button>
+      </form>
+      <p class="form-note">No spam. No finance jargon. Just product updates and your invite.</p>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <a class="logo" href="#" aria-label="Backlot home">
+      <span class="logo-mark"><span>B</span></span>
+      BACKLOT
+    </a>
+    <span>© 2025 Backlot. Built for the people behind the upload.</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </footer>
+</body>
+</html>

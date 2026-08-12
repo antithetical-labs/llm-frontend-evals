@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge &mdash; Watch AI-Assisted Software Development</title>
+<style>
+  :root {
+    /* Color System - OLED Dark / Terminal Aesthetic */
+    --bg-base: #09090b;
+    --bg-surface: #18181b;
+    --bg-surface-hover: #27272a;
+    
+    --border-subtle: #27272a;
+    --border-focus: #14b8a6;
+    
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    
+    --accent-teal: #14b8a6;
+    --accent-teal-hover: #0d9488;
+    --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+    
+    /* Typography */
+    --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    
+    /* Spacing Scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-24: 6rem;
+    --space-32: 8rem;
+    
+    /* Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    
+    /* Layout */
+    --max-width: 1200px;
+  }
+
+  /* Reset */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  button, input { font: inherit; }
+
+  /* Utilities */
+  .container { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-6); }
+  .mono { font-family: var(--font-mono); font-size: 0.875rem; }
+  .text-muted { color: var(--text-muted); }
+  .text-teal { color: var(--accent-teal); }
+  .text-cyan { color: var(--accent-cyan); }
+  .text-pink { color: var(--accent-pink); }
+  
+  /* Focus States */
+  :focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  /* Components */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background-color: var(--text-main);
+    color: var(--bg-base);
+  }
+  .btn-primary:hover { background-color: #d4d4d8; }
+  .btn-primary:active { background-color: #a1a1aa; }
+  
+  .btn-outline {
+    border-color: var(--border-subtle);
+    background-color: transparent;
+    color: var(--text-main);
+  }
+  .btn-outline:hover { background-color: var(--bg-surface); }
+  
+  .badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-6) 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nav-logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+  .nav-links { display: flex; gap: var(--space-6); align-items: center; }
+  .nav-link:hover { color: var(--accent-teal); }
+
+  /* Hero */
+  .hero {
+    padding: var(--space-24) 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: var(--space-12) 0; }
+  }
+  .hero-content h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--space-6);
+  }
+  .hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-8);
+    max-width: 45ch;
+  }
+  .hero-actions { display: flex; gap: var(--space-4); }
+
+  /* IDE Window Decoration */
+  .ide-window {
+    background: #000;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .ide-header {
+    display: flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+  }
+  .ide-dots { display: flex; gap: 6px; }
+  .ide-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-subtle); }
+  .ide-title { margin-left: var(--space-4); color: var(--text-muted); }
+  .ide-body {
+    padding: var(--space-6);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    overflow-x: auto;
+  }
+  .line-number { color: #3f3f46; display: inline-block; width: 2rem; user-select: none; }
+
+  /* How it Works (Process) */
+  .section { padding: var(--space-24) 0; border-top: 1px solid var(--border-subtle); }
+  .section-header { margin-bottom: var(--space-12); max-width: 600px; }
+  .section-title {
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-4);
+  }
+  
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-8);
+  }
+  .process-step {
+    padding: var(--space-6);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+  }
+  .step-number {
+    display: inline-block;
+    color: var(--accent-teal);
+    margin-bottom: var(--space-4);
+  }
+  .process-step h3 { font-size: 1.125rem; font-weight: 500; margin-bottom: var(--space-2); }
+  .process-step p { color: var(--text-muted); font-size: 0.9375rem; }
+
+  /* Features */
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+    align-items: center;
+    margin-bottom: var(--space-24);
+  }
+  .feature-row:nth-child(even) { direction: rtl; }
+  .feature-row:nth-child(even) > * { direction: ltr; }
+  @media (max-width: 900px) {
+    .feature-row { grid-template-columns: 1fr; gap: var(--space-8); margin-bottom: var(--space-16); }
+    .feature-row:nth-child(even) { direction: ltr; }
+  }
+  .feature-content h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: var(--space-4);
+  }
+  .feature-content p { color: var(--text-muted); font-size: 1.125rem; }
+  
+  /* Feature Visuals */
+  .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .data-table th, .data-table td { 
+    padding: var(--space-3) var(--space-4); 
+    border-bottom: 1px solid var(--border-subtle); 
+  }
+  .data-table th { color: var(--text-muted); font-weight: 400; }
+
+  /* CTA */
+  .cta-section {
+    padding: var(--space-32) 0;
+    text-align: center;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .cta-content { max-width: 600px; margin: 0 auto; }
+  .cta-title { font-size: 2.5rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: var(--space-6); }
+  .cta-desc { color: var(--text-muted); font-size: 1.25rem; margin-bottom: var(--space-8); }
+
+  /* Footer */
+  .footer {
+    padding: var(--space-8) 0;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+</style>
+</head>
+<body>
+
+  <header class="container">
+    <nav class="nav">
+      <div class="nav-logo mono">Streamforge<span class="text-teal">_</span></div>
+      <div class="nav-links">
+        <a href="#browse" class="nav-link mono text-muted">Browse Streams</a>
+        <a href="#login" class="nav-link">Log in</a>
+        <a href="#signup" class="btn btn-primary">Start casting</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="container hero">
+      <div class="hero-content">
+        <span class="badge" style="margin-bottom: var(--space-6)">Public Beta</span>
+        <h1>Watch developers build with AI.</h1>
+        <p>Live-streaming for the new stack. Watch prompts, AI generations, and refactors happen in real time. Fork any stream’s repository at the exact timestamp you are watching.</p>
+        <div class="hero-actions">
+          <a href="#signup" class="btn btn-primary">Create an account</a>
+          <a href="#explore" class="btn btn-outline">Explore live channels</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="ide-window">
+          <div class="ide-header">
+            <div class="ide-dots">
+              <div class="ide-dot"></div><div class="ide-dot"></div><div class="ide-dot"></div>
+            </div>
+            <div class="ide-title mono">server.ts — live</div>
+          </div>
+          <div class="ide-body">
+            <div><span class="line-number">1</span><span class="text-muted">// Prompt: Generate a fast fastify server</span></div>
+            <div><span class="line-number">2</span><span class="text-pink">import</span> { fastify } <span class="text-pink">from</span> <span class="text-teal">'fastify'</span>;</div>
+            <div><span class="line-number">3</span></div>
+            <div><span class="line-number">4</span><span class="text-pink">const</span> server = <span class="text-cyan">fastify</span>({ logger: <span class="text-teal">true</span> });</div>
+            <div><span class="line-number">5</span></div>
+            <div><span class="line-number">6</span>server.<span class="text-cyan">get</span>(<span class="text-teal">'/'</span>, <span class="text-pink">async</span> (request, reply) => {</div>
+            <div><span class="line-number">7</span>  <span class="text-pink">return</span> { status: <span class="text-teal">'streaming'</span> };</div>
+            <div><span class="line-number">8</span>});</div>
+            <div><span class="line-number">9</span><span class="text-muted cursor">_</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-header">
+        <h2 class="section-title">How it works</h2>
+        <p class="text-muted">A standard video stream loses the context. Streamforge binds the video to the code state.</p>
+      </div>
+      <div class="process-grid">
+        <div class="process-step">
+          <span class="step-number mono">01</span>
+          <h3>Connect your editor</h3>
+          <p>Install the CLI plugin. We sync your active terminal, editor state, and AI copilot logs securely to your broadcast channel.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-number mono">02</span>
+          <h3>Broadcast the context</h3>
+          <p>Viewers see a split screen: your webcam/voice, and a precise recreation of your IDE. They can read the code, not just watch pixels.</p>
+        </div>
+        <div class="process-step">
+          <span class="step-number mono">03</span>
+          <h3>Viewers fork live</h3>
+          <p>When a viewer spots an interesting pattern, they hit Fork. They get a clone of the repo exactly as it existed at that timestamp.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-header">
+        <h2 class="section-title">Engineered for code</h2>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Native syntax rendering</h3>
+          <p>Stop squinting at 1080p video compression. The code viewer renders native text using a Monaco-based client. Viewers can select, copy, and search the code you are writing live.</p>
+        </div>
+        <div class="ide-window">
+          <div class="ide-header"><div class="ide-title mono">Viewer Client</div></div>
+          <div class="ide-body" style="padding: 0;">
+            <table class="data-table mono">
+              <tr><th>Viewer</th><th>Action</th><th>Latency</th></tr>
+              <tr><td>@alex_dev</td><td>Copied snippet</td><td>120ms</td></tr>
+              <tr><td>@sarahj</td><td>Searched 'auth'</td><td>115ms</td></tr>
+              <tr><td>@ryan</td><td>Forked branch</td><td>140ms</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Expose the prompts</h3>
+          <p>AI assistance is the new pair programming. Streamforge intercepts copilot interactions and displays the raw prompts and model outputs in a dedicated sidebar. Let your audience see exactly how you steer the model.</p>
+        </div>
+        <div class="ide-window">
+          <div class="ide-header"><div class="ide-title mono">Prompt Inspector</div></div>
+          <div class="ide-body">
+            <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-4); margin-bottom: var(--space-4);">
+              <span class="text-cyan">User</span><br>
+              <span class="text-main">Extract the database logic into a repository pattern.</span>
+            </div>
+            <div>
+              <span class="text-pink">Model (Claude 3.5 Sonnet)</span><br>
+              <span class="text-muted">Creating UserRepository.ts and abstracting the query builder...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Timestamped repository access</h3>
+          <p>Every keystroke is versioned in our shadow-git. If a viewer joins an hour late, they can scrub the timeline and pull the repository state at any exact second.</p>
+        </div>
+        <div class="ide-window">
+          <div class="ide-header"><div class="ide-title mono">CLI Timeline</div></div>
+          <div class="ide-body">
+            <div><span class="text-teal">➜</span> <span class="text-pink">streamforge</span> clone @alice/rust-api --at 01:24:10</div>
+            <div>Cloning shadow repository...</div>
+            <div>Resolving state at 01:24:10... <span class="text-teal">Done</span></div>
+            <div><span class="text-muted">Repository ready in ./rust-api</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container cta-content">
+        <h2 class="cta-title">Start broadcasting your stack</h2>
+        <p class="cta-desc">Join the network of developers building in public. Setup takes 3 minutes via our CLI.</p>
+        <a href="#signup" class="btn btn-primary" style="font-size: 1.125rem;">Create a channel</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <div class="mono">© Streamforge Inc.</div>
+    <div class="nav-links">
+      <a href="#docs" class="nav-link">Documentation</a>
+      <a href="#github" class="nav-link">GitHub</a>
+      <a href="#terms" class="nav-link">Terms</a>
+    </div>
+  </footer>
+
+</body>
+</html>

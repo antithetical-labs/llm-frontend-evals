@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAMFORGE // LIVE AI DEV</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --acid-green: #ccff00;
+            --acid-pink: #ff00ff;
+            --acid-cyan: #00ffff;
+            --font-display: Impact, "Arial Black", sans-serif;
+            --font-body: "Courier New", Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        ::selection {
+            background: var(--acid-pink);
+            color: var(--bg);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        /* UTILS */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--acid-green);
+            color: var(--bg);
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            text-decoration: none;
+            padding: 15px 30px;
+            border: 3px solid var(--bg);
+            box-shadow: 6px 6px 0px var(--acid-pink);
+            transition: all 0.1s steps(2);
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px var(--acid-pink);
+            background: var(--acid-cyan);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--acid-cyan);
+            border: 3px solid var(--acid-cyan);
+            box-shadow: 6px 6px 0px var(--acid-cyan);
+        }
+        .btn-outline:hover {
+            background: var(--acid-cyan);
+            color: var(--bg);
+        }
+
+        /* HEADER */
+        header {
+            border-bottom: 4px solid var(--acid-green);
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--acid-green);
+            text-decoration: none;
+            text-shadow: 2px 2px 0px var(--acid-pink);
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover {
+            color: var(--acid-pink);
+            background: var(--acid-green);
+        }
+
+        /* MARQUEE */
+        .marquee-container {
+            background: var(--acid-pink);
+            color: var(--bg);
+            padding: 10px 0;
+            overflow: hidden;
+            border-bottom: 2px solid var(--acid-cyan);
+        }
+        
+        .marquee {
+            white-space: nowrap;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            animation: scroll 15s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* HERO */
+        .hero {
+            padding: 100px 20px;
+            text-align: center;
+            border-bottom: 5px dashed var(--acid-cyan);
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            color: var(--text);
+            margin-bottom: 20px;
+            text-shadow: 
+                4px 4px 0px var(--acid-cyan),
+                -4px -4px 0px var(--acid-pink);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            background: var(--bg);
+            padding: 10px;
+            border: 2px solid var(--acid-green);
+            color: var(--acid-green);
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 80px 20px;
+            background: var(--acid-cyan);
+            color: var(--bg);
+            border-bottom: 5px solid var(--acid-pink);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 3px 3px 0px var(--text);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .step {
+            background: var(--bg);
+            color: var(--text);
+            padding: 30px;
+            border: 4px solid var(--bg);
+            position: relative;
+        }
+
+        .step::before {
+            content: attr(data-step);
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            background: var(--acid-pink);
+            color: var(--bg);
+            font-family: var(--font-display);
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--bg);
+        }
+
+        .step h3 {
+            color: var(--acid-green);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 100px 20px;
+        }
+
+        .features .section-title {
+            color: var(--acid-pink);
+            text-shadow: 3px 3px 0px var(--acid-green);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            border: 4px solid var(--acid-pink);
+            padding: 40px;
+            background: linear-gradient(45deg, #000 80%, var(--acid-pink) 20%);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: scale(1.02);
+            border-color: var(--acid-cyan);
+            background: linear-gradient(45deg, #000 80%, var(--acid-cyan) 20%);
+        }
+
+        .feature-card h3 {
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 20px;
+            text-decoration: underline;
+            text-decoration-color: var(--acid-green);
+        }
+
+        /* CTA */
+        .cta-section {
+            background: var(--acid-green);
+            padding: 100px 20px;
+            text-align: center;
+            border-top: 10px solid var(--acid-pink);
+            border-bottom: 10px solid var(--acid-cyan);
+        }
+
+        .cta-section h2 {
+            color: var(--bg);
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 0px var(--text);
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px dashed var(--acid-green);
+        }
+        
+        footer p {
+            color: var(--acid-cyan);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-inner container">
+            <a href="#" class="logo">STREAMFORGE_</a>
+            <nav class="nav-links">
+                <a href="#live">[LIVE]</a>
+                <a href="#archive">[ARCHIVE]</a>
+                <a href="#fork">[FORK]</a>
+                <a href="#login" class="btn btn-outline" style="padding: 5px 15px; font-size: 1rem; margin-left: 20px;">LOGIN</a>
+            </nav>
+        </div>
+        <div class="marquee-container">
+            <div class="marquee">
+                +++ NEW STREAM: BUILDING A RUST WEB SERVER WITH CLAUDE 3.5 SONNET +++ FORK IT NOW +++ 1,024 VIEWERS ONLINE +++ WATCH THE PROMPT +++ STEAL THE CODE +++ 
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>PROMPT.<br>BUILD.<br>STREAM.<br>FORK.</h1>
+            <p>Watch elite devs build software live with AI. See the raw prompts, monitor the model's output, and fork the stream's repository in real-time.</p>
+            <a href="#signup" class="btn">ENTER THE FORGE // WATCH LIVE</a>
+        </section>
+
+        <section class="how-it-works" id="how">
+            <h2 class="section-title">SYSTEM_OPERATION</h2>
+            <div class="steps">
+                <div class="step" data-step="01">
+                    <h3>OBSERVE THE PROMPT</h3>
+                    <p>Watch streamers type out complex architectures and prompts. See exactly how top developers talk to LLMs to generate production-ready code.</p>
+                </div>
+                <div class="step" data-step="02">
+                    <h3>MONITOR OUTPUT</h3>
+                    <p>Live telemetry shows the model's raw token stream. Watch the code evolve, fail, and get debugged in real-time without filters.</p>
+                </div>
+                <div class="step" data-step="03">
+                    <h3>FORK INSTANTLY</h3>
+                    <p>See a breakthrough? Hit the FORK button. Instantly clone the exact state of the streamer's repository and AI context into your own environment.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2 class="section-title">CORE_FEATURES</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>SPLIT-SCREEN TELEMETRY</h3>
+                    <p>Our custom broadcasting software captures IDE state, terminal output, and LLM context windows simultaneously. You see the whole stack, not just a screen share.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>MULTI-MODEL WARS</h3>
+                    <p>Watch streamers pit GPT-4o against Claude 3.5 or local Llama models. Compare generation speed, code quality, and debugging capability side-by-side on live streams.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>TIME-TRAVEL FORKING</h3>
+                    <p>Arrived late to the stream? Scrub back through the timeline and fork the repository at any specific timestamp or Git commit generated during the broadcast.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section" id="signup">
+            <h2>INITIALIZE YOUR SESSION</h2>
+            <a href="#" class="btn" style="background: var(--bg); color: var(--acid-green); border-color: var(--text);">CLAIM YOUR BETA ACCESS</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023-2024 STREAMFORGE. ALL SYSTEMS NOMINAL. // DESIGNED FOR THE ACID_AGE.</p>
+    </footer>
+
+</body>
+</html>

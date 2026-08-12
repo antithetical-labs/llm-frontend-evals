@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BACKLOT | Creator Operations Terminal</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #111111;
+            --acid: #ccff00;
+            --mag: #ff00ff;
+            --cyan: #00ffff;
+            --white: #ffffff;
+            --grey: #333333;
+            --font-display: 'Impact', 'Arial Black', sans-serif;
+            --font-body: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* CRT Scanline Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-weight: normal;
+            line-height: 0.9;
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #aaaaaa;
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Glitch Text Effect */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        .glitch::before {
+            color: var(--cyan);
+            z-index: -1;
+            transform: translate(-3px, 2px);
+        }
+        .glitch::after {
+            color: var(--mag);
+            z-index: -2;
+            transform: translate(3px, -2px);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            background: var(--bg);
+            color: var(--acid);
+            border: 2px solid var(--acid);
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 var(--mag);
+            transition: all 0.1s linear;
+        }
+        .btn:hover {
+            background: var(--acid);
+            color: var(--bg);
+            box-shadow: 2px 2px 0 var(--cyan);
+            transform: translate(4px, 4px);
+        }
+
+        /* Marquee */
+        .marquee-wrapper {
+            width: 100vw;
+            border-top: 1px solid var(--acid);
+            border-bottom: 1px solid var(--acid);
+            background: var(--surface);
+            overflow: hidden;
+            padding: 10px 0;
+            position: relative;
+            z-index: 10;
+            transform: rotate(-1deg) scale(1.02);
+            margin: 40px 0;
+        }
+        .marquee {
+            white-space: nowrap;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--acid);
+            animation: scroll 15s linear infinite;
+        }
+        .marquee span {
+            padding: 0 2vw;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--grey);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--white);
+            letter-spacing: 4px;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0;
+            text-align: left;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+        .hero .highlight {
+            color: var(--acid);
+            -webkit-text-stroke: 1px var(--acid);
+            color: transparent;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--mag);
+            padding-left: 15px;
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--cyan);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 80px 0;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .step-card {
+            background: var(--surface);
+            border: 1px solid var(--grey);
+            padding: 30px;
+            position: relative;
+        }
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--cyan);
+            z-index: -1;
+        }
+        .step-number {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            color: var(--mag);
+            position: absolute;
+            top: -20px;
+            right: 10px;
+            opacity: 0.5;
+        }
+        .step-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--acid);
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 0;
+        }
+        .feature-block {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 100px;
+        }
+        .feature-block:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        .feature-visual {
+            flex: 1;
+            height: 400px;
+            background: var(--surface);
+            border: 1px solid var(--grey);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        /* Acid Visual Generative Art */
+        .visual-1 {
+            background: radial-gradient(circle at 50% 50%, var(--mag) 0%, #000 70%);
+        }
+        .visual-1::after {
+            content: 'CONTRACT_SYS';
+            font-size: 4rem;
+            font-family: var(--font-display);
+            color: transparent;
+            -webkit-text-stroke: 1px var(--white);
+            transform: rotate(-45deg) scale(1.5);
+        }
+        .visual-2 {
+            background: repeating-linear-gradient(45deg, var(--bg), var(--bg) 10px, var(--acid) 10px, var(--acid) 12px);
+        }
+        .visual-3 {
+            background: conic-gradient(var(--cyan), var(--mag), var(--bg), var(--cyan));
+            filter: blur(20px);
+            transform: scale(1.5);
+        }
+        .feature-text {
+            flex: 1;
+        }
+        .feature-text h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+        .data-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--grey);
+            color: var(--cyan);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            border: 1px solid var(--cyan);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: var(--surface);
+            text-align: center;
+            border-top: 1px solid var(--mag);
+        }
+        .cta-section h2 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+        }
+        .cta-form {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+        .cta-form input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--acid);
+            color: var(--acid);
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            padding: 15px;
+            outline: none;
+        }
+        .cta-form input::placeholder {
+            color: var(--grey);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--grey);
+            font-size: 0.9rem;
+            color: var(--grey);
+        }
+
+        @media (max-width: 768px) {
+            .feature-block, .feature-block:nth-child(even) {
+                flex-direction: column;
+            }
+            .feature-visual {
+                width: 100%;
+                height: 250px;
+            }
+            .cta-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo glitch" data-text="BACKLOT">BACKLOT</div>
+            <a href="#boot" class="btn" style="font-size: 1rem; padding: 10px 20px;">LOGIN_</a>
+        </header>
+
+        <section class="hero">
+            <h1 class="glitch" data-text="ADMIN IS DEAD.">ADMIN IS DEAD.</h1>
+            <h1><span class="highlight">DIRECT</span> YOUR REVENUE.</h1>
+            <p>> SYSTEM LOAD: Consolidate brand-deal contracts, invoices, sponsor deadlines, and per-platform payout tracking in one terminal.</p>
+            <a href="#boot" class="btn">BOOT SYSTEM</a>
+        </section>
+    </div>
+
+    <div class="marquee-wrapper">
+        <div class="marquee">
+            <span>/// INVOICE PAID /// SPONSOR SECURED /// DEADLINE MET /// PAYOUT TRACKED ///</span>
+            <span>/// INVOICE PAID /// SPONSOR SECURED /// DEADLINE MET /// PAYOUT TRACKED ///</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="how-it-works">
+            <h2 class="section-header">OPERATION_LOGIC</h2>
+            <div class="grid-3">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3>UPLOAD CHAOS</h3>
+                    <p>Forward your convoluted brand emails, PDF contracts, and scattered platform stats. Backlot ingests the mess.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3>EXTRACT DATA</h3>
+                    <p>The system auto-parses deliverables, post dates, and payment terms into a ruthless, unbreakable grid.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3>EXECUTE PROTOCOL</h3>
+                    <p>Never miss a draft deadline or forget an unpaid invoice. Produce content. We track the capital.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <!-- Feature 1 -->
+            <div class="feature-block">
+                <div class="feature-visual visual-1"></div>
+                <div class="feature-text">
+                    <span class="data-tag">SYS_MOD: CONTRACTS</span>
+                    <h2>SECURE THE SPONSOR</h2>
+                    <p>Stop searching through email threads for terms. Backlot locks down your deliverables, usage rights, and exclusivity clauses in one heavily-armored dashboard.</p>
+                    <p>> Auto-generate compliance checklists.<br>> Flag suspicious terms.<br>> One-click invoice generation.</p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-block">
+                <div class="feature-visual visual-2"></div>
+                <div class="feature-text">
+                    <span class="data-tag">SYS_MOD: DEADLINES</span>
+                    <h2>BEAT THE CLOCK</h2>
+                    <p>A unified timeline for every platform. Draft reviews, final approvals, and go-live dates are mapped out aggressively. The system alerts you before you drop the ball.</p>
+                    <p>> Integrated calendar synapsis.<br>> Brutal push notifications.<br>> Sponsor approval routing.</p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-block">
+                <div class="feature-visual visual-3"></div>
+                <div class="feature-text">
+                    <span class="data-tag">SYS_MOD: PAYOUTS</span>
+                    <h2>TRACK THE LOOT</h2>
+                    <p>AdSense, sponsorships, affiliate links, and merch drops. We scrape the APIs and aggregate your incoming capital so you know exactly what hits the bank and when.</p>
+                    <p>> Platform-agnostic revenue tracking.<br>> Unpaid invoice hunting.<br>> Gross vs. net projections.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="cta-section" id="boot">
+        <div class="container">
+            <h2 class="glitch" data-text="INITIALIZE SEQUENCE">INITIALIZE SEQUENCE</h2>
+            <p>ENTER YOUR COMM-LINK TO REQUEST EARLY ACCESS. NO FINANCE DEGREES REQUIRED.</p>
+            <form class="cta-form" onsubmit="event.preventDefault();">
+                <input type="email" placeholder="ENTER_EMAIL@ADDRESS.COM" required>
+                <button type="submit" class="btn">ACCESS>_</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>BACKLOT TERMINAL v1.0.0 // COPYRIGHT &copy; 2023. ALL SYSTEMS NOMINAL.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlot | The Operations Tool for Creators</title>
+    <style>
+        :root {
+            --bg-color: #FAFAFC;
+            --text-main: #1C1C21;
+            --text-muted: #5A5A66;
+            --primary: #6B46C1;
+            --primary-hover: #553C9A;
+            --accent: #00E676;
+            --surface: #FFFFFF;
+            --border: #E2E8F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Nav */
+        header {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .hero .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .hero-ui-mockup {
+            margin-top: 60px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mockup-header {
+            height: 50px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 8px;
+            background: #f8fafc;
+        }
+
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+        }
+
+        .mockup-body {
+            display: flex;
+            flex: 1;
+        }
+        
+        .mockup-sidebar {
+            width: 200px;
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mockup-line {
+            height: 12px;
+            background: var(--border);
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .mockup-line.short { width: 60%; }
+
+        .mockup-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mockup-card {
+            background: #f1f5f9;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .mockup-badge {
+            background: var(--accent);
+            color: #004d26;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 80px 0;
+            background-color: var(--surface);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.125rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary);
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .step p {
+            color: var(--text-muted);
+        }
+
+        /* Features */
+        .features {
+            padding: 100px 0;
+        }
+
+        .feature-block {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: 100px;
+        }
+
+        .feature-block:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-text h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-text p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .feature-visual {
+            flex: 1;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            height: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .abstract-graphic {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .abstract-row {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .abstract-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* CTA */
+        .cta-section {
+            padding: 100px 0;
+            background-color: var(--primary);
+            color: #fff;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta-section .btn {
+            background-color: var(--accent);
+            color: #000;
+            font-size: 1.125rem;
+            padding: 16px 32px;
+        }
+
+        .cta-section .btn:hover {
+            background-color: #00c766;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .feature-block, .feature-block:nth-child(even) {
+                flex-direction: column;
+                gap: 40px;
+                margin-bottom: 60px;
+            }
+            .mockup-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">Backlot<span>.</span></div>
+            <a href="#signup" class="btn">Start for free</a>
+        </header>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero container">
+        <h1>Stop juggling spreadsheets.<br>Start creating.</h1>
+        <p>The all-in-one back office for full-time creators. Consolidate brand-deal contracts, track sponsor deadlines, and monitor multi-platform payouts without needing a finance degree.</p>
+        <div class="hero-buttons">
+            <a href="#signup" class="btn">Get Started Now</a>
+            <a href="#how-it-works" class="btn btn-outline">See how it works</a>
+        </div>
+
+        <div class="hero-ui-mockup">
+            <div class="mockup-header">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+            </div>
+            <div class="mockup-body">
+                <div class="mockup-sidebar">
+                    <div class="mockup-line"></div>
+                    <div class="mockup-line short"></div>
+                    <div class="mockup-line"></div>
+                    <div class="mockup-line short" style="margin-top: 20px;"></div>
+                </div>
+                <div class="mockup-content">
+                    <div class="mockup-card">
+                        <div class="mockup-col">
+                            <div class="mockup-line" style="width: 120px; background: #94a3b8; margin-bottom: 8px;"></div>
+                            <div class="mockup-line short"></div>
+                        </div>
+                        <div class="mockup-badge">PAID</div>
+                    </div>
+                    <div class="mockup-card">
+                        <div class="mockup-col">
+                            <div class="mockup-line" style="width: 150px; background: #94a3b8; margin-bottom: 8px;"></div>
+                            <div class="mockup-line short"></div>
+                        </div>
+                        <div class="mockup-badge" style="background: #fef08a; color: #854d0e;">PENDING</div>
+                    </div>
+                    <div class="mockup-card">
+                        <div class="mockup-col">
+                            <div class="mockup-line" style="width: 100px; background: #94a3b8; margin-bottom: 8px;"></div>
+                            <div class="mockup-line short"></div>
+                        </div>
+                        <div class="mockup-badge">PAID</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>Built for creators, not accountants</h2>
+                <p>Running your channel is a business. We make the boring parts easy.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Connect your platforms</h3>
+                    <p>Link your YouTube, TikTok, and bank accounts to pull in your revenue streams automatically.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Drop in your contracts</h3>
+                    <p>Upload brand deal agreements. Backlot automatically extracts deadlines and payment terms.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Get paid on time</h3>
+                    <p>Send invoices in one click and let Backlot track who owes you money and when it hits your bank.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features container">
+        
+        <!-- Feature 1 -->
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Sponsor Deadlines & Contracts</h3>
+                <p>Never miss a draft due date or a posting window again. Backlot organizes all your brand deals on a single calendar, keeping deliverables and contract terms front and center.</p>
+                <a href="#signup" class="btn btn-outline">Organize Brand Deals</a>
+            </div>
+            <div class="feature-visual">
+                <div class="abstract-graphic">
+                    <div class="abstract-row">
+                        <div class="abstract-col">
+                            <div style="width: 100px; height: 10px; background: var(--text-main); border-radius: 4px;"></div>
+                            <div style="width: 60px; height: 8px; background: var(--text-muted); border-radius: 4px;"></div>
+                        </div>
+                        <div style="padding: 4px 8px; border: 1px solid var(--primary); color: var(--primary); border-radius: 4px; font-size: 0.75rem;">Due Tomorrow</div>
+                    </div>
+                    <div class="abstract-row">
+                        <div class="abstract-col">
+                            <div style="width: 120px; height: 10px; background: var(--text-main); border-radius: 4px;"></div>
+                            <div style="width: 80px; height: 8px; background: var(--text-muted); border-radius: 4px;"></div>
+                        </div>
+                        <div style="padding: 4px 8px; border: 1px solid var(--border); color: var(--text-muted); border-radius: 4px; font-size: 0.75rem;">Next Week</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Painless Invoicing</h3>
+                <p>Generate professional invoices instantly based on your contract terms. We'll even send polite follow-up emails to brands when an invoice is overdue, so you don't have to play the bad guy.</p>
+            </div>
+            <div class="feature-visual">
+                <div class="abstract-graphic" style="justify-content: center; align-items: center; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="width: 60%; height: 20px; background: var(--border); margin-bottom: 20px; border-radius: 4px;"></div>
+                    <div style="width: 80%; height: 10px; background: var(--border); margin-bottom: 10px; border-radius: 4px;"></div>
+                    <div style="width: 70%; height: 10px; background: var(--border); margin-bottom: 30px; border-radius: 4px;"></div>
+                    <div style="background: var(--accent); color: #000; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.875rem;">Invoice Sent ✓</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-block">
+            <div class="feature-text">
+                <h3>Multi-Platform Payout Tracking</h3>
+                <p>See your YouTube AdSense, TikTok Creator Fund, Patreon, and merch revenue all in one dashboard. Finally, a clear picture of what you're actually making this month.</p>
+            </div>
+            <div class="feature-visual">
+                <div style="width: 100%; height: 100%; display: flex; align-items: flex-end; gap: 16px; padding: 20px; border-bottom: 2px solid var(--border);">
+                    <div style="flex: 1; background: #ef4444; height: 60%; border-radius: 8px 8px 0 0;"></div>
+                    <div style="flex: 1; background: #000000; height: 40%; border-radius: 8px 8px 0 0;"></div>
+                    <div style="flex: 1; background: var(--primary); height: 90%; border-radius: 8px 8px 0 0;"></div>
+                    <div style="flex: 1; background: var(--accent); height: 30%; border-radius: 8px 8px 0 0;"></div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- CTA Section -->
+    <section id="signup" class="cta-section">
+        <div class="container">
+            <h2>Ready to run your channel like a business?</h2>
+            <p>Join thousands of solo creators using Backlot to save time and get paid faster.</p>
+            <a href="#" class="btn">Create Your Free Account</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Backlot. Built for creators.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

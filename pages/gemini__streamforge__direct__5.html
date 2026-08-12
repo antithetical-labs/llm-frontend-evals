@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamforge // Live AI-Assisted Dev</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --acid: #CCFF00;
+            --magenta: #FF00FF;
+            --cyan: #00FFFF;
+            --font-display: Impact, 'Arial Black', sans-serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            --border-thick: 4px solid var(--acid);
+            --border-thin: 2px solid var(--acid);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--acid);
+            font-family: var(--font-mono);
+            line-height: 1.5;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT / Grid Overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -1px;
+        }
+
+        a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--magenta);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Brutalist UI Components */
+        .box {
+            border: var(--border-thin);
+            background: var(--bg);
+            padding: 2rem;
+            position: relative;
+            box-shadow: 8px 8px 0px var(--magenta);
+            transition: all 0.1s ease-in-out;
+        }
+
+        .box:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px var(--cyan);
+        }
+
+        .btn {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+            background: var(--acid);
+            color: var(--bg);
+            border: 2px solid var(--acid);
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0px var(--magenta);
+            transition: all 0.05s;
+        }
+
+        .btn:hover, .btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px var(--magenta);
+        }
+
+        .btn-cyan {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: var(--bg);
+        }
+
+        /* Nav */
+        header {
+            border-bottom: var(--border-thin);
+            padding: 1rem 0;
+            background: var(--bg);
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--acid);
+            text-shadow: 2px 2px 0px var(--magenta);
+            letter-spacing: 2px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            border-bottom: var(--border-thin);
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 8vw, 8rem);
+            color: var(--bg);
+            -webkit-text-stroke: 2px var(--acid);
+            text-shadow: -4px 4px 0px var(--magenta), 4px -4px 0px var(--cyan);
+            margin-bottom: 2rem;
+        }
+
+        .hero-text {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            border-left: 4px solid var(--magenta);
+            padding-left: 1rem;
+        }
+
+        .terminal {
+            background: var(--bg);
+            border: var(--border-thick);
+            padding: 1rem;
+            box-shadow: 12px 12px 0px var(--cyan);
+        }
+
+        .terminal-header {
+            border-bottom: 2px solid var(--acid);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            color: var(--magenta);
+        }
+
+        .code-line { margin-bottom: 0.5rem; }
+        .prompt { color: var(--cyan); }
+        .output { color: var(--acid); }
+        .cursor { animation: blink 1s step-end infinite; }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Marquee */
+        .marquee {
+            background: var(--magenta);
+            color: var(--bg);
+            padding: 1rem 0;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: var(--border-thin);
+        }
+
+        .marquee span {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 0;
+            border-bottom: var(--border-thin);
+        }
+
+        .section-title {
+            font-size: 4rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            text-shadow: 4px 4px 0px var(--cyan);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-number {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            color: var(--magenta);
+            position: absolute;
+            top: -2rem;
+            right: -1rem;
+            -webkit-text-stroke: 1px var(--acid);
+        }
+
+        /* Features */
+        .features {
+            padding: 6rem 0;
+            background: repeating-linear-gradient(45deg, #000, #000 10px, #111 10px, #111 20px);
+            border-bottom: var(--border-thin);
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 4rem;
+            align-items: center;
+        }
+
+        .feature-row:nth-child(even) {
+            grid-template-columns: 1fr 1fr;
+            direction: rtl;
+        }
+
+        .feature-row:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-visual {
+            background: var(--bg);
+            border: 2px dashed var(--cyan);
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--magenta);
+            position: relative;
+        }
+
+        .feature-text h3 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--acid);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 0;
+            text-align: center;
+            background: var(--bg);
+        }
+
+        .cta-title {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            color: var(--magenta);
+            text-shadow: 4px 4px 0px var(--acid);
+        }
+
+        footer {
+            border-top: var(--border-thin);
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; }
+            .feature-row { grid-template-columns: 1fr !important; direction: ltr !important; }
+            .hero-title { font-size: 3.5rem; }
+            .cta-title { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-inner">
+            <div class="logo">STREAMFORGE</div>
+            <a href="#join" class="btn btn-cyan">INITIATE</a>
+        </div>
+    </header>
+
+    <section class="hero container">
+        <div>
+            <h1 class="hero-title">COMPILE<br>IN THE<br>CROSSFIRE</h1>
+            <p class="hero-text">
+                The ultimate spectator sport for builders. Watch top developers broadcast live as they architect software with AI assistants. See the prompts, analyze the models, and fork the repos in real-time.
+            </p>
+            <a href="#join" class="btn">START WATCHING &gt;</a>
+        </div>
+        <div class="terminal">
+            <div class="terminal-header">
+                <span>STREAM_ID: 0x8F9A</span>
+                <span>VIEWERS: 14,092</span>
+            </div>
+            <div class="code-line prompt">&gt; AI_PROMPT: "Refactor the auth middleware to use edge functions."</div>
+            <div class="code-line">[PROCESSING...]</div>
+            <div class="code-line output">export const config = { matcher: '/api/:path*' }</div>
+            <div class="code-line output">export default function middleware(req) {</div>
+            <div class="code-line output">&nbsp;&nbsp;const token = req.cookies.get('session');</div>
+            <div class="code-line output">&nbsp;&nbsp;// Validate JWT at the edge</div>
+            <div class="code-line"><span class="cursor">█</span></div>
+        </div>
+    </section>
+
+    <div class="marquee">
+        <span>
+            WATCH THE MACHINE THINK /// FORK THE FORGE /// WATCH THE MACHINE THINK /// FORK THE FORGE /// WATCH THE MACHINE THINK /// FORK THE FORGE /// 
+        </span>
+    </div>
+
+    <section class="how-it-works container">
+        <h2 class="section-title">THE PROTOCOL</h2>
+        <div class="grid-3">
+            <div class="box">
+                <div class="step-number">01</div>
+                <h3>TUNE IN</h3>
+                <br>
+                <p>Drop into live streams of senior engineers and hackers building production apps, scripts, and games.</p>
+            </div>
+            <div class="box">
+                <div class="step-number">02</div>
+                <h3>OBSERVE</h3>
+                <br>
+                <p>View the raw, unedited workflow. A dedicated HUD shows exact LLM prompts, context windows, and raw model output.</p>
+            </div>
+            <div class="box">
+                <div class="step-number">03</div>
+                <h3>MUTATE</h3>
+                <br>
+                <p>See a brilliant implementation? One click clones the current state of their repo directly to your local environment.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="feature-row">
+                <div class="feature-text">
+                    <h3>THE PROMPT HUD</h3>
+                    <p>Stop guessing how they got the AI to write perfect code. Streamforge splits the screen: raw code editor on the left, full AI prompt history on the right. Learn prompt engineering by watching the masters iterate in the trenches.</p>
+                </div>
+                <div class="feature-visual box">
+                    [ PROMPT_INSPECTOR_UI.EXE ]
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-text">
+                    <h3>LIVE OUTPUT STREAM</h3>
+                    <p>Witness the hallucination become structure. Watch the exact tokens the AI streams back before the developer accepts, rejects, or refines them. It's pair programming exposed at the neural level.</p>
+                </div>
+                <div class="feature-visual box" style="border-color: var(--magenta);">
+                    [ TOKEN_STREAM_VISUALIZER ]
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-text">
+                    <h3>INSTANT REPO FORK</h3>
+                    <p>Don't just watch passively. The code isn't locked behind a video player. Streamforge syncs the broadcast with a live Git tree. Click "Fork State" to instantly clone the exact code you see on screen.</p>
+                </div>
+                <div class="feature-visual box">
+                    [ GIT_TREE_SYNC_ACTIVE ]
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section container" id="join">
+        <h2 class="cta-title">ENTER THE FORGE</h2>
+        <p style="margin-bottom: 2rem; font-size: 1.5rem; color: var(--cyan);">Claim your handle. The network goes live soon.</p>
+        <form onsubmit="event.preventDefault();" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <input type="email" placeholder="ENTER_EMAIL_ADDRESS" style="padding: 1rem; width: 300px; background: var(--bg); border: 2px solid var(--magenta); color: var(--acid); font-family: var(--font-mono); font-size: 1rem; outline: none; text-transform: uppercase;">
+            <button class="btn btn-cyan" type="submit">REQUEST ACCESS</button>
+        </form>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 STREAMFORGE. ALL SYSTEMS NOMINAL. <a href="#">TERMS</a> // <a href="#">MANIFESTO</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>
