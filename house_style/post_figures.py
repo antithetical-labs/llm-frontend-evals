@@ -285,7 +285,7 @@ def fig_nudge(rows: list[dict]) -> Path:
     ax2.set_xticklabels(["untouched", "nudged"], color=TEXT, fontsize=9)
     ax2.set_ylabel("pages", color=MUTED, fontsize=8)
     ax2.tick_params(colors=MUTED, labelsize=8)
-    ax2.set_title("The look does not escape", color=TEXT, fontsize=10,
+    ax2.set_title("but the mix just shuffles", color=TEXT, fontsize=10,
                   loc="left", pad=8)
     for s in ax2.spines.values():
         s.set_color(HAIR)
@@ -336,7 +336,13 @@ def _plate(cells: list[tuple[str, Path]], title: str, out: Path,
         draw.rectangle(box, outline=HAIR, width=1)
 
     OUT.mkdir(exist_ok=True)
-    canvas.save(out)
+    # Screenshot plates are the only figures big enough to matter: truecolour
+    # they run past the 400 KB per-image budget the blog holds itself to. These
+    # are flat UI captures, so an adaptive 256-colour palette is visually free
+    # and cuts them by roughly two thirds. The charts are already tiny and are
+    # left alone.
+    canvas.quantize(colors=256, method=Image.MEDIANCUT,
+                    dither=Image.FLOYDSTEINBERG).save(out, optimize=True)
     return out
 
 

@@ -254,6 +254,11 @@ def summarise(probe: dict) -> dict:
         key=lambda e: -e["area"])
 
     radii = [e["radius"] for e in els if e["area"] > 400]
+    # The median radius is 0 on literally every page in this run, because only
+    # a minority of large elements are ever rounded. As a test for "zero
+    # border-radius" it therefore says nothing. The share that carry any
+    # rounding at all is the measure that actually separates pages.
+    rounded_share = (sum(1 for r in radii if r > 0) / len(radii)) if radii else 0.0
     borders = [e["borderWidth"] for e in els
                if e["borderWidth"] > 0 and e["area"] > 400]
 
@@ -268,6 +273,11 @@ def summarise(probe: dict) -> dict:
         "heading_stack": headings[0]["fontFamily"][:70] if headings else None,
         "body_font": classify_font(body[0]["fontFamily"]) if body else None,
         "median_radius": sorted(radii)[len(radii) // 2] if radii else 0.0,
+        "rounded_share": round(rounded_share, 3),
+        # "Dense columns" needs a density, not a count: a long page with many
+        # elements is not dense, it is long.
+        "elements_per_1000px": round(
+            len(els) / (probe["docHeight"] / 1000), 1) if probe["docHeight"] else 0.0,
         "max_radius": max(radii) if radii else 0.0,
         "hairline_borders": sum(1 for b in borders if b <= 1.5),
         "hue_bins": len(bins),
@@ -292,7 +302,19 @@ def attractor(s: dict) -> str:
         return "1-cream-serif-terracotta"
     if L < 0.30 and aC and aC > 0.12:
         return "2-near-black-bright-accent"
-    if s.get("median_radius", 0) == 0 and s.get("hairline_borders", 0) >= 3:
+    # "Zero border-radius" was originally tested with the median radius over
+    # large elements, which is 0 on all 239 pages because rounding is sparse
+    # rather than absent. That made this bucket fire on anything with a few
+    # hairlines, including pages that were 45% rounded, and turned it into a
+    # catch-all holding 65 pages. rounded_share is the measure that actually
+    # discriminates: its distribution has a clear break, with 113 pages under
+    # 0.05 and a long tail above it.
+    #
+    # The skill also calls for dense columns. elements_per_1000px is recorded
+    # and reported, but it is not a gate here: it excludes only three pages
+    # that the radius test does not already catch, so gating on it would add a
+    # threshold without adding discrimination.
+    if s.get("rounded_share", 0) < 0.05 and s.get("hairline_borders", 0) >= 6:
         return "3-broadsheet-hairline"
     return "other"
 
@@ -300,6 +322,9 @@ def attractor(s: dict) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--only", nargs="*", help="substring filter on page names")
+    ap.add_argument("--no-shots", action="store_true",
+                    help="skip screenshots; they are unchanged when only the "
+                         "measurement code moves")
     args = ap.parse_args()
 
     pages = sorted(PAGES.glob("*.html"))
@@ -321,7 +346,8 @@ def main() -> None:
             s["name"] = p.stem
             s["attractor"] = attractor(s)
             rows.append(s)
-            page.screenshot(path=str(SHOTS / f"{p.stem}.png"), full_page=True)
+            if not args.no_shots:
+                page.screenshot(path=str(SHOTS / f"{p.stem}.png"), full_page=True)
             print(f"  {p.stem:46} bg_L={s['bg_L']} "
                   f"head={s['heading_font']:5} eyebrows={s['eyebrows']:2} "
                   f"r={s['median_radius']:.0f}  {s['attractor']}", flush=True)
