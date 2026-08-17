@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge — Watch software get built, live</title>
+<meta name="description" content="Streamforge is a live platform where developers broadcast real builds with AI assistants. Watch every prompt, every completion, every diff — and fork any stream's repo.">
+<style>
+  :root{
+    --paper:#F5F1E8;
+    --paper-deep:#EFE9DC;
+    --card:#FFFFFF;
+    --ink:#171512;
+    --muted:#5B554A;
+    --line:#171512;
+    --accent:#E8481C;
+    --blue:#1D4ED8;
+    --amber:#FFC21A;
+    --green:#0F7B4D;
+    --purple:#7A3FD1;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--amber);color:var(--ink);}
+  a{color:inherit;text-decoration:none;}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+  .container{width:min(1160px,92%);margin-inline:auto;}
+  .mono{font-family:var(--mono);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border:2px solid var(--ink);background:var(--card);padding:7px 12px;font-weight:700;
+  }
+  .eyebrow::before{content:"";width:9px;height:9px;background:var(--accent);display:inline-block;}
+  .eyebrow.on-dark{background:transparent;color:var(--paper);border-color:var(--paper);}
+  .eyebrow.on-dark::before{background:var(--amber);}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+    padding:15px 24px;border:2px solid var(--ink);border-radius:2px;
+    background:var(--accent);color:#fff;box-shadow:4px 4px 0 var(--ink);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+  .btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink);}
+  .btn.ghost{background:var(--card);color:var(--ink);}
+  .btn.ink{background:var(--ink);color:#fff;box-shadow:4px 4px 0 rgba(23,21,18,.35);}
+  .btn.ink:hover{box-shadow:6px 6px 0 rgba(23,21,18,.35);}
+  .btn.ink:active{box-shadow:0 0 0 rgba(23,21,18,.35);}
+  .btn.small{padding:10px 16px;font-size:12px;}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;background:var(--paper);
+    border-bottom:2px solid var(--ink);
+  }
+  .nav-inner{display:flex;align-items:center;gap:34px;padding:14px 0;}
+  .logo{display:flex;align-items:center;gap:11px;font-weight:800;font-size:17px;letter-spacing:-.02em;}
+  .logo svg{display:block;}
+  .logo .blink{color:var(--accent);animation:blink 1.1s steps(2,end) infinite;}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .nav-links{display:flex;gap:26px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
+  .nav-links a{position:relative;padding:4px 0;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width .15s ease;}
+  .nav-links a:hover::after{width:100%;}
+  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:18px;}
+  .nav-cta .signin{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
+  .nav-cta .signin:hover{color:var(--accent);}
+
+  /* ---------- hero ---------- */
+  .hero{padding:70px 0 64px;}
+  .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center;}
+  .hero h1{
+    font-size:clamp(2.7rem,5vw,4.3rem);line-height:1.02;letter-spacing:-.035em;
+    font-weight:800;margin:22px 0 20px;
+  }
+  .hero h1 .hl{background:var(--amber);padding:0 .12em;box-shadow:3px 3px 0 var(--ink);display:inline-block;}
+  .hero p.lede{font-size:18px;color:var(--muted);max-width:34em;margin-bottom:30px;}
+  .hero p.lede b{color:var(--ink);}
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:38px;}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);background:var(--card);max-width:520px;}
+  .hero-stats div{padding:14px 16px;border-right:2px solid var(--ink);}
+  .hero-stats div:last-child{border-right:none;}
+  .hero-stats .n{font-family:var(--mono);font-weight:700;font-size:19px;display:block;}
+  .hero-stats .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+
+  /* ---------- live stream mock ---------- */
+  .stream{
+    background:var(--card);border:2px solid var(--ink);box-shadow:10px 10px 0 var(--ink);
+    display:flex;flex-direction:column;
+  }
+  .stream-top{
+    background:var(--ink);color:var(--paper);display:flex;align-items:center;gap:14px;
+    padding:10px 14px;font-family:var(--mono);font-size:12px;
+  }
+  .dots{display:flex;gap:6px;}
+  .dots span{width:10px;height:10px;display:block;}
+  .dots span:nth-child(1){background:var(--accent);}
+  .dots span:nth-child(2){background:var(--amber);}
+  .dots span:nth-child(3){background:var(--green);}
+  .stream-url{background:#28241E;padding:4px 10px;color:#CFC8B8;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .live-badge{
+    background:var(--accent);color:#fff;font-weight:700;letter-spacing:.14em;
+    padding:4px 9px;display:inline-flex;align-items:center;gap:7px;font-size:11px;
+  }
+  .live-badge i{width:8px;height:8px;background:#fff;display:block;animation:blink 1.1s steps(2,end) infinite;}
+  .stream-meta{display:flex;align-items:center;gap:13px;padding:12px 16px;border-bottom:2px solid var(--ink);}
+  .avatar{
+    width:42px;height:42px;background:var(--blue);color:#fff;border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px;flex-shrink:0;
+  }
+  .sname{font-weight:800;font-size:14.5px;letter-spacing:-.01em;}
+  .stitle{font-size:12.5px;color:var(--muted);}
+  .stream-stats{margin-left:auto;display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;}
+  .stream-stats b{color:var(--ink);}
+  .forkbtn{
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;cursor:pointer;
+    border:2px solid var(--ink);background:var(--card);color:var(--ink);padding:7px 11px;border-radius:2px;
+    box-shadow:3px 3px 0 var(--ink);transition:transform .12s ease,box-shadow .12s ease,background .12s ease;
+  }
+  .forkbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);}
+  .forkbtn.done{background:var(--green);color:#fff;}
+  .stream-body{display:grid;grid-template-columns:1fr 208px;min-height:280px;}
+  .editor{display:flex;flex-direction:column;min-width:0;}
+  .editor-head{
+    font-family:var(--mono);font-size:11.5px;padding:8px 14px;border-bottom:2px solid #E3DCCC;
+    color:var(--muted);display:flex;justify-content:space-between;gap:10px;
+  }
+  .editor-head .dirty{color:var(--accent);}
+  .code{
+    font-family:var(--mono);font-size:12.5px;line-height:1.5;padding:12px 14px;
+    flex:1;overflow:hidden;background:#FFFDF7;
+  }
+  .ln{display:block;white-space:pre;min-height:1.5em;}
+  .ln .no{color:#B4AC9A;margin-right:14px;user-select:none;}
+  .ln.st-row{background:#FFF4D1;}
+  .cur{display:inline-block;width:8px;height:15px;background:var(--ink);vertical-align:-2px;animation:blink .9s steps(2,end) infinite;}
+  .kw{color:var(--blue);font-weight:700;}
+  .ty{color:var(--green);}
+  .num{color:var(--purple);}
+  .st{color:#9A5B00;}
+  .cm{color:#9A927F;}
+  .ok{color:var(--green);font-weight:700;}
+  .chat{border-left:2px solid var(--ink);background:var(--paper-deep);display:flex;flex-direction:column;}
+  .chat-head{
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;
+    padding:9px 12px;border-bottom:2px solid var(--ink);color:var(--muted);
+  }
+  .chat ul{list-style:none;flex:1;overflow:hidden;}
+  .chat li{
+    font-size:12.5px;line-height:1.4;padding:8px 12px;border-bottom:1px dashed #D9D2C2;
+    animation:chatIn .25s ease both;
+  }
+  @keyframes chatIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+  .chat .u{font-family:var(--mono);font-weight:700;font-size:11.5px;}
+  .c1{color:var(--blue);} .c2{color:var(--green);} .c3{color:var(--accent);} .c4{color:var(--purple);} .c5{color:#9A5B00;}
+  .promptbar{
+    border-top:2px solid var(--ink);background:#FFFDF6;padding:12px 16px;
+    display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:13px;
+    transition:background .18s ease;
+  }
+  .promptbar.sent{background:var(--amber);}
+  .plabel{color:var(--accent);font-weight:700;font-size:11px;letter-spacing:.1em;flex-shrink:0;}
+  .caret{width:9px;height:17px;background:var(--ink);display:inline-block;animation:blink .9s steps(2,end) infinite;flex-shrink:0;}
+
+  /* ---------- marquee ---------- */
+  .marquee{background:var(--accent);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);overflow:hidden;}
+  .marquee-track{display:flex;width:max-content;animation:mq 30s linear infinite;}
+  .mq-group{display:flex;}
+  .mq-group span{
+    font-family:var(--mono);font-size:13.5px;font-weight:700;letter-spacing:.16em;
+    color:#fff;padding:15px 0;white-space:nowrap;
+  }
+  @keyframes mq{to{transform:translateX(-50%);}}
+
+  /* ---------- sections ---------- */
+  section{padding:88px 0;}
+  .sec-head{max-width:640px;margin-bottom:52px;}
+  .sec-head h2{font-size:clamp(2rem,3.6vw,2.9rem);font-weight:800;letter-spacing:-.03em;line-height:1.06;margin:20px 0 14px;}
+  .sec-head p{color:var(--muted);font-size:17px;}
+
+  /* ---------- how it works ---------- */
+  .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .step{
+    background:var(--card);border:2px solid var(--ink);padding:28px 26px;
+    transition:transform .15s ease,box-shadow .15s ease;position:relative;
+  }
+  .step:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--ink);}
+  .step .num{font-family:var(--mono);font-size:42px;font-weight:700;color:var(--accent);line-height:1;display:block;margin-bottom:16px;}
+  .step h3{font-size:19px;font-weight:800;letter-spacing:-.015em;margin-bottom:10px;}
+  .step p{font-size:14.5px;color:var(--muted);margin-bottom:18px;}
+  .step .tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-top:2px dashed #D9D2C2;padding-top:14px;display:block;}
+
+  /* ---------- features ---------- */
+  .features{background:var(--paper-deep);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .feat{
+    border:2px solid var(--ink);padding:28px 26px;display:flex;flex-direction:column;gap:15px;
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .feat:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink);}
+  .feat.white{background:var(--card);color:var(--ink);}
+  .feat.blue{background:var(--blue);color:#fff;}
+  .feat.amber{background:var(--amber);color:var(--ink);}
+  .icon-box{
+    width:48px;height:48px;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;
+  }
+  .feat h3{font-size:20px;font-weight:800;letter-spacing:-.015em;}
+  .feat p{font-size:14.5px;line-height:1.55;}
+  .feat.white p{color:var(--muted);}
+  .feat.blue p{color:#D8E0FB;}
+  .feat.amber p{color:#4A3A05;}
+  .feat .tag{
+    font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    margin-top:auto;padding-top:14px;opacity:.8;
+  }
+  .feat.white .tag{border-top:2px dashed #D9D2C2;}
+  .feat.blue .tag{border-top:2px dashed rgba(255,255,255,.4);}
+  .feat.amber .tag{border-top:2px dashed rgba(23,21,18,.35);}
+  .prompt-chip{
+    background:var(--paper-deep);border:2px dashed var(--ink);padding:11px 12px;
+    font-family:var(--mono);font-size:12.5px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .copybtn{
+    font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;cursor:pointer;
+    background:var(--ink);color:#fff;border:2px solid var(--ink);padding:5px 9px;border-radius:2px;flex-shrink:0;
+  }
+  .copybtn:hover{background:var(--accent);border-color:var(--accent);}
+  .fork-diagram{border:2px solid rgba(255,255,255,.45);padding:12px;display:flex;align-items:center;gap:14px;}
+  .fork-diagram figcaption{font-family:var(--mono);font-size:11px;color:#D8E0FB;line-height:1.5;}
+  .bubble{
+    background:var(--card);border:2px solid var(--ink);padding:7px 11px;
+    font-family:var(--mono);font-size:11.5px;box-shadow:3px 3px 0 var(--ink);
+  }
+  .bubble + .bubble{margin-top:9px;margin-left:22px;box-shadow:3px 3px 0 var(--accent);}
+  .bubble b{color:var(--blue);}
+
+  /* ---------- stats band ---------- */
+  .stats{background:var(--ink);color:var(--paper);padding:60px 0;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+  .stats-grid > div{padding:6px 26px;border-left:1px solid #3A352C;}
+  .stats-grid > div:first-child{border-left:none;padding-left:0;}
+  .stats .big{font-family:var(--mono);font-size:36px;font-weight:700;display:block;line-height:1.1;letter-spacing:-.02em;}
+  .stats .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#A9A291;display:block;margin-top:8px;}
+
+  /* ---------- cta ---------- */
+  .cta{background:var(--accent);color:#fff;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);text-align:center;}
+  .cta h2{font-size:clamp(2.2rem,4.4vw,3.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.04;margin:20px auto 16px;max-width:15em;}
+  .cta .sub{color:#FFD9CF;font-size:17px;max-width:36em;margin:0 auto 36px;}
+  .form-wrap{max-width:580px;margin:0 auto;}
+  .cta-form{display:flex;gap:14px;}
+  .cta-form input{
+    flex:1;min-width:0;font-family:var(--mono);font-size:14px;padding:15px 16px;
+    border:2px solid var(--ink);border-radius:2px;background:#fff;color:var(--ink);
+  }
+  .cta-form input::placeholder{color:#9A927F;}
+  .cta-form .btn{flex-shrink:0;}
+  .form-err{
+    font-family:var(--mono);font-size:12px;background:var(--ink);color:#fff;
+    display:inline-block;padding:5px 10px;margin-top:14px;
+  }
+  .form-err:empty{display:none;}
+  .micro{font-family:var(--mono);font-size:12px;color:#FFD9CF;margin-top:22px;letter-spacing:.06em;}
+  .success{
+    background:#fff;color:var(--ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+    font-family:var(--mono);font-size:14px;font-weight:700;padding:18px 22px;text-align:left;
+  }
+  .shake{animation:shake .3s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--ink);color:#CFC8B8;padding:60px 0 30px;}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;gap:36px;margin-bottom:48px;}
+  .foot-brand .logo{color:var(--paper);margin-bottom:16px;}
+  .foot-brand p{font-size:13.5px;max-width:24em;color:#A9A291;}
+  .foot-col h4{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#8F8877;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:14px;padding:5px 0;transition:color .12s ease;}
+  .foot-col a:hover{color:#fff;}
+  .foot-bottom{
+    border-top:1px solid #3A352C;padding-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:12px;color:#8F8877;
+  }
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  .reveal.d1{transition-delay:.08s;} .reveal.d2{transition-delay:.16s;} .reveal.d3{transition-delay:.24s;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1000px){
+    .hero-grid{grid-template-columns:1fr;gap:48px;}
+    .stream{max-width:640px;}
+  }
+  @media (max-width:920px){
+    .feat-grid{grid-template-columns:1fr;max-width:560px;}
+    .how-grid{grid-template-columns:1fr;max-width:560px;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+    .foot-brand{grid-column:1/-1;}
+  }
+  @media (max-width:780px){
+    .nav-links{display:none;}
+    .stats-grid{grid-template-columns:1fr 1fr;gap:30px 0;}
+    .stats-grid > div{padding-left:26px;}
+    .stats-grid > div:nth-child(odd){border-left:none;padding-left:0;}
+  }
+  @media (max-width:640px){
+    .stream-body{grid-template-columns:1fr;}
+    .chat{border-left:none;border-top:2px solid var(--ink);}
+    .chat ul{max-height:150px;}
+    .cta-form{flex-direction:column;}
+    .hero-stats{grid-template-columns:1fr;}
+    .hero-stats div{border-right:none;border-bottom:2px solid var(--ink);}
+    .hero-stats div:last-child{border-bottom:none;}
+    section{padding:64px 0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body id="top">
+
+<nav>
+  <div class="container nav-inner">
+    <a href="#top" class="logo" aria-label="Streamforge home">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+        <rect x="1" y="1" width="28" height="28" fill="#171512"/>
+        <path d="M8 10l6 5-6 5" stroke="#F5F1E8" stroke-width="2.5" fill="none"/>
+        <rect x="17" y="20" width="7" height="2.5" fill="#E8481C"/>
+      </svg>
+      STREAMFORGE<span class="blink">_</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#stream">Live now</a>
+    </div>
+    <div class="nav-cta">
+      <a class="signin" href="#cta">Sign in</a>
+      <a class="btn small" href="#cta">Start streaming</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">LIVE &nbsp;·&nbsp; 2,140 builders on air</span>
+        <h1>Watch software get built, <span class="hl">prompt by prompt.</span></h1>
+        <p class="lede">Streamforge is a live platform where developers broadcast real builds with AI assistants — <b>every prompt, every completion, every diff</b> — and every stream is a repository you can fork and finish yourself.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#cta">Get stream access</a>
+          <a class="btn ghost" href="#how">See how it works</a>
+        </div>
+        <div class="hero-stats">
+          <div><span class="n" id="heroViewers">38,204</span><span class="l">Watching now</span></div>
+          <div><span class="n">912K</span><span class="l">Prompts replayed</span></div>
+          <div><span class="n">76K</span><span class="l">Repos forked</span></div>
+        </div>
+      </div>
+
+      <!-- LIVE STREAM MOCK -->
+      <div class="stream" id="stream" aria-label="Example live stream">
+        <div class="stream-top">
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="stream-url">streamforge.tv/maya-builds/rate-limiter-day-3</div>
+          <span class="live-badge"><i></i>LIVE</span>
+        </div>
+        <div class="stream-meta">
+          <div class="avatar" aria-hidden="true">MB</div>
+          <div>
+            <div class="sname">maya-builds</div>
+            <div class="stitle">Shipping a rate limiter in Rust — day 3</div>
+          </div>
+          <div class="stream-stats">
+            <span><b id="viewers">1,284</b> watching</span>
+            <button class="forkbtn" id="forkBtn" type="button"><span class="fl">FORK</span>&nbsp;<span id="forkCount">212</span></button>
+          </div>
+        </div>
+        <div class="stream-body">
+          <div class="editor">
+            <div class="editor-head"><span>src/limiter.rs</span><span class="dirty">● modified · assistant: on</span></div>
+            <div class="code" id="code"></div>
+          </div>
+          <aside class="chat" aria-label="Live chat">
+            <div class="chat-head">CHAT</div>
+            <ul id="chatList"></ul>
+          </aside>
+        </div>
+        <div class="promptbar" id="promptBar">
+          <span class="plabel">PROMPT ▸</span>
+          <span id="promptText"></span>
+          <span class="caret" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="mq-group">
+        <span>&nbsp;RUST&nbsp;//&nbsp;LLM AGENTS&nbsp;//&nbsp;REACT&nbsp;//&nbsp;COMPILERS&nbsp;//&nbsp;TYPESCRIPT&nbsp;//&nbsp;KUBERNETES&nbsp;//&nbsp;EMBEDDINGS&nbsp;//&nbsp;TERMINAL UIs&nbsp;//&nbsp;WEBGPU&nbsp;//&nbsp;POSTGRES&nbsp;//&nbsp;GO&nbsp;//&nbsp;LIVE REFACTORS&nbsp;//</span>
+      </div>
+      <div class="mq-group">
+        <span>&nbsp;RUST&nbsp;//&nbsp;LLM AGENTS&nbsp;//&nbsp;REACT&nbsp;//&nbsp;COMPILERS&nbsp;//&nbsp;TYPESCRIPT&nbsp;//&nbsp;KUBERNETES&nbsp;//&nbsp;EMBEDDINGS&nbsp;//&nbsp;TERMINAL UIs&nbsp;//&nbsp;WEBGPU&nbsp;//&nbsp;POSTGRES&nbsp;//&nbsp;GO&nbsp;//&nbsp;LIVE REFACTORS&nbsp;//</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Three steps from your editor to an audience.</h2>
+        <p>No overlays, no editing bay, no highlight reels. You build exactly like you already do — we just open the door.</p>
+      </div>
+      <div class="how-grid">
+        <div class="step reveal">
+          <span class="num">01</span>
+          <h3>Go live with your assistant</h3>
+          <p>Install the bridge, point it at your editor and model. We capture your prompt stream, the completions, and your working diff — in perfect sync.</p>
+          <span class="tag">Setup: 4 minutes</span>
+        </div>
+        <div class="step reveal d1">
+          <span class="num">02</span>
+          <h3>Build in the open</h3>
+          <p>Viewers watch the reasoning unfold in real time. They can replay any step, copy any prompt, and queue suggestions you approve with one keystroke.</p>
+          <span class="tag">Zero edits. Ever.</span>
+        </div>
+        <div class="step reveal d2">
+          <span class="num">03</span>
+          <h3>Ship a forkable repo</h3>
+          <p>When you stop streaming, the repo lands with its full prompt history attached. Anyone can fork it and continue the build with the same context.</p>
+          <span class="tag">Git-native</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Why developers watch</span>
+        <h2>The code is the trailer. The prompts are the film.</h2>
+        <p>Tutorials show you the polished ending. Streamforge shows you the messy middle — where the actual skill lives.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat white reveal">
+          <div class="icon-box" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="16"/>
+              <path d="M3 8h18"/>
+              <path d="M7 12l3 2.5L7 17"/>
+              <path d="M12 16.5h5"/>
+            </svg>
+          </div>
+          <h3>Prompt Replay</h3>
+          <p>Every stream records each prompt alongside the exact code it produced. Scrub the timeline, diff any two moments, and lift the prompts that worked.</p>
+          <div class="prompt-chip">
+            <span id="promptChipText">add a token bucket with per-key refill</span>
+            <button class="copybtn" id="copyBtn" type="button">COPY</button>
+          </div>
+          <span class="tag">Prompt ↔ diff sync</span>
+        </div>
+        <div class="feat blue reveal d1">
+          <div class="icon-box" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="6" cy="5" r="2.2"/>
+              <circle cx="6" cy="19" r="2.2"/>
+              <circle cx="18" cy="12" r="2.2"/>
+              <path d="M6 7.2v9.6"/>
+              <path d="M8.2 12h7.6"/>
+            </svg>
+          </div>
+          <h3>One-Click Fork</h3>
+          <p>Don't just watch — take the wheel. Every live session is a real git repo. Fork mid-stream, keep the full history and assistant context, and race the streamer to the finish.</p>
+          <figure class="fork-diagram">
+            <svg width="70" height="46" viewBox="0 0 70 46" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true">
+              <circle cx="8" cy="23" r="4" fill="#FFFFFF"/>
+              <circle cx="38" cy="10" r="4"/>
+              <circle cx="62" cy="10" r="4" fill="#FFFFFF"/>
+              <circle cx="38" cy="36" r="4" fill="#FFFFFF"/>
+              <path d="M12 23h18c6 0 6-13 4-13"/>
+              <path d="M42 10h16"/>
+              <path d="M12 23h18c6 0 6 13 4 13"/>
+            </svg>
+            <figcaption>main → your-fork<br>12s median fork-to-first-run</figcaption>
+          </figure>
+          <span class="tag">Full history · MIT default</span>
+        </div>
+        <div class="feat amber reveal d2">
+          <div class="icon-box" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16v11H9l-5 4.5z"/>
+              <path d="M8 8.5h8M8 11.5h5"/>
+            </svg>
+          </div>
+          <h3>The Room Builds With You</h3>
+          <p>Chat that can type. Viewers propose prompts into a moderated queue; you accept the good ones with a single keystroke and the session log credits the author.</p>
+          <div>
+            <div class="bubble"><b>june.h</b> what happens on clock skew?</div>
+            <div class="bubble"><b>maya</b> great prompt — sending it ▸</div>
+          </div>
+          <span class="tag">Moderated queue</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats reveal">
+    <div class="container stats-grid">
+      <div><span class="big" data-target="12400">0</span><span class="lbl">Builders streaming weekly</span></div>
+      <div><span class="big" data-target="3.2" data-decimals="1" data-suffix="M">0</span><span class="lbl">Prompts replayed</span></div>
+      <div><span class="big" data-target="89400">0</span><span class="lbl">Repos forked from live</span></div>
+      <div><span class="big" data-target="41">0</span><span class="lbl">Countries on air</span></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta" id="cta">
+    <div class="container">
+      <span class="eyebrow on-dark reveal">Join the beta</span>
+      <h2 class="reveal d1">Your next build deserves an audience.</h2>
+      <p class="sub reveal d2">Claim your handle and get a stream key. Cohorts open weekly, and setup takes four minutes — the first stream can be the side project sitting in your tabs right now.</p>
+      <div class="form-wrap reveal d3" id="formWrap">
+        <form class="cta-form" id="ctaForm" novalidate>
+          <input type="email" id="email" placeholder="you@company.dev" aria-label="Email address" autocomplete="email">
+          <button class="btn ink" type="submit">Get access</button>
+        </form>
+        <div class="form-err" id="formErr" role="alert"></div>
+      </div>
+      <p class="micro reveal d3">NO CARD REQUIRED · FREE WHILE IN BETA · CANCEL BY CLOSING THE TAB</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#top" class="logo">
+          <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+            <rect x="1" y="1" width="28" height="28" fill="#F5F1E8"/>
+            <path d="M8 10l6 5-6 5" stroke="#171512" stroke-width="2.5" fill="none"/>
+            <rect x="17" y="20" width="7" height="2.5" fill="#E8481C"/>
+          </svg>
+          STREAMFORGE<span class="blink">_</span>
+        </a>
+        <p>The live-streaming platform for people who ship. Built live on Streamforge, obviously.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <a href="#features">Prompt Replay</a>
+        <a href="#features">One-Click Fork</a>
+        <a href="#stream">Live now</a>
+        <a href="#cta">Pricing</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#top">About</a>
+        <a href="#top">Blog</a>
+        <a href="#top">Careers</a>
+        <a href="#top">Press kit</a>
+      </div>
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <a href="#top">Docs</a>
+        <a href="#top">Stream bridge API</a>
+        <a href="#top">Community</a>
+        <a href="#top">Status</a>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <a href="#top">Privacy</a>
+        <a href="#top">Terms</a>
+        <a href="#top">Content policy</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2025 STREAMFORGE SYSTEMS, INC.</span>
+      <span>EVERY PIXEL ON THIS PAGE WAS SHOWN BEING WRITTEN, SOMEWHERE.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  /* ---------- live viewer count ---------- */
+  var viewersEl = document.getElementById("viewers");
+  var viewers = 1284;
+  if(!reduced){
+    setInterval(function(){
+      viewers = Math.max(940, viewers + Math.floor(Math.random()*23) - 9);
+      viewersEl.textContent = viewers.toLocaleString("en-US");
+    }, 3000);
+  }
+
+  /* ---------- chat ticker ---------- */
+  var chatData = [
+    ["nova_dev","that refill calc is slick"],
+    ["kern.panic","forked — trying this with a redis backend"],
+    ["june.h","what happens on clock skew?"],
+    ["0xlee","prompt replay on this stream is gold"],
+    ["sable","run the burst test again"],
+    ["mips","token bucket > leaky bucket, fight me"],
+    ["tess.codes","the assistant carried that impl ngl"],
+    ["rui_","shipping this to prod today?"],
+    ["ghostwind","retry-after header is a nice touch"],
+    ["mono","day 3 and it's already cleaner than ours"],
+    ["vega_rs","stealing this prompt for my gateway"],
+    ["danimal","chat carried this feature fr"]
+  ];
+  var chatList = document.getElementById("chatList");
+  var ci = 0;
+  function pushChat(){
+    var item = chatData[ci % chatData.length];
+    ci++;
+    var li = document.createElement("li");
+    var b = document.createElement("b");
+    b.className = "u c" + ((ci % 5) + 1);
+    b.textContent = item[0];
+    li.appendChild(b);
+    li.appendChild(document.createTextNode(" " + item[1]));
+    chatList.appendChild(li);
+    while(chatList.children.length > 6){ chatList.removeChild(chatList.firstChild); }
+  }
+  for(var s=0; s<5; s++){ pushChat(); }
+  if(!reduced){ setInterval(pushChat, 2600); }
+
+  /* ---------- fork button ---------- */
+  var forkBtn = document.getElementById("forkBtn");
+  var forkCount = document.getElementById("forkCount");
+  var forks = 212, forkBusy = false;
+  forkBtn.addEventListener("click", function(){
+    if(forkBusy){ return; }
+    forkBusy = true;
+    forks++;
+    forkCount.textContent = forks;
+    forkBtn.classList.add("done");
+    forkBtn.querySelector(".fl").textContent = "FORKED ✓";
+    setTimeout(function(){
+      forkBtn.classList.remove("done");
+      forkBtn.querySelector(".fl").textContent = "FORK";
+      forkBusy = false;
+    }, 1600);
+  });
+
+  /* ---------- code typing engine ---------- */
+  var codeEl = document.getElementById("code");
+  var promptBar = document.getElementById("promptBar");
+  var promptText = document.getElementById("promptText");
+  var CAP = 12;
+  var lnNo = 1;
+
+  function esc(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  function highlight(s){
+    var e = esc(s);
+    if(/^\s*\/\//.test(s)){ return '<span class="cm">' + e + '</span>'; }
+    return e
+      .replace(/("[^"]*")/g,'<span class="st">$1</span>')
+      .replace(/\b(pub|struct|impl|fn|let|mut|if|else|return|match|for|use|trait|async|await|const|mod|move|ref)\b/g,'<span class="kw">$1</span>')
+      .replace(/\b(u8|u32|u64|i32|i64|f64|bool|usize|String|Vec|Instant|Duration|Result|Ok|Err|Some|None|Request|Response|Next|State|Cell|TokenBucket|Clock|TestClock|Box|Self)\b/g,'<span class="ty">$1</span>')
+      .replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="num">$1</span>');
+  }
+  function makeRow(){
+    var row = document.createElement("div");
+    row.className = "ln";
+    var no = document.createElement("span");
+    no.className = "no";
+    no.textContent = String(lnNo++).padStart(2,"0");
+    var bd = document.createElement("span");
+    bd.className = "bd";
+    row.appendChild(no);
+    row.appendChild(bd);
+    codeEl.appendChild(row);
+    while(codeEl.children.length > CAP){ codeEl.removeChild(codeEl.firstChild); }
+    return bd;
+  }
+  function staticLine(text){
+    var bd = makeRow();
+    bd.innerHTML = highlight(text);
+  }
+  function statusLine(text){
+    var bd = makeRow();
+    bd.parentNode.classList.add("st-row");
+    bd.innerHTML = '<span class="ok">// ' + esc(text) + '</span>';
+  }
+  async function typeLine(text){
+    var bd = makeRow();
+    var cur = document.createElement("span");
+    cur.className = "cur";
+    bd.parentNode.appendChild(cur);
+    var typed = "";
+    for(var i=0; i<text.length; i++){
+      typed += text[i];
+      bd.textContent = typed;
+      await sleep(6 + Math.random()*14);
+    }
+    bd.innerHTML = highlight(text);
+    cur.remove();
+  }
+  async function typePrompt(text){
+    promptText.textContent = "";
+    promptBar.classList.add("active");
+    for(var i=0; i<text.length; i++){
+      promptText.textContent += text[i];
+      await sleep(22 + Math.random()*28);
+    }
+    await sleep(450);
+    promptBar.classList.add("sent");
+    await sleep(420);
+    promptBar.classList.remove("sent");
+  }
+
+  var script = [
+    {
+      p: "add a token bucket with per-key refill",
+      lines: [
+        "use std::cell::Cell;",
+        "use std::time::Instant;",
+        "",
+        "pub struct TokenBucket {",
+        "    tokens: Cell<f64>,",
+        "    refill_per_sec: f64,",
+        "    last: Cell<Instant>,",
+        "}"
+      ],
+      s: "✓ compiles clean · 0 warnings"
+    },
+    {
+      p: "implement check() — return retry-after on a miss",
+      lines: [
+        "impl TokenBucket {",
+        "    pub fn check(&self) -> Result<(), Duration> {",
+        "        self.refill();",
+        "        if self.tokens.get() >= 1.0 {",
+        "            self.tokens.set(self.tokens.get() - 1.0);",
+        "            return Ok(());",
+        "        }",
+        "        Err(self.retry_after())",
+        "    }",
+        "}"
+      ],
+      s: "✓ 14/14 tests green in 0.42s"
+    },
+    {
+      p: "extract a clock trait so tests can freeze time",
+      lines: [
+        "pub trait Clock {",
+        "    fn now(&self) -> Instant;",
+        "}",
+        "",
+        "pub struct TestClock(pub Cell<Instant>);"
+      ],
+      s: "✓ no more sleeps in tests"
+    },
+    {
+      p: "wire the bucket into the axum middleware",
+      lines: [
+        "pub async fn limit(",
+        "    State(b): State<TokenBucket>,",
+        "    req: Request,",
+        "    next: Next,",
+        ") -> Response {",
+        "    match b.check() {",
+        "        Ok(()) => next.run(req).await,",
+        "        Err(d) => too_many(d),",
+        "    }",
+        "}"
+      ],
+      s: "✓ shipped · 1,300 people watched it happen"
+    }
+  ];
+
+  if(reduced){
+    script.forEach(function(seg){
+      seg.lines.forEach(staticLine);
+      statusLine(seg.s);
+    });
+    promptText.textContent = script[0].p;
+  } else {
+    (async function run(){
+      await sleep(900);
+      while(true){
+        for(var k=0; k<script.length; k++){
+          var seg = script[k];
+          await typePrompt(seg.p);
+          await sleep(320);
+          for(var j=0; j<seg.lines.length; j++){
+            await typeLine(seg.lines[j]);
+            await sleep(90);
+          }
+          statusLine(seg.s);
+          await sleep(1900);
+          promptText.textContent = "";
+          await sleep(500);
+        }
+      }
+    })();
+  }
+
+  /* ---------- copy prompt chip ---------- */
+  var copyBtn = document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", function(){
+    var txt = document.getElementById("promptChipText").textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).catch(function(){});
+    }
+    copyBtn.textContent = "COPIED ✓";
+    setTimeout(function(){ copyBtn.textContent = "COPY"; }, 1500);
+  });
+
+  /* ---------- scroll reveal + count-up ---------- */
+  function countUp(el){
+    if(el.dataset.done){ return; }
+    el.dataset.done = "1";
+    var target = parseFloat(el.dataset.target);
+    var dec = parseInt(el.dataset.decimals || "0", 10);
+    var suffix = el.dataset.suffix || "";
+    if(reduced){
+      el.textContent = dec ? target.toFixed(dec) + suffix : Math.round(target).toLocaleString("en-US") + suffix;
+      return;
+    }
+    var dur = 1400, t0 = performance.now();
+    function tick(now){
+      var p = Math.min(1, (now - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      var v = target * e;
+      el.textContent = dec ? v.toFixed(dec) + suffix : Math.round(v).toLocaleString("en-US") + suffix;
+      if(p < 1){ requestAnimationFrame(tick); }
+    }
+    requestAnimationFrame(tick);
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add("in");
+        entry.target.querySelectorAll("[data-target]").forEach(countUp);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+
+  /* ---------- cta form ---------- */
+  var form = document.getElementById("ctaForm");
+  var err = document.getElementById("formErr");
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var email = document.getElementById("email").value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      form.classList.remove("shake");
+      void form.offsetWidth;
+      form.classList.add("shake");
+      err.textContent = "That email doesn\u2019t parse. Try again.";
+      return;
+    }
+    err.textContent = "";
+    var wrap = document.getElementById("formWrap");
+    wrap.innerHTML = '<div class="success">✓ You\u2019re on the list — your stream key ships when the next cohort opens. Handle reserved for 7 days.</div>';
+  });
+})();
+</script>
+</body>
+</html>

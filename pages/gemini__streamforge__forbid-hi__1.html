@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge | Live AI-Assisted Software Development</title>
+<style>
+  :root {
+    --bg-base: #F0F2EB;
+    --surface: #FFFFFF;
+    --text-main: #0B0B0B;
+    --brand-blue: #0055FF;
+    --brand-red: #E62211;
+    --brand-green: #009944;
+    --brand-yellow: #FFCC00;
+    --brand-orange: #FF5500;
+    
+    --border-thick: 3px solid #0B0B0B;
+    --border-thin: 1.5px solid #0B0B0B;
+    
+    --shadow-offset: 6px 6px 0px #0B0B0B;
+    --shadow-offset-sm: 3px 3px 0px #0B0B0B;
+
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Monaco", "Consolas", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    text-align: center;
+    border: var(--border-thick);
+    background-color: var(--surface);
+    color: var(--text-main);
+    box-shadow: var(--shadow-offset);
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    border-radius: 0;
+  }
+
+  .btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 4px 4px 0px #0B0B0B;
+  }
+
+  .btn:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0px 0px 0px #0B0B0B;
+  }
+
+  .btn-primary {
+    background-color: var(--brand-blue);
+    color: #FFFFFF;
+  }
+
+  .btn-accent {
+    background-color: var(--brand-red);
+    color: #FFFFFF;
+  }
+
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    border-bottom: var(--border-thick);
+    background-color: var(--surface);
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    background-color: var(--brand-yellow);
+    padding: 4px 12px;
+    border: var(--border-thick);
+    box-shadow: var(--shadow-offset-sm);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+  }
+
+  .nav-links a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+  }
+
+  /* Layout Containers */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 5%;
+  }
+
+  /* Hero Section */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    padding: 100px 5%;
+    border-bottom: var(--border-thick);
+    background-color: var(--brand-yellow);
+  }
+
+  .hero-content h1 {
+    font-size: clamp(3rem, 5vw, 5rem);
+    margin-bottom: 24px;
+  }
+
+  .hero-content p {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 40px;
+    max-width: 90%;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 20px;
+  }
+
+  /* Hero UI Mockup */
+  .ui-mockup {
+    background: var(--surface);
+    border: var(--border-thick);
+    box-shadow: 12px 12px 0px #0B0B0B;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ui-header {
+    border-bottom: var(--border-thick);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    background: var(--surface);
+  }
+
+  .ui-status {
+    color: var(--brand-red);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ui-status::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    background: var(--brand-red);
+    border: var(--border-thin);
+  }
+
+  .ui-body {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    height: 350px;
+  }
+
+  .ui-video {
+    border-right: var(--border-thick);
+    background: #E8E8E8;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .ui-video::after {
+    content: '▶ STREAM FEED';
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #888;
+    font-size: 1.5rem;
+  }
+
+  .ui-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ui-prompts {
+    flex: 1;
+    padding: 12px;
+    border-bottom: var(--border-thick);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    overflow: hidden;
+    background: var(--bg-base);
+  }
+
+  .prompt-bubble {
+    background: var(--surface);
+    border: var(--border-thin);
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ai-bubble {
+    background: #D4E4FF;
+    border: var(--border-thin);
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ui-code {
+    flex: 1;
+    background: var(--surface);
+    padding: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    overflow: hidden;
+  }
+
+  .syn-keyword { color: var(--brand-blue); font-weight: bold; }
+  .syn-string { color: var(--brand-green); }
+  .syn-function { color: var(--brand-orange); }
+
+  /* How It Works */
+  .how-it-works-section {
+    background: var(--surface);
+    border-bottom: var(--border-thick);
+  }
+
+  .section-title {
+    font-size: 3rem;
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+
+  .step-card {
+    border: var(--border-thick);
+    padding: 32px;
+    background: var(--bg-base);
+    box-shadow: var(--shadow-offset);
+  }
+
+  .step-number {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--brand-blue);
+    color: var(--surface);
+    padding: 8px 16px;
+    border: var(--border-thick);
+    margin-bottom: 24px;
+  }
+
+  .step-title {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+  /* Features Section */
+  .features-section {
+    background: var(--bg-base);
+    border-bottom: var(--border-thick);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
+  .feature-block {
+    border: var(--border-thick);
+    padding: 40px 30px;
+    box-shadow: var(--shadow-offset);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feature-block.f1 { background-color: #D4E4FF; }
+  .feature-block.f2 { background-color: #FFE6D4; }
+  .feature-block.f3 { background-color: #D4FFDF; }
+
+  .feature-icon {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+  }
+
+  .feature-title {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .feature-desc {
+    font-weight: 500;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background-color: var(--brand-blue);
+    color: var(--surface);
+    padding: 100px 5%;
+    text-align: center;
+    border-bottom: var(--border-thick);
+  }
+
+  .cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--brand-blue);
+    border: var(--border-thick);
+    padding: 60px 40px;
+    box-shadow: 12px 12px 0px #0B0B0B;
+  }
+
+  .cta-content h2 {
+    font-size: 3rem;
+    margin-bottom: 24px;
+    color: var(--surface);
+  }
+
+  .cta-content p {
+    font-size: 1.25rem;
+    margin-bottom: 40px;
+    font-weight: 500;
+  }
+
+  .cta-form {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .cta-input {
+    padding: 16px;
+    font-size: 1.1rem;
+    font-family: var(--font-mono);
+    border: var(--border-thick);
+    width: 350px;
+    max-width: 100%;
+    border-radius: 0;
+    outline: none;
+  }
+  
+  .cta-input:focus {
+    background-color: #F8F9FA;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--surface);
+    padding: 40px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .hero {
+      grid-template-columns: 1fr;
+      padding: 60px 5%;
+    }
+    .hero-content {
+      text-align: center;
+    }
+    .hero-content p {
+      margin: 0 auto 40px auto;
+    }
+    .hero-buttons {
+      justify-content: center;
+    }
+    .steps-grid, .features-grid {
+      grid-template-columns: 1fr;
+    }
+    .ui-body {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+    .ui-video {
+      height: 250px;
+      border-right: none;
+      border-bottom: var(--border-thick);
+    }
+    .cta-form {
+      flex-direction: column;
+      align-items: center;
+    }
+    .cta-input {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    nav {
+      flex-direction: column;
+      gap: 20px;
+    }
+    .hero-content h1 {
+      font-size: 2.5rem;
+    }
+    .hero-buttons {
+      flex-direction: column;
+    }
+    .cta-content {
+      padding: 30px 20px;
+    }
+    .cta-content h2 {
+      font-size: 2rem;
+    }
+    footer {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="logo">STREAMFORGE_</a>
+    <div class="nav-links">
+      <a href="#streams">Watch Streams</a>
+      <a href="#repos">Repositories</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#login" class="btn">Sign In</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Watch Code Evolve, Real-Time With AI.</h1>
+      <p>The first live-streaming platform dedicated to AI-assisted software development. Watch engineers prompt, iterate, and build—then fork their repository with a single click.</p>
+      <div class="hero-buttons">
+        <a href="#explore" class="btn btn-primary">Start Watching</a>
+        <a href="#broadcast" class="btn">Broadcast Your IDE</a>
+      </div>
+    </div>
+    
+    <div class="ui-mockup">
+      <div class="ui-header">
+        <span>streamforge.tv/johndev</span>
+        <span class="ui-status">LIVE</span>
+      </div>
+      <div class="ui-body">
+        <div class="ui-video"></div>
+        <div class="ui-sidebar">
+          <div class="ui-prompts">
+            <div class="prompt-bubble">&gt; Refactor the authentication middleware to use JWT.</div>
+            <div class="ai-bubble">[AI Assistant] Generating updated middleware...</div>
+            <div class="prompt-bubble">&gt; Actually, throw an error if the token is expired.</div>
+          </div>
+          <div class="ui-code">
+<span class="syn-keyword">export const</span> <span class="syn-function">verifyToken</span> = (req, res, next) =&gt; {
+  <span class="syn-keyword">const</span> token = req.headers.<span class="syn-function">get</span>(<span class="syn-string">'Authorization'</span>);
+  <span class="syn-keyword">if</span> (!token) {
+    <span class="syn-keyword">throw new</span> <span class="syn-function">Error</span>(<span class="syn-string">'No token provided'</span>);
+  }
+  <span class="syn-keyword">return</span> <span class="syn-function">jwtVerify</span>(token);
+};
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="how-it-works" class="how-it-works-section container">
+    <h2 class="section-title">The Engineering Loop, Unedited</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-number">01</span>
+        <h3 class="step-title">Watch The Process</h3>
+        <p>Stop reading polished tutorials. Watch senior developers navigate complex architectures, make mistakes, and collaborate with AI models live on stream.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">02</span>
+        <h3 class="step-title">Inspect The Output</h3>
+        <p>Our custom streaming interface syncs the broadcaster's video feed with a live view of their AI prompt history and current active file in the IDE.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">03</span>
+        <h3 class="step-title">Fork The State</h3>
+        <p>See a feature you like? Click the fork button at any timestamp to instantly clone the exact state of the repository at that exact moment in the stream.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features-section container">
+    <h2 class="section-title">Built For The Modern Dev Workflow</h2>
+    <div class="features-grid">
+      <div class="feature-block f1">
+        <div class="feature-icon">[!]</div>
+        <h3 class="feature-title">Prompt-Level Transparency</h3>
+        <p class="feature-desc">Learn how to effectively prompt. We capture the entire context window, showing you exactly what constraints and system instructions the broadcaster used to generate working code.</p>
+      </div>
+      <div class="feature-block f2">
+        <div class="feature-icon">{ }</div>
+        <h3 class="feature-title">Real-Time Repository Sync</h3>
+        <p class="feature-desc">Streamforge integrates directly with Git. As the developer saves files and runs tests, the codebase viewer below the stream updates automatically without refreshing.</p>
+      </div>
+      <div class="feature-block f3">
+        <div class="feature-icon">&gt;_</div>
+        <h3 class="feature-title">Interactive Technical Chat</h3>
+        <p class="feature-desc">Discuss architecture, suggest better prompts, and learn together. The integrated chat supports markdown, inline code blocks, and syntax highlighting by default.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Ready To Build In Public?</h2>
+      <p>Join the next generation of software engineers learning, building, and streaming together. Claim your username before we launch.</p>
+      <form class="cta-form" onsubmit="event.preventDefault();">
+        <input type="email" class="cta-input" placeholder="Enter your email address" required>
+        <button type="submit" class="btn btn-accent">Request Early Access</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">STREAMFORGE_ &copy; 2024</div>
+    <div class="footer-links">
+      <a href="#terms">Terms of Service</a> | 
+      <a href="#privacy">Privacy Policy</a> | 
+      <a href="#github">GitHub Integration</a>
+    </div>
+  </footer>
+
+</body>
+</html>

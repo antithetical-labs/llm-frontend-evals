@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Backlot keeps creator contracts, invoices, sponsor deadlines, and platform payouts organized in one place.">
+  <title>Backlot — The business side of creating, organized</title>
+  <style>
+    :root {
+      --ink: #17211e;
+      --muted: #62706b;
+      --paper: #f7f2e9;
+      --white: #fffdf9;
+      --line: #dcd6cb;
+      --orange: #ef7054;
+      --orange-dark: #c84f38;
+      --teal: #2d7d73;
+      --teal-soft: #dcece7;
+      --blue: #4c68c5;
+      --blue-soft: #e3e8f8;
+      --yellow: #f0c85b;
+      --yellow-soft: #fbefc4;
+      --rose-soft: #f8ddd5;
+      --shadow: 0 18px 45px rgba(41, 51, 47, 0.12);
+      --small-shadow: 0 8px 22px rgba(41, 51, 47, 0.09);
+      --max-width: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img,
+    svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 14px;
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 6px;
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--max-width));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 21px;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .logo-mark {
+      position: relative;
+      width: 34px;
+      height: 30px;
+      flex: 0 0 auto;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: var(--yellow);
+    }
+
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: -2px;
+      width: 34px;
+      height: 8px;
+      border: 2px solid var(--ink);
+      border-radius: 4px 4px 2px 2px;
+      background: var(--teal);
+      transform: rotate(-7deg);
+      transform-origin: left bottom;
+    }
+
+    .logo-mark::after {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 7px;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 9px solid var(--ink);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      color: #47524e;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav-links a {
+      transition: color 160ms ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--orange-dark);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .text-link {
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 19px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--orange);
+      color: var(--ink);
+      font-weight: 850;
+      letter-spacing: -0.01em;
+      box-shadow: 4px 4px 0 var(--ink);
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .button:hover {
+      background: #f37d62;
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .button:active {
+      transform: translate(4px, 4px);
+      box-shadow: none;
+    }
+
+    .button-small {
+      min-height: 42px;
+      padding: 9px 15px;
+      font-size: 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .button-light {
+      background: var(--white);
+    }
+
+    .button-light:hover {
+      background: var(--yellow-soft);
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 88px 0 80px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 60px;
+      left: -54px;
+      width: 130px;
+      height: 130px;
+      border: 2px solid var(--ink);
+      background: var(--yellow);
+      transform: rotate(13deg);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -45px;
+      bottom: 70px;
+      width: 105px;
+      height: 105px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--teal-soft);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      align-items: center;
+      gap: 72px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 20px;
+      padding: 7px 10px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--yellow-soft);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--orange);
+      border: 1px solid var(--ink);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 690px;
+      margin-bottom: 24px;
+      font-size: clamp(47px, 6vw, 76px);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+    }
+
+    .hero-copy {
+      max-width: 600px;
+      margin-bottom: 31px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 17px;
+    }
+
+    .hero-note {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .hero-note strong {
+      color: var(--ink);
+    }
+
+    .dashboard-wrap {
+      position: relative;
+      min-width: 0;
+    }
+
+    .tape {
+      position: absolute;
+      top: -16px;
+      right: 55px;
+      z-index: 3;
+      width: 92px;
+      height: 31px;
+      background: var(--yellow);
+      border: 1px solid rgba(23, 33, 30, 0.35);
+      transform: rotate(7deg);
+    }
+
+    .dashboard {
+      overflow: hidden;
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      background: var(--white);
+      box-shadow: 12px 12px 0 var(--teal), var(--shadow);
+      transform: rotate(1deg);
+    }
+
+    .dashboard-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+      padding: 14px 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dots span {
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+    }
+
+    .window-dots span:nth-child(1) {
+      background: var(--orange);
+    }
+
+    .window-dots span:nth-child(2) {
+      background: var(--yellow);
+    }
+
+    .window-dots span:nth-child(3) {
+      background: var(--teal);
+    }
+
+    .dashboard-title {
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .avatar {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: var(--rose-soft);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .dashboard-body {
+      display: grid;
+      grid-template-columns: 105px 1fr;
+      min-height: 465px;
+    }
+
+    .dashboard-sidebar {
+      padding: 20px 12px;
+      border-right: 1px solid var(--line);
+      background: #f1ece3;
+    }
+
+    .side-label {
+      margin-bottom: 15px;
+      color: #8a938f;
+      font-size: 9px;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .side-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+      padding: 8px 7px;
+      border-radius: 5px;
+      color: #68736f;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .side-item.active {
+      border: 1px solid var(--ink);
+      background: var(--yellow-soft);
+      color: var(--ink);
+    }
+
+    .side-icon {
+      width: 10px;
+      height: 10px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+    }
+
+    .dashboard-main {
+      padding: 23px 20px 20px;
+    }
+
+    .mini-heading-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .mini-kicker {
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+
+    .mini-heading {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.04em;
+    }
+
+    .date-box {
+      padding: 5px 7px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--muted);
+      background: var(--paper);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .metric-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--white);
+    }
+
+    .metric-card:nth-child(1) {
+      border-top: 4px solid var(--orange);
+    }
+
+    .metric-card:nth-child(2) {
+      border-top: 4px solid var(--teal);
+    }
+
+    .metric-card:nth-child(3) {
+      border-top: 4px solid var(--blue);
+    }
+
+    .metric-label {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 750;
+    }
+
+    .metric-value {
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .dashboard-section {
+      margin-top: 13px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+
+    .dashboard-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 0;
+      border-top: 1px solid #ece7dd;
+    }
+
+    .task-row:first-of-type {
+      border-top: 0;
+    }
+
+    .task-brand {
+      display: grid;
+      width: 18px;
+      height: 18px;
+      place-items: center;
+      border-radius: 4px;
+      color: var(--white);
+      font-size: 7px;
+      font-weight: 850;
+    }
+
+    .task-row:nth-child(2) .task-brand {
+      background: var(--blue);
+    }
+
+    .task-row:nth-child(3) .task-brand {
+      background: var(--orange);
+    }
+
+    .task-row:nth-child(4) .task-brand {
+      background: var(--teal);
+    }
+
+    .task-name {
+      overflow: hidden;
+      margin-bottom: 1px;
+      font-size: 9px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-detail {
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .status {
+      padding: 3px 5px;
+      border-radius: 3px;
+      background: var(--yellow-soft);
+      font-size: 7px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status.green {
+      background: var(--teal-soft);
+    }
+
+    .status.rose {
+      background: var(--rose-soft);
+    }
+
+    .trust-strip {
+      border-block: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .trust-inner {
+      display: grid;
+      grid-template-columns: 1.15fr repeat(4, 1fr);
+      align-items: center;
+      min-height: 110px;
+    }
+
+    .trust-copy {
+      padding-right: 32px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .platform {
+      padding: 14px 22px;
+      border-left: 1px solid var(--line);
+      color: #59645f;
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .section {
+      padding: 110px 0;
+    }
+
+    .section-heading {
+      max-width: 700px;
+      margin: 0 auto 58px;
+      text-align: center;
+    }
+
+    .section-label {
+      margin-bottom: 13px;
+      color: var(--orange-dark);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .section-heading h2,
+    .feature-copy h2,
+    .cta-copy h2 {
+      margin-bottom: 19px;
+      font-size: clamp(36px, 4.6vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.055em;
+    }
+
+    .section-heading p,
+    .feature-copy > p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.65;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 285px;
+      padding: 28px;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .step:nth-child(2) {
+      background: var(--teal-soft);
+    }
+
+    .step:nth-child(3) {
+      background: var(--yellow-soft);
+    }
+
+    .step-number {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 42px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 7px;
+      background: var(--orange);
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .step:nth-child(2) .step-number {
+      background: var(--white);
+    }
+
+    .step:nth-child(3) .step-number {
+      background: var(--blue-soft);
+    }
+
+    .step h3 {
+      margin-bottom: 10px;
+      font-size: 23px;
+      letter-spacing: -0.035em;
+    }
+
+    .step p {
+      margin-bottom: 0;
+      color: #596661;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .features {
+      border-top: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .features-intro {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      margin-bottom: 70px;
+    }
+
+    .features-intro h2 {
+      max-width: 720px;
+      margin-bottom: 0;
+      font-size: clamp(39px, 5vw, 64px);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .features-intro p {
+      max-width: 390px;
+      align-self: end;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .feature-stack {
+      display: grid;
+      gap: 92px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      align-items: center;
+      gap: 80px;
+    }
+
+    .feature:nth-child(even) {
+      grid-template-columns: 1.12fr 0.88fr;
+    }
+
+    .feature:nth-child(even) .feature-copy {
+      order: 2;
+    }
+
+    .feature-number {
+      margin-bottom: 16px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .feature-copy h2 {
+      font-size: clamp(34px, 4vw, 52px);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 13px;
+      margin: 26px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .check {
+      display: grid;
+      width: 21px;
+      height: 21px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: var(--yellow);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .feature-visual {
+      position: relative;
+      min-height: 470px;
+      overflow: hidden;
+      border: 2px solid var(--ink);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+
+    .feature-visual.deals {
+      background: var(--blue-soft);
+    }
+
+    .feature-visual.invoices {
+      background: var(--rose-soft);
+    }
+
+    .feature-visual.payouts {
+      background: var(--teal-soft);
+    }
+
+    .visual-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 64px;
+      padding: 14px 18px;
+      border-bottom: 2px solid var(--ink);
+      background: var(--white);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .visual-control {
+      padding: 7px 10px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--paper);
+      font-size: 10px;
+    }
+
+    .deal-list {
+      display: grid;
+      gap: 12px;
+      padding: 24px;
+    }
+
+    .deal-card {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      align-items: center;
+      gap: 13px;
+      padding: 17px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 rgba(23, 33, 30, 0.24);
+    }
+
+    .brand-block {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      background: var(--yellow);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .deal-card:nth-child(2) .brand-block {
+      background: var(--orange);
+    }
+
+    .deal-card:nth-child(3) .brand-block {
+      background: var(--teal-soft);
+    }
+
+    .deal-title {
+      margin-bottom: 3px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .deal-meta {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .deadline {
+      padding-left: 14px;
+      border-left: 1px solid var(--line);
+      text-align: right;
+    }
+
+    .deadline-label {
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .deadline-date {
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .contract-chip {
+      position: absolute;
+      right: 24px;
+      bottom: 21px;
+      padding: 12px 15px;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: var(--yellow);
+      font-size: 11px;
+      font-weight: 850;
+      box-shadow: 4px 4px 0 var(--ink);
+      transform: rotate(-2deg);
+    }
+
+    .invoice-body {
+      padding: 24px;
+    }
+
+    .invoice-paper {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 26px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--white);
+      box-shadow: var(--small-shadow);
+    }
+
+    .invoice-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 26px;
+    }
+
+    .invoice-word {
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .paid-stamp {
+      padding: 5px 8px;
+      border: 2px solid var(--teal);
+      border-radius: 4px;
+      color: var(--teal);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transform: rotate(4deg);
+    }
+
+    .invoice-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 27px;
+    }
+
+    .fake-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .fake-line {
+      height: 8px;
+      margin-bottom: 5px;
+      background: #d7d5cf;
+    }
+
+    .fake-line.short {
+      width: 62%;
+    }
+
+    .invoice-table {
+      border-block: 1px solid var(--line);
+    }
+
+    .invoice-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+    }
+
+    .invoice-row:first-child {
+      border-top: 0;
+    }
+
+    .invoice-total {
+      display: flex;
+      justify-content: flex-end;
+      gap: 20px;
+      padding-top: 18px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .reminder-note {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      padding: 11px 13px;
+      border: 2px solid var(--ink);
+      border-radius: 5px;
+      background: var(--yellow);
+      font-size: 10px;
+      font-weight: 850;
+      box-shadow: 3px 3px 0 var(--ink);
+      transform: rotate(2deg);
+    }
+
+    .payout-body {
+      padding: 23px;
+    }
+
+    .payout-total {
+      margin-bottom: 17px;
+      padding: 20px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .payout-total-label {
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .payout-total-value {
+      font-size: 33px;
+      font-weight: 900;
+      letter-spacing: -0.045em;
+    }
+
+    .payout-total-change {
+      color: var(--teal);
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .chart {
+      display: flex;
+      height: 150px;
+      align-items: end;
+      gap: 12px;
+      padding: 15px 18px 0;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .chart-column {
+      display: flex;
+      height: 100%;
+      flex: 1;
+      align-items: center;
+      justify-content: flex-end;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 36px;
+      border: 1px solid var(--ink);
+      border-bottom: 0;
+      background: var(--blue);
+    }
+
+    .bar-one {
+      height: 38%;
+      background: var(--yellow);
+    }
+
+    .bar-two {
+      height: 62%;
+      background: var(--orange);
+    }
+
+    .bar-three {
+      height: 50%;
+      background: var(--teal);
+    }
+
+    .bar-four {
+      height: 82%;
+      background: var(--blue);
+    }
+
+    .bar-five {
+      height: 69%;
+      background: var(--orange);
+    }
+
+    .bar-six {
+      height: 92%;
+      background: var(--teal);
+    }
+
+    .bar-label {
+      min-height: 17px;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 750;
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .source {
+      padding: 10px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--white);
+      font-size: 9px;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .quote-section {
+      padding: 90px 0;
+      background: var(--yellow);
+      border-block: 2px solid var(--ink);
+    }
+
+    .quote {
+      max-width: 920px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .quote-mark {
+      margin-bottom: 12px;
+      color: var(--orange-dark);
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 0.8;
+    }
+
+    blockquote {
+      margin: 0 0 24px;
+      font-size: clamp(29px, 4vw, 48px);
+      font-weight: 850;
+      line-height: 1.2;
+      letter-spacing: -0.045em;
+    }
+
+    .quote figcaption {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .quote figcaption span {
+      display: block;
+      margin-top: 3px;
+      font-weight: 600;
+    }
+
+    .cta-section {
+      padding: 110px 0;
+    }
+
+    .cta-panel {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 0.8fr;
+      align-items: center;
+      gap: 70px;
+      overflow: hidden;
+      padding: 65px;
+      border: 2px solid var(--ink);
+      border-radius: 16px;
+      background: var(--orange);
+      box-shadow: 10px 10px 0 var(--ink);
+    }
+
+    .cta-panel::after {
+      content: "";
+      position: absolute;
+      right: -38px;
+      top: -52px;
+      width: 150px;
+      height: 150px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--yellow);
+    }
+
+    .cta-copy,
+    .signup-box {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-copy h2 {
+      margin-bottom: 17px;
+    }
+
+    .cta-copy p {
+      max-width: 550px;
+      margin-bottom: 0;
+      color: #47231b;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .signup-box {
+      padding: 24px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .signup-box h3 {
+      margin-bottom: 5px;
+      font-size: 21px;
+      letter-spacing: -0.03em;
+    }
+
+    .signup-box > p {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .signup-form {
+      display: grid;
+      gap: 11px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .email-input {
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 14px;
+      border: 2px solid var(--ink);
+      border-radius: 7px;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    .email-input::placeholder {
+      color: #7f8985;
+    }
+
+    .signup-form .button {
+      width: 100%;
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    .signup-form .button:hover {
+      background: #236d64;
+    }
+
+    .form-note {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .site-footer {
+      padding: 34px 0 42px;
+      border-top: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .footer-copy {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .footer-links a:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 1040px) {
+      .hero-grid {
+        gap: 42px;
+      }
+
+      .dashboard-body {
+        grid-template-columns: 85px 1fr;
+      }
+
+      .dashboard-sidebar {
+        padding-inline: 8px;
+      }
+
+      .feature {
+        gap: 50px;
+      }
+
+      .cta-panel {
+        padding: 48px;
+        gap: 45px;
+      }
+    }
+
+    @media (max-width: 880px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 68px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        max-width: 680px;
+      }
+
+      .dashboard-wrap {
+        max-width: 650px;
+      }
+
+      .trust-inner {
+        grid-template-columns: repeat(4, 1fr);
+        padding: 22px 0;
+      }
+
+      .trust-copy {
+        grid-column: 1 / -1;
+        padding: 0 0 16px;
+        text-align: center;
+      }
+
+      .platform:first-of-type {
+        border-left: 0;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        min-height: auto;
+      }
+
+      .step-number {
+        margin-bottom: 28px;
+      }
+
+      .features-intro {
+        display: block;
+      }
+
+      .features-intro h2 {
+        margin-bottom: 24px;
+      }
+
+      .features-intro p {
+        max-width: 620px;
+      }
+
+      .feature,
+      .feature:nth-child(even) {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .feature:nth-child(even) .feature-copy {
+        order: 0;
+      }
+
+      .feature-copy {
+        max-width: 680px;
+      }
+
+      .cta-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .signup-box {
+        max-width: 540px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .container {
+        width: min(calc(100% - 28px), var(--max-width));
+      }
+
+      .nav {
+        min-height: 68px;
+      }
+
+      .nav-actions .text-link {
+        display: none;
+      }
+
+      .hero {
+        padding: 55px 0 64px;
+      }
+
+      .hero::before,
+      .hero::after {
+        display: none;
+      }
+
+      h1 {
+        font-size: clamp(43px, 14vw, 63px);
+      }
+
+      .hero-copy {
+        font-size: 17px;
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .hero-note {
+        text-align: center;
+      }
+
+      .dashboard {
+        box-shadow: 7px 7px 0 var(--teal);
+      }
+
+      .dashboard-body {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .dashboard-sidebar {
+        display: none;
+      }
+
+      .dashboard-main {
+        padding: 18px 13px;
+      }
+
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .metric-label {
+        margin: 0;
+      }
+
+      .task-row {
+        grid-template-columns: 18px minmax(0, 1fr);
+      }
+
+      .task-row .status {
+        display: none;
+      }
+
+      .trust-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .platform {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .platform:nth-of-type(even) {
+        border-left: 1px solid var(--line);
+      }
+
+      .section {
+        padding: 78px 0;
+      }
+
+      .section-heading {
+        margin-bottom: 40px;
+      }
+
+      .section-heading p,
+      .feature-copy > p {
+        font-size: 16px;
+      }
+
+      .step {
+        padding: 23px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+
+      .features-intro {
+        margin-bottom: 54px;
+      }
+
+      .feature-stack {
+        gap: 74px;
+      }
+
+      .feature-visual {
+        min-height: 420px;
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+
+      .deal-list {
+        padding: 16px;
+      }
+
+      .deal-card {
+        grid-template-columns: 38px 1fr;
+        padding: 13px;
+      }
+
+      .brand-block {
+        width: 38px;
+        height: 38px;
+      }
+
+      .deadline {
+        display: none;
+      }
+
+      .contract-chip {
+        right: 14px;
+      }
+
+      .invoice-body,
+      .payout-body {
+        padding: 15px;
+      }
+
+      .invoice-paper {
+        padding: 20px;
+      }
+
+      .source-row {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-visual.payouts {
+        min-height: 520px;
+      }
+
+      .quote-section {
+        padding: 70px 0;
+      }
+
+      .cta-section {
+        padding: 78px 0 85px;
+      }
+
+      .cta-panel {
+        padding: 35px 22px;
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+
+      .signup-box {
+        padding: 20px;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="logo" href="#" aria-label="Backlot home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span>Backlot</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#signup">Early access</a>
+      </div>
+
+      <div class="nav-actions">
+        <a class="text-link" href="#signup">Sign in</a>
+        <a class="button button-small" href="#signup">Join the waitlist</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">
+            <span class="eyebrow-dot" aria-hidden="true"></span>
+            Built for full-time creators
+          </p>
+          <h1>Your content has a workflow. Now your money does too.</h1>
+          <p class="hero-copy">
+            Backlot puts brand deals, contracts, invoices, sponsor deadlines, and platform payouts in one calm, understandable workspace.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#signup">
+              Start organizing free
+              <span aria-hidden="true">→</span>
+            </a>
+            <p class="hero-note"><strong>No credit card.</strong> No finance degree required.</p>
+          </div>
+        </div>
+
+        <div class="dashboard-wrap" aria-label="Preview of the Backlot dashboard">
+          <div class="tape" aria-hidden="true"></div>
+          <div class="dashboard">
+            <div class="dashboard-top">
+              <div class="window-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="dashboard-title">Creator overview</div>
+              <div class="avatar" aria-label="User profile">MJ</div>
+            </div>
+
+            <div class="dashboard-body">
+              <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
+                <div class="side-label">Workspace</div>
+                <div class="side-item active"><span class="side-icon"></span>Overview</div>
+                <div class="side-item"><span class="side-icon"></span>Deals</div>
+                <div class="side-item"><span class="side-icon"></span>Invoices</div>
+                <div class="side-item"><span class="side-icon"></span>Payouts</div>
+                <div class="side-item"><span class="side-icon"></span>Calendar</div>
+              </aside>
+
+              <div class="dashboard-main">
+                <div class="mini-heading-row">
+                  <div>
+                    <div class="mini-kicker">Good morning, Maya</div>
+                    <h2 class="mini-heading">This month</h2>
+                  </div>
+                  <div class="date-box">May 1–31</div>
+                </div>
+
+                <div class="metric-grid">
+                  <div class="metric-card">
+                    <div class="metric-label">Expected income</div>
+                    <div class="metric-value">$18,450</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-label">Paid so far</div>
+                    <div class="metric-value">$11,280</div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-label">Active deals</div>
+                    <div class="metric-value">7</div>
+                  </div>
+                </div>
+
+                <div class="dashboard-section">
+                  <div class="dashboard-section-title">
+                    <span>Coming up</span>
+                    <span>View calendar →</span>
+                  </div>
+
+                  <div class="task-row">
+                    <div class="task-brand">NR</div>
+                    <div>
+                      <div class="task-name">North Run integration</div>
+                      <div class="task-detail">First cut due tomorrow</div>
+                    </div>
+                    <div class="status rose">Needs review</div>
+                  </div>
+
+                  <div class="task-row">
+                    <div class="task-brand">LO</div>
+                    <div>
+                      <div class="task-name">Luma Outdoors campaign</div>
+                      <div class="task-detail">Post goes live May 18</div>
+                    </div>
+                    <div class="status">Scheduled</div>
+                  </div>
+
+                  <div class="task-row">
+                    <div class="task-brand">FM</div>
+                    <div>
+                      <div class="task-name">Frame Mobile invoice</div>
+                      <div class="task-detail">$3,200 due May 20</div>
+                    </div>
+                    <div class="status green">Sent</div>
+                  </div>
+                </div>
+
+                <div class="dashboard-section">
+                  <div class="dashboard-section-title">
+                    <span>Recent payouts</span>
+                    <span>$6,980 total</span>
+                  </div>
+                  <div class="task-row">
+                    <div class="task-brand">YT</div>
+                    <div>
+                      <div class="task-name">YouTube</div>
+                      <div class="task-detail">April platform payout</div>
+                    </div>
+                    <div class="status green">$4,860</div>
+                  </div>
+                  <div class="task-row">
+                    <div class="task-brand">TT</div>
+                    <div>
+                      <div class="task-name">TikTok</div>
+                      <div class="task-detail">Creator rewards</div>
+                    </div>
+                    <div class="status green">$2,120</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Supported creator income sources">
+      <div class="container trust-inner">
+        <div class="trust-copy">One home for every part of your creator business.</div>
+        <div class="platform">YouTube</div>
+        <div class="platform">TikTok</div>
+        <div class="platform">Instagram</div>
+        <div class="platform">Brand deals</div>
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-label">How it works</div>
+          <h2>Less admin. More time on camera.</h2>
+          <p>
+            Backlot gives you a simple routine for the business work that usually gets scattered across inboxes, calendars, and spreadsheets.
+          </p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div class="step-number">01</div>
+            <h3>Add your income</h3>
+            <p>
+              Bring in brand deals, invoices, and platform payouts. Keep the important details together without building another spreadsheet.
+            </p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">02</div>
+            <h3>See what needs attention</h3>
+            <p>
+              Your dashboard surfaces upcoming deliverables, unsigned contracts, overdue invoices, and expected payments.
+            </p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">03</div>
+            <h3>Run your business with confidence</h3>
+            <p>
+              Know what you earned, what is still coming, and what you need to do next—without becoming your own finance department.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" id="features">
+      <div class="container">
+        <div class="features-intro">
+          <h2>The back office your channel has been missing.</h2>
+          <p>
+            Made for solo creators who need clarity, not accounting jargon or a complicated enterprise tool.
+          </p>
+        </div>
+
+        <div class="feature-stack">
+          <article class="feature">
+            <div class="feature-copy">
+              <div class="feature-number">Feature 01 · Deals</div>
+              <h2>Every contract and deadline, in one frame.</h2>
+              <p>
+                Track each sponsorship from first email to final post. Store the contract, fee, deliverables, usage rights, and key dates together.
+              </p>
+              <ul class="feature-list">
+                <li><span class="check" aria-hidden="true">✓</span>See every active deal at a glance</li>
+                <li><span class="check" aria-hidden="true">✓</span>Get ahead of drafts and go-live dates</li>
+                <li><span class="check" aria-hidden="true">✓</span>Keep signed contracts easy to find</li>
+              </ul>
+            </div>
+
+            <div class="feature-visual deals" aria-label="Brand deals organized by deadline">
+              <div class="visual-toolbar">
+                <span>Active brand deals</span>
+                <span class="visual-control">Sort: Deadline</span>
+              </div>
+              <div class="deal-list">
+                <div class="deal-card">
+                  <div class="brand-block">NR</div>
+                  <div>
+                    <div class="deal-title">North Run · Dedicated video</div>
+                    <div class="deal-meta">$5,500 · Contract signed</div>
+                  </div>
+                  <div class="deadline">
+                    <div class="deadline-label">First cut</div>
+                    <div class="deadline-date">May 14</div>
+                  </div>
+                </div>
+
+                <div class="deal-card">
+                  <div class="brand-block">LO</div>
+                  <div>
+                    <div class="deal-title">Luma Outdoors · Integration</div>
+                    <div class="deal-meta">$3,800 · In production</div>
+                  </div>
+                  <div class="deadline">
+                    <div class="deadline-label">Go live</div>
+                    <div class="deadline-date">May 18</div>
+                  </div>
+                </div>
+
+                <div class="deal-card">
+                  <div class="brand-block">SK</div>
+                  <div>
+                    <div class="deal-title">Studio Key · Short-form package</div>
+                    <div class="deal-meta">$2,400 · Awaiting signature</div>
+                  </div>
+                  <div class="deadline">
+                    <div class="deadline-label">Draft due</div>
+                    <div class="deadline-date">May 24</div>
+                  </div>
+                </div>
+              </div>
+              <div class="contract-chip">Contract attached ✓</div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <div class="feature-number">Feature 02 · Invoices</div>
+              <h2>Know who paid—and who needs a nudge.</h2>
+              <p>
+                Create clean invoices, tie them to the right campaign, and follow every payment from sent to settled.
+              </p>
+              <ul class="feature-list">
+                <li><span class="check" aria-hidden="true">✓</span>Create polished invoices in minutes</li>
+                <li><span class="check" aria-hidden="true">✓</span>See outstanding balances instantly</li>
+                <li><span class="check" aria-hidden="true">✓</span>Never forget a follow-up</li>
+              </ul>
+            </div>
+
+            <div class="feature-visual invoices" aria-label="Creator invoice marked paid">
+              <div class="visual-toolbar">
+                <span>Invoice #BL-1048</span>
+                <span class="visual-control">Download PDF</span>
+              </div>
+              <div class="invoice-body">
+                <div class="invoice-paper">
+                  <div class="invoice-head">
+                    <div class="invoice-word">Invoice</div>
+                    <div class="paid-stamp">Paid</div>
+                  </div>
+
+                  <div class="invoice-info">
+                    <div>
+                      <div class="fake-label">From</div>
+                      <div class="fake-line"></div>
+                      <div class="fake-line short"></div>
+                    </div>
+                    <div>
+                      <div class="fake-label">Bill to</div>
+                      <div class="fake-line"></div>
+                      <div class="fake-line short"></div>
+                    </div>
+                  </div>
+
+                  <div class="invoice-table">
+                    <div class="invoice-row">
+                      <strong>YouTube integration</strong>
+                      <strong>$3,200</strong>
+                    </div>
+                    <div class="invoice-row">
+                      <span>Additional usage rights</span>
+                      <span>$800</span>
+                    </div>
+                  </div>
+
+                  <div class="invoice-total">
+                    <span>Total</span>
+                    <span>$4,000</span>
+                  </div>
+                </div>
+              </div>
+              <div class="reminder-note">Paid 4 days early 🎉</div>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature-copy">
+              <div class="feature-number">Feature 03 · Payouts</div>
+              <h2>See what your content actually earns.</h2>
+              <p>
+                Bring platform income and brand revenue into one clear view. Compare months and understand which work is moving your business forward.
+              </p>
+              <ul class="feature-list">
+                <li><span class="check" aria-hidden="true">✓</span>Track income by platform and source</li>
+                <li><span class="check" aria-hidden="true">✓</span>Compare expected and received payouts</li>
+                <li><span class="check" aria-hidden="true">✓</span>Spot trends without finance-speak</li>
+              </ul>
+            </div>
+
+            <div class="feature-visual payouts" aria-label="Monthly creator payout chart">
+              <div class="visual-toolbar">
+                <span>Income overview</span>
+                <span class="visual-control">Last 6 months</span>
+              </div>
+              <div class="payout-body">
+                <div class="payout-total">
+                  <div class="payout-total-label">Total creator income</div>
+                  <div class="payout-total-value">$74,680</div>
+                  <div class="payout-total-change">↑ 18% from previous period</div>
+                </div>
+
+                <div class="chart" aria-label="Income increased over six months">
+                  <div class="chart-column">
+                    <div class="bar bar-one"></div>
+                    <div class="bar-label">Dec</div>
+                  </div>
+                  <div class="chart-column">
+                    <div class="bar bar-two"></div>
+                    <div class="bar-label">Jan</div>
+                  </div>
+                  <div class="chart-column">
+                    <div class="bar bar-three"></div>
+                    <div class="bar-label">Feb</div>
+                  </div>
+                  <div class="chart-column">
+                    <div class="bar bar-four"></div>
+                    <div class="bar-label">Mar</div>
+                  </div>
+                  <div class="chart-column">
+                    <div class="bar bar-five"></div>
+                    <div class="bar-label">Apr</div>
+                  </div>
+                  <div class="chart-column">
+                    <div class="bar bar-six"></div>
+                    <div class="bar-label">May</div>
+                  </div>
+                </div>
+
+                <div class="source-row">
+                  <div class="source">Brand deals · 62%</div>
+                  <div class="source">YouTube · 29%</div>
+                  <div class="source">Other · 9%</div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="quote-section">
+      <div class="container">
+        <figure class="quote">
+          <div class="quote-mark" aria-hidden="true">“</div>
+          <blockquote>
+            I can finally tell what I’m owed without checking six email threads and a spreadsheet I’m afraid to touch.
+          </blockquote>
+          <figcaption>
+            Maya J.
+            <span>Video creator · 640K subscribers</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cta-section" id="signup">
+      <div class="container">
+        <div class="cta-panel">
+          <div class="cta-copy">
+            <div class="section-label">Join early access</div>
+            <h2>Put your creator business on solid ground.</h2>
+            <p>
+              Spend less time chasing paperwork and more time making the work your audience came for.
+            </p>
+          </div>
+
+          <div class="signup-box">
+            <h3>Get Backlot early</h3>
+            <p>Join the waitlist and be first to know when your workspace is ready.</p>
+            <form class="signup-form" action="#" method="post">
+              <label class="form-label" for="email">Work email</label>
+              <input class="email-input" id="email" name="email" type="email" autocomplete="email" placeholder="you@yourchannel.com" required>
+              <button class="button" type="submit">
+                Join the waitlist
+                <span aria-hidden="true">→</span>
+              </button>
+              <p class="form-note">No spam. Just product updates and your invitation.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <a class="logo" href="#" aria-label="Backlot home">
+          <span class="logo-mark" aria-hidden="true"></span>
+          <span>Backlot</span>
+        </a>
+        <p class="footer-copy">The business side of creating, organized.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <span>© 2025 Backlot</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

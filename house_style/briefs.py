@@ -90,6 +90,14 @@ CONDITIONS = {
     "skill": {"system": "SKILL", "extra": "", "ground": False},
     # Does naming the specific patterns to avoid work any better than vagueness?
     "forbid": {"system": None, "extra": " " + FORBID, "ground": False},
+    # Same prohibition, run at high reasoning effort. The low-effort forbid
+    # pages came back near-blank, and two explanations fit equally well: the
+    # white documentation page is genuinely the next attractor down, or a
+    # constrained model on a low thinking budget takes the cheapest compliant
+    # path. Only the effort knob separates them, so it is the only thing that
+    # differs from `forbid`.
+    "forbid-hi": {"system": None, "extra": " " + FORBID, "ground": False,
+                  "effort": "high"},
     # Positive direction, same weight of instruction, no grounding step.
     "direct1": {"system": None, "extra": " " + DIRECTION, "ground": False},
     # Positive direction plus a turn spent working out what it means. The pair

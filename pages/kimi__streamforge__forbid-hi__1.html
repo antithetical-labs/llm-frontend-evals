@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streamforge — Watch software get built with AI, live</title>
+<meta name="description" content="Streamforge is where developers broadcast themselves building software with AI assistants. Watch the prompts, the model's output, and the code evolve in real time — then fork the repo.">
+<style>
+  /* ============ Tokens ============ */
+  :root{
+    --paper:#F6F3EC;
+    --paper-2:#FFFEFA;
+    --ink:#17140F;
+    --ink-2:#5A5344;
+    --orange:#E8442E;
+    --blue:#2451E6;
+    --green:#0E7C3A;
+    --amber:#E8A020;
+    --amber-soft:#F5C04E;
+    --code-bg:#1B1712;
+    --code-ink:#EDE6D6;
+    --code-dim:#8A8272;
+    --radius:4px;
+    --sans:"Helvetica Neue",Helvetica,"Arial Nova",Arial,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --serif:Georgia,"Times New Roman",serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--orange);color:var(--paper-2)}
+  img,svg{display:block}
+  a{color:inherit}
+  section{scroll-margin-top:84px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .mono{font-family:var(--mono)}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ============ Shared bits ============ */
+  .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  .sq{display:inline-block;width:9px;height:9px;background:var(--orange);margin-right:10px;vertical-align:1px}
+  .sq-blue{background:var(--blue)}
+  .sq-green{background:var(--green)}
+  .sq-amber{background:var(--amber)}
+
+  .kicker{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:10px;margin-bottom:20px}
+  .kicker .live-dot{margin-right:2px}
+
+  h1{font-size:clamp(2.9rem,6.2vw,4.9rem);line-height:.98;letter-spacing:-.035em;font-weight:800}
+  h1 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--orange);letter-spacing:-.01em}
+  h2{font-size:clamp(1.9rem,3.8vw,2.9rem);line-height:1.05;letter-spacing:-.028em;font-weight:800}
+  h2 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--orange)}
+  h3{font-size:1.25rem;letter-spacing:-.015em;font-weight:800}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-weight:700;font-size:15px;line-height:1;padding:15px 24px;border:2px solid var(--ink);border-radius:var(--radius);text-decoration:none;cursor:pointer;background:var(--paper-2);color:var(--ink);transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+  .btn:active{transform:translate(0,0);box-shadow:1px 1px 0 var(--ink)}
+  .btn-primary{background:var(--orange);color:#FFF7EE}
+  .btn-small{padding:11px 18px;font-size:14px}
+  code.inline{font-family:var(--mono);font-size:.82em;background:var(--paper-2);border:1.5px solid var(--ink);border-radius:3px;padding:1px 6px;white-space:nowrap}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ============ Header ============ */
+  .site-header{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:2px solid var(--ink)}
+  .header-inner{display:flex;align-items:center;gap:32px;height:66px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:.08em}
+  .brand svg{flex:none}
+  .main-nav{display:flex;gap:26px;flex:1}
+  .main-nav a{text-decoration:none;font-size:14px;font-weight:600;color:var(--ink-2);position:relative}
+  .main-nav a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--orange);transition:width .18s ease}
+  .main-nav a:hover{color:var(--ink)}
+  .main-nav a:hover::after{width:100%}
+  .header-actions{display:flex;align-items:center;gap:18px}
+  .signin{text-decoration:none;font-size:14px;font-weight:600}
+  .signin:hover{text-decoration:underline;text-decoration-color:var(--orange);text-decoration-thickness:2px;text-underline-offset:4px}
+  .mobile-menu{display:none;position:relative}
+  .mobile-menu summary{list-style:none;cursor:pointer;font-weight:700;font-size:14px;border:2px solid var(--ink);border-radius:var(--radius);padding:9px 14px;background:var(--paper-2)}
+  .mobile-menu summary::-webkit-details-marker{display:none}
+  .mobile-menu[open] summary{background:var(--ink);color:var(--paper)}
+  .mobile-menu nav{position:absolute;right:0;top:calc(100% + 8px);background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--radius);box-shadow:6px 6px 0 var(--ink);min-width:200px;padding:8px}
+  .mobile-menu nav a{display:block;padding:10px 12px;text-decoration:none;font-weight:600;font-size:14px;border-radius:3px}
+  .mobile-menu nav a:hover{background:var(--paper)}
+
+  /* ============ Hero ============ */
+  .hero{
+    background-color:var(--paper);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M48 0H0v48' fill='none' stroke='%2317140F' stroke-opacity='.07'/%3E%3C/svg%3E");
+    border-bottom:2px solid var(--ink);
+    padding:72px 0 84px;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .lede{font-size:18px;line-height:1.6;color:var(--ink-2);max-width:52ch;margin:24px 0 32px}
+  .lede b{color:var(--ink)}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-stats{display:flex;gap:0;margin-top:44px;border-top:2px solid var(--ink)}
+  .hero-stats > div{padding:16px 28px 0 0;margin-right:28px;border-right:1.5px solid var(--ink);padding-right:28px}
+  .hero-stats > div:last-child{border-right:0;margin-right:0;padding-right:0}
+  .hero-stats dd{font-family:var(--mono);font-weight:700;font-size:clamp(1.2rem,2vw,1.6rem);letter-spacing:-.02em}
+  .hero-stats dt{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-top:2px}
+
+  /* Stream window */
+  .stream-window{background:var(--paper-2);border:2px solid var(--ink);border-radius:6px;box-shadow:10px 10px 0 var(--ink);overflow:hidden}
+  .window-bar{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:2px solid var(--ink);background:var(--paper-2)}
+  .wb-dots{display:flex;gap:6px}
+  .wb-dots i{width:11px;height:11px;border-radius:2.5px;border:1.5px solid var(--ink)}
+  .d-r{background:var(--orange)} .d-a{background:var(--amber)} .d-g{background:var(--green)}
+  .wb-title{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+  .wb-live{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:var(--paper-2);font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.1em;padding:4px 9px;border-radius:3px}
+  .wb-live .live-dot{background:var(--paper-2)}
+  .wb-viewers{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:700}
+  .window-body{display:grid;grid-template-columns:1fr 1fr;transition:opacity .22s ease}
+  .window-body.wipe{opacity:0}
+  .pane{padding:13px 15px;border-top:1.5px solid var(--ink);min-width:0}
+  .pane-prompt{border-right:1.5px solid var(--ink)}
+  .pane-label{display:flex;align-items:center;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--ink-2);margin-bottom:9px;text-transform:uppercase}
+  .pane-text{font-size:13.5px;line-height:1.55;min-height:96px}
+  .pane-prompt .pane-text{font-family:var(--mono);font-size:12.5px}
+  .pane-model .pane-text{color:var(--ink)}
+  .streaming{color:var(--orange)}
+  .pane-text.typing::after{content:"";display:inline-block;width:8px;height:1em;margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+  #promptText.typing::after{background:var(--ink)}
+  #modelText.typing::after{background:var(--orange)}
+  @keyframes blink{50%{opacity:0}}
+  .pane-code{grid-column:1 / -1;background:var(--code-bg);border-top:2px solid var(--ink);padding:13px 0 12px}
+  .pane-code .pane-label{color:#A79C88;padding:0 15px;margin-bottom:10px}
+  .diffstat{margin-left:auto;letter-spacing:0}
+  .addn{color:#5CC97E;font-weight:700;margin-right:8px}
+  .deln{color:#E06A52;font-weight:700}
+  .code{font-family:var(--mono);font-size:12.5px;line-height:1.6;min-height:196px;overflow:hidden;color:var(--code-ink)}
+  .cline{display:flex;white-space:pre;animation:lineIn .22s ease both}
+  @keyframes lineIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+  .cline .ln{flex:none;width:38px;text-align:right;padding-right:14px;color:var(--code-dim);user-select:none}
+  .cline.ctx .lc{color:#C9BFA9}
+  .cline.add{background:#122B1B;box-shadow:inset 3px 0 0 #2FA05A}
+  .cline.del{background:#33140F;box-shadow:inset 3px 0 0 #D1543F}
+  .cline.del .lc{color:#B08A80;text-decoration:line-through}
+  .k{color:#8FB0FF} .s{color:#F0B44C} .f{color:#7BD88A} .n{color:#F0955C} .c{color:var(--code-dim);font-style:italic}
+  .pane-chat{grid-column:1 / -1;padding:11px 15px 12px}
+  .chat-lines{min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+  .chat-line{font-family:var(--mono);font-size:12px;color:var(--ink-2);animation:lineIn .25s ease both;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chat-line b{font-weight:700}
+  .u1{color:var(--blue)} .u2{color:var(--orange)} .u3{color:var(--green)} .u4{color:#9A6A00}
+  .chat-input{margin-top:10px;border:1.5px solid var(--ink);border-radius:3px;background:var(--paper);font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:7px 10px;display:flex;justify-content:space-between;gap:10px}
+  .chat-hint{color:var(--blue)}
+  .stream-caption{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);margin-top:16px;display:flex;align-items:center;gap:8px}
+
+  /* ============ Ticker ============ */
+  .ticker{background:var(--ink);color:var(--paper);overflow:hidden;border-bottom:2px solid var(--ink)}
+  .ticker-track{display:flex;width:max-content;animation:tick 32s linear infinite}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  .ticker-group{display:flex;align-items:center}
+  .tick{display:flex;align-items:center;gap:9px;padding:13px 22px;font-family:var(--mono);font-size:12px;letter-spacing:.05em;white-space:nowrap}
+  .tick i{width:8px;height:8px;flex:none}
+  .tick .sq-live{background:var(--green)}
+  .tick .sq-vod{background:var(--blue)}
+  .tick b{color:#fff}
+  .tick-sep{color:var(--orange);font-size:9px}
+  @keyframes tick{to{transform:translateX(-50%)}}
+
+  /* ============ Sections ============ */
+  .section-head{max-width:720px;margin-bottom:56px}
+  .how,.features{padding:96px 0}
+  .features{background:var(--paper-2);border-block:2px solid var(--ink)}
+
+  /* Steps */
+  .steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:step}
+  .step{background:var(--paper-2);border:2px solid var(--ink);border-radius:6px;padding:28px 26px 30px;transition:transform .18s ease,box-shadow .18s ease;position:relative}
+  .how .step{background:var(--paper)}
+  .step:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--ink)}
+  .step-num{font-family:var(--mono);font-weight:700;font-size:42px;letter-spacing:-.04em;color:var(--orange);line-height:1;margin-bottom:18px}
+  .step:nth-child(2) .step-num{color:var(--blue)}
+  .step:nth-child(3) .step-num{color:var(--green)}
+  .step h3{margin-bottom:10px}
+  .step p{font-size:14.5px;color:var(--ink-2)}
+
+  /* Features */
+  .feature{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:44px 0}
+  .feature + .feature{border-top:2px dashed var(--ink)}
+  .feature-flip .feature-copy{order:2}
+  .feature-flip .feature-demo{order:1}
+  .feature-kicker{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:14px;display:flex;align-items:center}
+  .feature-copy p{color:var(--ink-2);font-size:16px;margin:14px 0 20px;max-width:46ch}
+  .feature-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .feature-list li{font-family:var(--mono);font-size:13px;display:flex;gap:10px;align-items:baseline}
+  .feature-list li::before{content:"■";font-size:8px;color:var(--orange)}
+  .feature:nth-child(3) .feature-list li::before{color:var(--blue)}
+  .feature:nth-child(4) .feature-list li::before{color:var(--green)}
+
+  .demo{background:var(--paper-2);border:2px solid var(--ink);border-radius:6px;box-shadow:8px 8px 0 var(--ink);padding:24px;transition:transform .18s ease,box-shadow .18s ease}
+  .demo:hover{transform:translate(-2px,-2px);box-shadow:11px 11px 0 var(--ink)}
+  .demo-label{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink-2);display:block;margin-bottom:14px}
+
+  /* Repo / fork demo */
+  .repo-head{display:flex;gap:14px;align-items:center;padding-bottom:16px;border-bottom:1.5px solid var(--ink)}
+  .repo-avatar{width:40px;height:40px;flex:none;background:var(--blue);color:var(--paper-2);font-family:var(--mono);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);border-radius:var(--radius)}
+  .repo-name{font-family:var(--mono);font-size:14.5px}
+  .repo-vis{font-size:10px;letter-spacing:.08em;border:1.5px solid var(--ink-2);border-radius:3px;padding:1px 6px;color:var(--ink-2);vertical-align:2px;margin-left:6px}
+  .repo-desc{font-size:13px;color:var(--ink-2);margin-top:3px}
+  .repo-meta{list-style:none;display:flex;gap:20px;flex-wrap:wrap;padding:14px 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);align-items:center}
+  .repo-meta b{color:var(--ink)}
+  .dot-rust{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);margin-right:6px}
+  .repo-live{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--green);font-weight:700}
+  .btn-fork{width:100%;justify-content:center}
+  .btn-fork.done{background:var(--green);color:var(--paper-2);border-color:var(--ink)}
+  #forkCount.bump{animation:bump .35s ease}
+  @keyframes bump{40%{transform:scale(1.35);color:var(--green)}}
+  #forkCount{display:inline-block}
+  .fork-note{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink-2);border-left:3px solid var(--green);padding-left:12px;animation:lineIn .3s ease both}
+
+  /* Transcript demo */
+  .demo-transcript input{width:100%;font-family:var(--mono);font-size:13px;padding:12px 14px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink);margin-bottom:10px}
+  .demo-transcript input:focus{outline:3px solid var(--blue);outline-offset:1px}
+  .t-count{font-size:11px;color:var(--ink-2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .transcript{list-style:none;max-height:252px;overflow:auto;border-top:1.5px solid var(--ink)}
+  .transcript li{display:flex;gap:12px;align-items:baseline;padding:10px 4px;border-bottom:1px dashed #CFC7B4;animation:lineIn .2s ease both}
+  .transcript li.hide{display:none}
+  .t-time{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);flex:none}
+  .t-tag{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:3px;border:1.5px solid var(--ink);flex:none}
+  .tag-prompt{background:var(--blue);color:var(--paper-2)}
+  .tag-model{background:var(--orange);color:var(--paper-2)}
+  .tag-commit{background:var(--green);color:var(--paper-2)}
+  .t-body{font-size:13px;line-height:1.45}
+  mark{background:var(--amber-soft);color:inherit;padding:0 1px}
+
+  /* Models demo */
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{font-family:var(--mono);font-size:12.5px;font-weight:700;padding:9px 14px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);cursor:pointer;transition:background .15s ease,color .15s ease,transform .15s ease,box-shadow .15s ease}
+  .chip:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+  .chip.active{background:var(--ink);color:var(--paper)}
+  .meter{margin-bottom:16px}
+  .meter-head{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:12px;margin-bottom:6px}
+  .meter-head b{font-size:13px}
+  .bar{height:12px;border:1.5px solid var(--ink);border-radius:2px;background:var(--paper);overflow:hidden}
+  .bar i{display:block;height:100%;transition:width .55s cubic-bezier(.22,.9,.32,1)}
+  .bar-blue{background:var(--blue)}
+  .bar-green{background:var(--green)}
+  .bar-orange{background:var(--orange)}
+  .demo-note{font-size:11px;color:var(--ink-2);letter-spacing:.06em;margin-top:18px;border-top:1px dashed #CFC7B4;padding-top:12px}
+
+  /* ============ Signup ============ */
+  .signup{padding:96px 0}
+  .signup-panel{background:var(--ink);color:var(--paper);border:2px solid var(--ink);border-radius:8px;box-shadow:12px 12px 0 var(--orange);padding:clamp(36px,6vw,68px);display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+  .kicker-light{color:#B7AD99}
+  .kicker-light .sq{background:var(--orange)}
+  .signup-panel h2{color:var(--paper)}
+  .signup-panel h2 em{color:var(--amber-soft)}
+  .signup-copy p{color:#CFC7B4;margin-top:18px;font-size:16px;max-width:46ch}
+  .signup-form label{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#B7AD99;display:block;margin-bottom:10px}
+  .field-row{display:flex;gap:12px}
+  .field-row input{flex:1;min-width:0;font-family:var(--mono);font-size:14px;padding:14px 16px;border:2px solid var(--paper);border-radius:var(--radius);background:var(--paper-2);color:var(--ink)}
+  .field-row input:focus{outline:3px solid var(--amber);outline-offset:1px}
+  .signup-panel .btn-primary{border-color:var(--paper)}
+  .signup-panel .btn-primary:hover{box-shadow:5px 5px 0 var(--paper)}
+  .signup-panel .btn-primary:active{box-shadow:1px 1px 0 var(--paper)}
+  .form-note{font-family:var(--mono);font-size:11.5px;color:#B7AD99;margin-top:14px;letter-spacing:.04em}
+  .signup-form.error .field-row input{border-color:var(--orange);outline:3px solid var(--orange);outline-offset:1px}
+  .signup-form.error .form-note{color:#F0955C}
+  .signup-success{display:flex;gap:16px;align-items:flex-start;border:2px solid var(--green);border-radius:var(--radius);padding:22px;background:#122B1B}
+  .signup-success .sq{margin-top:5px}
+  .signup-success strong{font-size:17px}
+  .signup-success p{font-family:var(--mono);font-size:12.5px;color:#A9CBB4;margin-top:6px}
+
+  /* ============ Footer ============ */
+  footer{border-top:2px solid var(--ink);background:var(--paper)}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px;padding:56px 0 44px}
+  .footer-brand p{font-size:13.5px;color:var(--ink-2);margin-top:14px;max-width:32ch}
+  footer h4{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:14px}
+  footer ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  footer ul a{text-decoration:none;font-size:14px;font-weight:600;color:var(--ink)}
+  footer ul a:hover{color:var(--orange)}
+  .footer-bottom{border-top:1.5px solid var(--ink);padding:18px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);letter-spacing:.04em}
+  .status{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-weight:700}
+
+  /* ============ Responsive ============ */
+  @media (max-width:1020px){
+    .hero-grid{grid-template-columns:1fr;gap:48px}
+    .feature,.feature-flip{grid-template-columns:1fr;gap:32px}
+    .feature-flip .feature-copy{order:1}
+    .feature-flip .feature-demo{order:2}
+    .signup-panel{grid-template-columns:1fr;gap:32px}
+    .footer-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:860px){
+    .main-nav,.header-actions .signin{display:none}
+    .mobile-menu{display:block;margin-left:auto}
+    .header-actions{margin-left:auto}
+    .mobile-menu{margin-left:10px}
+    .steps{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .window-body{grid-template-columns:1fr}
+    .pane-prompt{border-right:0}
+    .pane-text{min-height:70px}
+    .hero{padding:52px 0 64px}
+    .how,.features,.signup{padding:64px 0}
+    .hero-stats{flex-wrap:wrap;gap:18px}
+    .hero-stats > div{border-right:0;margin-right:0;padding-right:0}
+    .field-row{flex-direction:column}
+    .stream-window{box-shadow:6px 6px 0 var(--ink)}
+    .signup-panel{box-shadow:7px 7px 0 var(--orange)}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none !important;transition:none !important}
+    .reveal{opacity:1;transform:none}
+    .ticker-track{animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="Streamforge home">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="4" fill="#E8442E"/><path d="M9.5 7.5l9 5.5-9 5.5z" fill="#F6F3EC"/><rect x="18" y="2.5" width="5.5" height="5.5" rx="1.5" fill="#0E7C3A"/></svg>
+      STREAMFORGE
+    </a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#streams">Streams</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#transcript">Transcript</a>
+    </nav>
+    <div class="header-actions">
+      <a class="signin" href="#signup">Sign in</a>
+      <a class="btn btn-primary btn-small" href="#signup">Get access</a>
+    </div>
+    <details class="mobile-menu">
+      <summary>Menu</summary>
+      <nav aria-label="Mobile">
+        <a href="#streams">Streams</a>
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#transcript">Transcript</a>
+        <a href="#signup">Get access</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal in">
+        <p class="kicker"><span class="live-dot"></span>LIVE NOW · 1,284 STREAMS</p>
+        <h1>Every prompt.<br>Every token.<br>Every commit. <em>Live.</em></h1>
+        <p class="lede">Streamforge is where developers broadcast themselves building software with AI assistants. Watch the prompts, the model's output, and the code evolve in real time — then <b>fork the repo</b> and keep building.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#signup">Get beta access</a>
+          <a class="btn btn-ghost" href="#how">See how it works ↓</a>
+        </div>
+        <dl class="hero-stats">
+          <div><dd data-count="12408">0</dd><dt>Active builders</dt></div>
+          <div><dd data-count="38912">0</dd><dt>Repos forked</dt></div>
+          <div><dd data-count="1903456">0</dd><dt>Prompts on record</dt></div>
+        </dl>
+      </div>
+
+      <div class="hero-stream reveal in">
+        <div class="stream-window">
+          <div class="window-bar">
+            <span class="wb-dots" aria-hidden="true"><i class="d-r"></i><i class="d-a"></i><i class="d-g"></i></span>
+            <span class="wb-title">streamforge.tv/kmorrison — ratelimit-rs</span>
+            <span class="wb-live"><span class="live-dot"></span>LIVE</span>
+            <span class="wb-viewers">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z" stroke="#17140F" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#17140F"/></svg>
+              <span id="viewerCount">1,842</span>
+            </span>
+          </div>
+          <p class="visually-hidden">A simulated live stream showing a developer prompting an AI assistant and the resulting code diff appearing in real time.</p>
+          <div class="window-body" id="windowBody" aria-hidden="true">
+            <div class="pane pane-prompt">
+              <div class="pane-label"><span class="sq sq-blue"></span>You · <span id="promptTime">00:41:07</span></div>
+              <p class="pane-text" id="promptText"></p>
+            </div>
+            <div class="pane pane-model">
+              <div class="pane-label"><span class="sq"></span>Claude Opus 4.5 · <span class="streaming">&nbsp;streaming</span></div>
+              <p class="pane-text" id="modelText"></p>
+            </div>
+            <div class="pane pane-code">
+              <div class="pane-label"><span class="sq sq-green"></span>src/limiter.rs — diff<span class="diffstat"><b class="addn" id="addStat">+0</b><b class="deln" id="delStat">−0</b></span></div>
+              <div class="code" id="codePane"></div>
+            </div>
+            <div class="pane pane-chat">
+              <div class="pane-label"><span class="sq sq-amber"></span>Chat</div>
+              <div class="chat-lines" id="chatLines"></div>
+              <div class="chat-input"><span>Send a message…</span><span class="chat-hint">/prompt to quote</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="stream-caption"><span class="live-dot"></span>Stream #214 — “ratelimit-rs” · @kmorrison · live for 01:12:33</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TICKER ============ -->
+  <section class="ticker" id="streams" aria-label="Live now on Streamforge">
+    <div class="ticker-track">
+      <div class="ticker-group">
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>kmorrison</b>&nbsp;token-bucket rate limiter w/ Claude</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>priya.codes</b>&nbsp;agent swarm writes the tests first</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>tom_b</b>&nbsp;rewriting a query planner, no cuts</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-vod"></i>VOD — <b>ada_w</b>&nbsp;prompt-first refactoring masterclass</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>kenji</b>&nbsp;eBPF profiler from scratch with GPT-5</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>sara_dev</b>&nbsp;rust → wasm, porting a game loop</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-vod"></i>VOD — <b>h0pes</b>&nbsp;migrating 40k LOC with one prompt chain</span><span class="tick-sep">■</span>
+      </div>
+      <div class="ticker-group" aria-hidden="true">
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>kmorrison</b>&nbsp;token-bucket rate limiter w/ Claude</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>priya.codes</b>&nbsp;agent swarm writes the tests first</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>tom_b</b>&nbsp;rewriting a query planner, no cuts</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-vod"></i>VOD — <b>ada_w</b>&nbsp;prompt-first refactoring masterclass</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>kenji</b>&nbsp;eBPF profiler from scratch with GPT-5</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-live"></i>LIVE — <b>sara_dev</b>&nbsp;rust → wasm, porting a game loop</span><span class="tick-sep">■</span>
+        <span class="tick"><i class="sq-vod"></i>VOD — <b>h0pes</b>&nbsp;migrating 40k LOC with one prompt chain</span><span class="tick-sep">■</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how" id="how">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <p class="kicker"><span class="sq"></span>How it works</p>
+        <h2>From <code class="inline">forge live</code> to a forkable repo, in one sitting.</h2>
+      </header>
+      <ol class="steps">
+        <li class="step reveal">
+          <p class="step-num">01</p>
+          <h3>Go live with one command</h3>
+          <p><code class="inline">forge live</code> shares your editor, your terminal, and your prompt log. Your repo mirrors to Streamforge automatically — every commit lands in the open, seconds after you make it.</p>
+        </li>
+        <li class="step reveal">
+          <p class="step-num">02</p>
+          <h3>Pair in public</h3>
+          <p>Viewers see every prompt you send and every token the model returns. No highlight reels, no cuts, no "and then it worked." The mistakes are the good part.</p>
+        </li>
+        <li class="step reveal">
+          <p class="step-num">03</p>
+          <h3>Ship a forkable repo</h3>
+          <p>The stream's repo updates with each commit. Anyone watching can fork it mid-build, pick up your thread, and open a PR before you've even ended the stream.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="features">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <p class="kicker"><span class="sq sq-blue"></span>Features</p>
+        <h2>Built for people who <em>ship.</em></h2>
+      </header>
+
+      <!-- Feature 1: Fork -->
+      <article class="feature reveal">
+        <div class="feature-copy">
+          <p class="feature-kicker"><span class="sq"></span>Fork anything</p>
+          <h3>Fork any stream, mid-build.</h3>
+          <p>Every stream is backed by a real git repository, updated on every commit. See something clever at minute 41? Fork the repo at minute 41 — the code, the prompt history, and the full context travel with it.</p>
+          <ul class="feature-list">
+            <li>Full prompt history travels with the fork</li>
+            <li>Commit graph lines up with the VOD timeline</li>
+            <li>MIT by default — streamers choose the license</li>
+          </ul>
+        </div>
+        <div class="feature-demo">
+          <div class="demo">
+            <div class="repo-head">
+              <span class="repo-avatar" aria-hidden="true">km</span>
+              <div>
+                <p class="repo-name">kmorrison / <strong>ratelimit-rs</strong><span class="repo-vis">PUBLIC</span></p>
+                <p class="repo-desc">Token-bucket rate limiting — built live with Claude, stream #214</p>
+              </div>
+            </div>
+            <ul class="repo-meta">
+              <li><span class="dot-rust"></span>Rust</li>
+              <li>★ <b>1,204</b></li>
+              <li><b id="forkCount">312</b>&nbsp;forks</li>
+              <li class="repo-live"><span class="live-dot"></span>streaming now</li>
+            </ul>
+            <button class="btn btn-ghost btn-fork" id="forkBtn" type="button">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="4" cy="3" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="3" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 5v2.5A2.5 2.5 0 006.5 10H8M12 5v2.5A2.5 2.5 0 019.5 10H8M8 10v1" stroke="currentColor" stroke-width="1.5"/></svg>
+              Fork this repo
+            </button>
+            <p class="fork-note" id="forkNote" hidden>Forked to <b>you/ratelimit-rs</b> — includes every prompt &amp; commit from stream #214, up to 41:07.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Feature 2: Transcript -->
+      <article class="feature feature-flip reveal" id="transcript">
+        <div class="feature-copy">
+          <p class="feature-kicker"><span class="sq sq-blue"></span>Prompts on the record</p>
+          <h3>The transcript is the artifact.</h3>
+          <p>Every prompt, every model response, and every commit is timestamped and searchable — across your own streams and every public stream on the platform. Found the moment the tricky bug got fixed? Jump straight to it.</p>
+          <ul class="feature-list">
+            <li>Jump from transcript → VOD → diff in one click</li>
+            <li>Search across all public streams, not just yours</li>
+            <li>Export any session as Markdown for your notes</li>
+          </ul>
+        </div>
+        <div class="feature-demo">
+          <div class="demo demo-transcript">
+            <label class="demo-label" for="tSearch">Search the transcript — stream #214</label>
+            <input id="tSearch" type="search" placeholder="Try “retry”…" autocomplete="off">
+            <p class="t-count" id="tCount">7 of 7 moments</p>
+            <ul class="transcript" id="tList">
+              <li><span class="t-time">00:41:07</span><span class="t-tag tag-prompt">PROMPT</span><span class="t-body">“add retry with exponential backoff to the http client”</span></li>
+              <li><span class="t-time">00:41:09</span><span class="t-tag tag-model">MODEL</span><span class="t-body">“adding a retry helper with jittered backoff, capped at 8s…”</span></li>
+              <li><span class="t-time">00:52:33</span><span class="t-tag tag-prompt">PROMPT</span><span class="t-body">“retry storms under load — put a circuit breaker in front”</span></li>
+              <li><span class="t-time">00:52:36</span><span class="t-tag tag-model">MODEL</span><span class="t-body">“wrapping calls in a breaker: 5 failures opens the circuit for 30s…”</span></li>
+              <li><span class="t-time">01:03:12</span><span class="t-tag tag-commit">COMMIT</span><span class="t-body">a3f9c1e — feat: retry + breaker · 214 insertions, 12 deletions</span></li>
+              <li><span class="t-time">01:10:45</span><span class="t-tag tag-prompt">PROMPT</span><span class="t-body">“write a load test that proves the breaker opens”</span></li>
+              <li><span class="t-time">01:10:48</span><span class="t-tag tag-model">MODEL</span><span class="t-body">“k6 script: 500 rps against a flaky upstream, asserting open state…”</span></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <!-- Feature 3: Models -->
+      <article class="feature reveal">
+        <div class="feature-copy">
+          <p class="feature-kicker"><span class="sq sq-green"></span>Any model, your keys</p>
+          <h3>Tooling that keeps up with you.</h3>
+          <p>Bring Claude, GPT, Gemini, or local weights — Streamforge routes through your keys and overlays latency and cost on the VOD. Swap models mid-stream without losing the thread. Your audience sees exactly what you see.</p>
+          <ul class="feature-list">
+            <li>Claude, GPT, Gemini, or your own weights</li>
+            <li>Latency &amp; cost overlaid on the replay</li>
+            <li>Swap models mid-stream, keep the context</li>
+          </ul>
+        </div>
+        <div class="feature-demo">
+          <div class="demo demo-models">
+            <p class="demo-label">Router · pick a model</p>
+            <div class="chips" role="group" aria-label="Choose model">
+              <button class="chip active" data-model="opus" type="button" aria-pressed="true">Claude Opus 4.5</button>
+              <button class="chip" data-model="gpt" type="button" aria-pressed="false">GPT-5</button>
+              <button class="chip" data-model="gemini" type="button" aria-pressed="false">Gemini 3 Pro</button>
+              <button class="chip" data-model="local" type="button" aria-pressed="false">Local · Qwen3 32B</button>
+            </div>
+            <div class="meter">
+              <div class="meter-head"><span>Time to first token</span><b id="ttftVal">480 ms</b></div>
+              <div class="bar"><i id="ttftBar" class="bar-blue" style="width:79%"></i></div>
+            </div>
+            <div class="meter">
+              <div class="meter-head"><span>Throughput</span><b id="tpsVal">92 tok/s</b></div>
+              <div class="bar"><i id="tpsBar" class="bar-green" style="width:84%"></i></div>
+            </div>
+            <div class="meter">
+              <div class="meter-head"><span>Context window</span><b id="ctxVal">200K tokens</b></div>
+              <div class="bar"><i id="ctxBar" class="bar-orange" style="width:20%"></i></div>
+            </div>
+            <p class="demo-note">Measured across 12,408 streams last week · your keys, your bill</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ SIGNUP ============ -->
+  <section class="signup" id="signup">
+    <div class="wrap">
+      <div class="signup-panel reveal">
+        <div class="signup-copy">
+          <p class="kicker kicker-light"><span class="sq"></span>Beta · invites every Tuesday</p>
+          <h2>Your next build session could be someone's <em>favourite stream.</em></h2>
+          <p>Stream free while we're in beta. Bring your own model keys, keep your code, fork anything public. The only rule: no cuts.</p>
+        </div>
+        <form id="signupForm" class="signup-form" novalidate>
+          <label for="email">Work email</label>
+          <div class="field-row">
+            <input id="email" name="email" type="email" placeholder="you@company.dev" autocomplete="email" required>
+            <button class="btn btn-primary" type="submit">Request invite</button>
+          </div>
+          <p class="form-note" id="formNote">No card. No lock-in. Unsubscribe anytime.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#top" aria-label="Streamforge home">
+          <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="4" fill="#E8442E"/><path d="M9.5 7.5l9 5.5-9 5.5z" fill="#F6F3EC"/><rect x="18" y="2.5" width="5.5" height="5.5" rx="1.5" fill="#0E7C3A"/></svg>
+          STREAMFORGE
+        </a>
+        <p>The live-streaming platform for developers who build with AI assistants — prompts, tokens, and commits, all in the open.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#streams">Streams</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#signup">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#transcript">Transcript search</a></li>
+          <li><a href="#features">Model router</a></li>
+          <li><a href="#signup">Docs</a></li>
+          <li><a href="#signup">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#top">Blog</a></li>
+          <li><a href="#top">Careers</a></li>
+          <li><a href="#top">GitHub</a></li>
+          <li><a href="#top">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2025</span> Streamforge Systems, Inc. · Built live, obviously.</span>
+      <span class="status"><span class="live-dot"></span>All systems operational</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sleep = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+  var fmt = function(n){ return n.toLocaleString('en-US'); };
+
+  /* ---------- Footer year ---------- */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ---------- Hero stream simulation ---------- */
+  var scenes = [
+    {
+      time:'00:41:07',
+      prompt:'Add a token-bucket rate limiter with per-key buckets. Refill lazily, sweep stale keys every 60s.',
+      model:'Token bucket per key, refilled on access — no background timers. A sweeper passes every 60s and drops keys idle past 5m, so memory stays bounded.',
+      stat:['+9','−0'],
+      code:[
+        {t:'ctx', h:'<span class="k">pub struct</span> <span class="f">RateLimiter</span> {'},
+        {t:'add', h:'    capacity: <span class="k">f64</span>,'},
+        {t:'add', h:'    refill_per_sec: <span class="k">f64</span>,'},
+        {t:'add', h:'    shards: [<span class="k">Mutex</span>&lt;HashMap&lt;Key, Bucket&gt;&gt;; <span class="n">32</span>],'},
+        {t:'ctx', h:'}'},
+        {t:'add', h:''},
+        {t:'add', h:'<span class="k">fn</span> <span class="f">allow</span>(&amp;<span class="k">mut</span> self, key: Key) -&gt; <span class="k">bool</span> {'},
+        {t:'add', h:'    <span class="k">let</span> b = self.<span class="f">bucket</span>(key).<span class="f">refill</span>(<span class="f">now</span>());'},
+        {t:'add', h:'    <span class="k">if</span> b.tokens &gt;= <span class="n">1.0</span> { b.tokens -= <span class="n">1.0</span>; <span class="k">true</span> } <span class="k">else</span> { <span class="k">false</span> }'},
+        {t:'ctx', h:'}'}
+      ]
+    },
+    {
+      time:'00:52:33',
+      prompt:'Make allow() contention-free at 10k rps. No global lock.',
+      model:'Sharding into 32 maps keyed by a cheap hash. Each shard gets its own mutex — at 10k rps, contention drops below 3%. Benchmarks next.',
+      stat:['+6','−1'],
+      code:[
+        {t:'ctx', h:'<span class="c">// before: one big lock behind every request</span>'},
+        {t:'del', h:'store: <span class="k">Mutex</span>&lt;HashMap&lt;Key, Bucket&gt;&gt;,'},
+        {t:'add', h:'shards: [<span class="k">Mutex</span>&lt;HashMap&lt;Key, Bucket&gt;&gt;; <span class="n">32</span>],'},
+        {t:'add', h:''},
+        {t:'add', h:'<span class="k">fn</span> <span class="f">shard</span>(&amp;self, key: &amp;Key) -&gt; &amp;Shard {'},
+        {t:'add', h:'    &amp;self.shards[<span class="f">hash</span>(key) <span class="k">as</span> <span class="k">usize</span> % <span class="n">32</span>]'},
+        {t:'add', h:'}'}
+      ]
+    },
+    {
+      time:'01:10:45',
+      prompt:'Write tests for the burst edge case: capacity exactly exhausted, then a refill across the window.',
+      model:'Three tests: burst to zero, refill crossing a window boundary, and 8 threads hammering allow() — asserting totals never exceed capacity + refill.',
+      stat:['+8','−0'],
+      code:[
+        {t:'add', h:'<span class="k">#[test]</span>'},
+        {t:'add', h:'<span class="k">fn</span> <span class="f">burst_drains_bucket</span>() { <span class="c">/* … */</span> }'},
+        {t:'add', h:''},
+        {t:'add', h:'<span class="k">#[test]</span>'},
+        {t:'add', h:'<span class="k">fn</span> <span class="f">refill_across_window_boundary</span>() { <span class="c">/* … */</span> }'},
+        {t:'add', h:''},
+        {t:'add', h:'<span class="k">#[test]</span>'},
+        {t:'add', h:'<span class="k">fn</span> <span class="f">concurrent_allow_never_overdraws</span>() { <span class="c">/* … */</span> }'}
+      ]
+    }
+  ];
+
+  var bodyEl = document.getElementById('windowBody');
+  var promptEl = document.getElementById('promptText');
+  var modelEl = document.getElementById('modelText');
+  var timeEl = document.getElementById('promptTime');
+  var codeEl = document.getElementById('codePane');
+  var addStat = document.getElementById('addStat');
+  var delStat = document.getElementById('delStat');
+  var MAX_LINES = 10;
+
+  function addCodeLine(line, num){
+    var div = document.createElement('div');
+    div.className = 'cline ' + line.t;
+    var ln = document.createElement('span');
+    ln.className = 'ln';
+    ln.textContent = (line.t === 'del') ? '−' : String(num);
+    var lc = document.createElement('span');
+    lc.className = 'lc';
+    lc.innerHTML = line.h || ' ';
+    div.appendChild(ln);
+    div.appendChild(lc);
+    codeEl.appendChild(div);
+    while (codeEl.children.length > MAX_LINES) codeEl.removeChild(codeEl.firstChild);
+  }
+
+  async function typeText(el, text, base, spread){
+    el.classList.add('typing');
+    el.textContent = '';
+    for (var i = 0; i < text.length; i++){
+      el.textContent += text[i];
+      await sleep(base + Math.random() * spread);
+    }
+    el.classList.remove('typing');
+  }
+
+  function renderStatic(){
+    var s = scenes[0];
+    timeEl.textContent = s.time;
+    promptEl.textContent = s.prompt;
+    modelEl.textContent = s.model;
+    addStat.textContent = s.stat[0];
+    delStat.textContent = s.stat[1];
+    var num = 41;
+    s.code.forEach(function(l){ addCodeLine(l, l.t === 'del' ? num : num++); });
+  }
+
+  async function runScenes(){
+    var idx = 0;
+    while (true){
+      var s = scenes[idx];
+      timeEl.textContent = s.time;
+      addStat.textContent = s.stat[0];
+      delStat.textContent = s.stat[1];
+      codeEl.innerHTML = '';
+      modelEl.textContent = '';
+      await typeText(promptEl, s.prompt, 22, 40);
+      await sleep(650);
+      await typeText(modelEl, s.model, 9, 16);
+      await sleep(500);
+      var num = 38 + idx * 11;
+      for (var i = 0; i < s.code.length; i++){
+        addCodeLine(s.code[i], s.code[i].t === 'del' ? num : num++);
+        await sleep(190);
+      }
+      await sleep(3200);
+      bodyEl.classList.add('wipe');
+      await sleep(280);
+      promptEl.textContent = '';
+      modelEl.textContent = '';
+      bodyEl.classList.remove('wipe');
+      idx = (idx + 1) % scenes.length;
+    }
+  }
+
+  if (reduced){ renderStatic(); } else { runScenes(); }
+
+  /* ---------- Viewer count jitter ---------- */
+  var viewers = 1842;
+  var viewerEl = document.getElementById('viewerCount');
+  if (!reduced){
+    setInterval(function(){
+      viewers += Math.floor(Math.random() * 11) - 4;
+      if (viewers < 1600) viewers = 1600;
+      if (viewers > 2400) viewers = 2400;
+      viewerEl.textContent = fmt(viewers);
+    }, 2000);
+  }
+
+  /* ---------- Chat cycler ---------- */
+  var chatPool = [
+    ['u1','@sara_dev','that prompt is doing some heavy lifting'],
+    ['u2','@mren','forked — trying this with sqlite instead'],
+    ['u3','@priya','token bucket > leaky bucket, good call'],
+    ['u4','@h0pes','watching from the train, 10/10 stream'],
+    ['u1','@kenji','the shard trick is neat. bench it?'],
+    ['u2','@ada_w','can you show the flamegraph output'],
+    ['u3','@tom_b','this is better than my standup'],
+    ['u4','@june_h','/prompt "contention-free at 10k rps"'],
+    ['u1','@mren','update: sqlite fork passes the tests'],
+    ['u2','@sara_dev','shipping this to staging today, no notes']
+  ];
+  var chatEl = document.getElementById('chatLines');
+  var chatIdx = 0;
+  function pushChat(){
+    var m = chatPool[chatIdx % chatPool.length];
+    var div = document.createElement('div');
+    div.className = 'chat-line';
+    var b = document.createElement('b');
+    b.className = m[0];
+    b.textContent = m[1];
+    div.appendChild(b);
+    div.appendChild(document.createTextNode(' ' + m[2]));
+    chatEl.appendChild(div);
+    while (chatEl.children.length > 3) chatEl.removeChild(chatEl.firstChild);
+    chatIdx++;
+  }
+  pushChat(); pushChat(); pushChat();
+  if (!reduced) setInterval(pushChat, 2600);
+
+  /* ---------- Count-up stats ---------- */
+  function countUp(el){
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    if (reduced){ el.textContent = fmt(target); return; }
+    var start = null, dur = 1500;
+    function step(ts){
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(target * eased));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var countEls = document.querySelectorAll('[data-count]');
+  if ('IntersectionObserver' in window){
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ countUp(e.target); cio.unobserve(e.target); }
+      });
+    }, {threshold: .4});
+    countEls.forEach(function(el){ cio.observe(el); });
+  } else {
+    countEls.forEach(countUp);
+  }
+
+  /* ---------- Scroll reveal ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if (reduced || !('IntersectionObserver' in window)){
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var rio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e, i){
+        if (e.isIntersecting){
+          e.target.style.transitionDelay = '0ms';
+          e.target.classList.add('in');
+          rio.unobserve(e.target);
+        }
+      });
+    }, {threshold: .12});
+    revealEls.forEach(function(el){ rio.observe(el); });
+  }
+
+  /* ---------- Fork demo ---------- */
+  var forkBtn = document.getElementById('forkBtn');
+  var forkCount = document.getElementById('forkCount');
+  var forkNote = document.getElementById('forkNote');
+  var forks = 312;
+  forkBtn.addEventListener('click', function(){
+    if (forkBtn.classList.contains('done')) return;
+    forks++;
+    forkCount.textContent = fmt(forks);
+    forkCount.classList.remove('bump');
+    void forkCount.offsetWidth;
+    forkCount.classList.add('bump');
+    forkBtn.classList.add('done');
+    forkBtn.innerHTML = '✓&nbsp;&nbsp;Forked — you/ratelimit-rs';
+    forkBtn.setAttribute('aria-disabled', 'true');
+    forkNote.hidden = false;
+  });
+
+  /* ---------- Transcript filter ---------- */
+  var tSearch = document.getElementById('tSearch');
+  var tList = document.getElementById('tList');
+  var tCount = document.getElementById('tCount');
+  var rows = Array.prototype.slice.call(tList.querySelectorAll('li'));
+  rows.forEach(function(li){
+    var body = li.querySelector('.t-body');
+    li.dataset.orig = body.textContent;
+    li.dataset.hay = (li.textContent).toLowerCase();
+  });
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  tSearch.addEventListener('input', function(){
+    var q = tSearch.value.trim().toLowerCase();
+    var shown = 0;
+    rows.forEach(function(li){
+      var body = li.querySelector('.t-body');
+      var orig = li.dataset.orig;
+      if (!q){
+        body.textContent = orig;
+        li.classList.remove('hide');
+        shown++;
+        return;
+      }
+      if (li.dataset.hay.indexOf(q) !== -1){
+        var re = new RegExp('(' + escRe(q) + ')', 'ig');
+        body.innerHTML = escHtml(orig).replace(re, '<mark>$1</mark>');
+        li.classList.remove('hide');
+        shown++;
+      } else {
+        li.classList.add('hide');
+      }
+    });
+    tCount.textContent = shown + ' of ' + rows.length + ' moments';
+  });
+
+  /* ---------- Model router demo ---------- */
+  var models = {
+    opus:   { ttft:480, tps:92,  ctx:200,  ctxLabel:'200K tokens' },
+    gpt:    { ttft:610, tps:78,  ctx:256,  ctxLabel:'256K tokens' },
+    gemini: { ttft:390, tps:110, ctx:1000, ctxLabel:'1M tokens' },
+    local:  { ttft:120, tps:45,  ctx:32,   ctxLabel:'32K tokens' }
+  };
+  var MAX = { ttft:610, tps:110, ctx:1000 };
+  var chips = document.querySelectorAll('.chip');
+  var ttftVal = document.getElementById('ttftVal'),
+      tpsVal = document.getElementById('tpsVal'),
+      ctxVal = document.getElementById('ctxVal'),
+      ttftBar = document.getElementById('ttftBar'),
+      tpsBar = document.getElementById('tpsBar'),
+      ctxBar = document.getElementById('ctxBar');
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){ c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
+      chip.classList.add('active');
+      chip.setAttribute('aria-pressed','true');
+      var m = models[chip.dataset.model];
+      ttftVal.textContent = m.ttft + ' ms';
+      tpsVal.textContent = m.tps + ' tok/s';
+      ctxVal.textContent = m.ctxLabel;
+      ttftBar.style.width = Math.max(6, Math.round(m.ttft / MAX.ttft * 100)) + '%';
+      tpsBar.style.width = Math.max(6, Math.round(m.tps / MAX.tps * 100)) + '%';
+      ctxBar.style.width = Math.max(6, Math.round(m.ctx / MAX.ctx * 100)) + '%';
+    });
+  });
+
+  /* ---------- Signup form ---------- */
+  var form = document.getElementById('signupForm');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = document.getElementById('email').value.trim();
+    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+    if (!ok){
+      form.classList.add('error');
+      document.getElementById('formNote').textContent = 'That email doesn’t look right — mind checking it?';
+      document.getElementById('email').focus();
+      return;
+    }
+    var invite = 4600 + Math.floor(Math.random() * 300);
+    form.innerHTML =
+      '<div class="signup-success"><span class="sq sq-green"></span><div>' +
+      '<strong>You’re on the list.</strong>' +
+      '<p>Invite #' + fmt(invite) + ' · confirmation sent to ' + email.replace(/</g,'&lt;') + ' · invites go out Tuesday.</p>' +
+      '</div></div>';
+  });
+  document.getElementById('email').addEventListener('input', function(){
+    form.classList.remove('error');
+    document.getElementById('formNote').textContent = 'No card. No lock-in. Unsubscribe anytime.';
+  });
+
+  /* ---------- Mobile menu: close on link click ---------- */
+  var mm = document.querySelector('.mobile-menu');
+  mm.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ mm.removeAttribute('open'); });
+  });
+})();
+</script>
+</body>
+</html>

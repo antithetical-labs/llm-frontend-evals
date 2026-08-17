@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamforge - Live AI Coding Streams</title>
+    <style>
+        /* Base Reset & Variables */
+        :root {
+            --bg-color: #F4F4EE;
+            --text-color: #0A0A0A;
+            --primary: #0033CC;
+            --secondary: #FF4400;
+            --accent: #FFD600;
+            --code-bg: #1E1E1E;
+            --code-text: #00FF66;
+            --border-heavy: 3px solid #0A0A0A;
+            --border-light: 1px solid #0A0A0A;
+            --shadow-solid: 6px 6px 0px #0A0A0A;
+            --shadow-solid-sm: 3px 3px 0px #0A0A0A;
+            
+            --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        h1 { font-size: clamp(3rem, 6vw, 5.5rem); letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+        h2 { font-size: clamp(2rem, 4vw, 3.5rem); margin-bottom: 1rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        p { font-size: 1.125rem; margin-bottom: 1.5rem; max-width: 60ch; }
+        
+        .mono { font-family: var(--font-mono); }
+
+        /* Layout & Containers */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 6rem 0;
+            border-bottom: var(--border-heavy);
+        }
+
+        /* Buttons & Links */
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-block;
+            font-family: var(--font-ui);
+            font-weight: 800;
+            font-size: 1.125rem;
+            text-transform: uppercase;
+            padding: 1rem 2rem;
+            background-color: var(--primary);
+            color: #FFFFFF;
+            border: var(--border-heavy);
+            box-shadow: var(--shadow-solid);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px #0A0A0A;
+        }
+
+        .btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px #0A0A0A;
+        }
+
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: var(--text-color);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: var(--text-color);
+        }
+
+        /* Navigation */
+        nav {
+            border-bottom: var(--border-heavy);
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            background: var(--text-color);
+            color: var(--bg-color);
+            padding: 0.25rem 0.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links .hide-mobile { display: none; }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-color: var(--accent);
+            padding: 4rem 0 6rem 0;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-visual {
+            background: #FFFFFF;
+            border: var(--border-heavy);
+            box-shadow: var(--shadow-solid);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .window-bar {
+            border-bottom: var(--border-heavy);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-color);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .window-controls span {
+            display: block;
+            width: 16px;
+            height: 16px;
+            border: var(--border-heavy);
+        }
+
+        .live-badge {
+            background: var(--secondary);
+            color: #FFF;
+            font-weight: 900;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.8rem;
+            border: 2px solid var(--text-color);
+        }
+
+        .stream-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .stream-main {
+            border-right: var(--border-heavy);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-placeholder {
+            height: 40%;
+            background: #D9D9D9;
+            border-bottom: var(--border-heavy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .code-editor {
+            height: 60%;
+            background: var(--code-bg);
+            color: #FFF;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .code-line { margin-bottom: 0.5rem; }
+        .code-comment { color: #888; }
+        .code-add { color: var(--code-text); }
+        .code-keyword { color: #569CD6; }
+
+        .stream-sidebar {
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-log {
+            flex: 1;
+            padding: 1rem;
+            font-size: 0.85rem;
+            border-bottom: var(--border-heavy);
+        }
+
+        .prompt-bubble {
+            background: #FFFFFF;
+            border: var(--border-light);
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-solid-sm);
+        }
+        
+        .ai-bubble {
+            background: #E8E8FF;
+            border: var(--border-light);
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-solid-sm);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr; }
+        }
+
+        /* How it Works */
+        .how-it-works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .step-card {
+            background: #FFFFFF;
+            border: var(--border-heavy);
+            padding: 2rem;
+            box-shadow: var(--shadow-solid);
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+            border-bottom: var(--border-heavy);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Features */
+        .feature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .feature-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-block.reverse {
+            direction: rtl;
+        }
+        
+        .feature-block.reverse > * {
+            direction: ltr;
+        }
+
+        .feature-text p {
+            font-size: 1.25rem;
+        }
+
+        .feature-graphic {
+            background: #FFF;
+            border: var(--border-heavy);
+            padding: 2rem;
+            box-shadow: var(--shadow-solid);
+            position: relative;
+        }
+
+        /* Graphic 1: Prompt Transparency */
+        .diff-box {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+        .diff-header {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 0.5rem;
+        }
+        .diff-line.removed { background: #FFD6D6; color: #CC0000; padding: 0.2rem 0.5rem; border-left: 4px solid #CC0000; }
+        .diff-line.added { background: #D6FFD6; color: #006600; padding: 0.2rem 0.5rem; border-left: 4px solid #006600; margin-top: 0.2rem;}
+
+        /* Graphic 2: Git Branch Forking */
+        .git-tree {
+            position: relative;
+            padding: 1rem 0 1rem 3rem;
+        }
+        .git-line {
+            position: absolute;
+            left: 1.5rem;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--text-color);
+        }
+        .git-commit {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .git-commit::before {
+            content: '';
+            position: absolute;
+            left: -1.9rem;
+            top: 0.2rem;
+            width: 16px;
+            height: 16px;
+            background: var(--bg-color);
+            border: 4px solid var(--text-color);
+        }
+        .git-branch {
+            position: absolute;
+            left: -1.5rem;
+            top: 1rem;
+            width: 2rem;
+            height: 3rem;
+            border-bottom: 4px solid var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        .git-commit.fork::before {
+            border-color: var(--secondary);
+            background: var(--secondary);
+        }
+        .fork-label {
+            background: var(--secondary);
+            color: #FFF;
+            padding: 0.2rem 0.5rem;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-left: 1rem;
+            border: 2px solid var(--text-color);
+        }
+
+        /* Graphic 3: Real-time context */
+        .context-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .context-stat {
+            border: var(--border-heavy);
+            padding: 1rem;
+            text-align: center;
+        }
+        .context-stat h4 {
+            font-size: 0.85rem;
+            color: #555;
+        }
+        .context-stat div {
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-family: var(--font-mono);
+        }
+
+        @media (max-width: 900px) {
+            .feature-block, .feature-block.reverse {
+                grid-template-columns: 1fr;
+                direction: ltr;
+                gap: 2rem;
+            }
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            text-align: center;
+            padding: 8rem 2rem;
+            border-bottom: none;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--text-color);
+            padding: 4rem 2rem;
+            border: 4px solid #FFFFFF;
+            box-shadow: 12px 12px 0px var(--accent);
+        }
+
+        .cta-content h2 {
+            color: #FFFFFF;
+        }
+
+        .signup-form {
+            display: flex;
+            gap: 0;
+            margin-top: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .signup-form input {
+            padding: 1rem 1.5rem;
+            font-size: 1.125rem;
+            border: none;
+            border: var(--border-heavy);
+            font-family: var(--font-mono);
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+            outline: none;
+        }
+
+        .signup-form input:focus {
+            background-color: #F0F8FF;
+        }
+
+        .signup-form button {
+            background-color: var(--secondary);
+            color: #FFF;
+            border: var(--border-heavy);
+            border-left: none;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 900;
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .signup-form button:hover {
+            background-color: #E63D00;
+        }
+        
+        @media (max-width: 600px) {
+            .signup-form { gap: 1rem; }
+            .signup-form input { border: var(--border-heavy); }
+            .signup-form button { border-left: var(--border-heavy); width: 100%; }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-color);
+            color: #FFFFFF;
+            padding: 3rem 2rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            margin: 0 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">STREAMFORGE</a>
+            <div class="nav-links">
+                <a href="#" class="hide-mobile">Browse Streams</a>
+                <a href="#" class="hide-mobile">Documentation</a>
+                <a href="#" class="btn btn-secondary">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container hero-grid">
+                <div class="hero-text">
+                    <h1>Watch code evolve.<br>Live. With AI.</h1>
+                    <p>Streamforge is the first live-streaming platform where developers broadcast building software alongside AI assistants. See the prompts, watch the model's output, and fork the repository in real time.</p>
+                    <div class="hero-actions">
+                        <a href="#cta" class="btn">Start Watching</a>
+                        <a href="#how-it-works" class="btn btn-secondary">How it Works</a>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="window-bar">
+                        <div class="window-controls">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="live-badge">LIVE 1.2K VIEWERS</div>
+                    </div>
+                    <div class="stream-layout">
+                        <div class="stream-main">
+                            <div class="video-placeholder">
+                                CAMERA FEED
+                            </div>
+                            <div class="code-editor">
+                                <div class="code-line"><span class="code-keyword">import</span> { serve } <span class="code-keyword">from</span> 'bun';</div>
+                                <div class="code-line"><br></div>
+                                <div class="code-line code-comment">// AI generated routing block</div>
+                                <div class="code-line code-add">+ serve({</div>
+                                <div class="code-line code-add">+   port: 3000,</div>
+                                <div class="code-line code-add">+   fetch(req) {</div>
+                                <div class="code-line code-add">+     return new Response("Streamforge Forge");</div>
+                                <div class="code-line code-add">+   },</div>
+                                <div class="code-line code-add">+ });</div>
+                            </div>
+                        </div>
+                        <div class="stream-sidebar">
+                            <div class="prompt-log">
+                                <strong>AI CONTEXT WINDOW</strong><br><br>
+                                <div class="prompt-bubble">
+                                    <strong>Dev:</strong> Write a basic bun server that returns a text response on port 3000.
+                                </div>
+                                <div class="ai-bubble">
+                                    <strong>Copilot:</strong> Generating standard serve block... applied to editor.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works Section -->
+        <section id="how-it-works">
+            <div class="container">
+                <h2>The Development Loop, Broadcasted.</h2>
+                <p>We integrate directly with your environment to broadcast not just your screen, but the raw data of your session.</p>
+                
+                <div class="how-it-works-grid">
+                    <div class="step-card">
+                        <div class="step-number">01.</div>
+                        <h3>Hook Up Your IDE</h3>
+                        <p>Connect your local editor via the Streamforge CLI. We securely sync your file tree, terminal output, and AI extension chat logs without exposing secrets.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">02.</div>
+                        <h3>Broadcast The Flow</h3>
+                        <p>Go live. Your audience sees a structured, high-resolution view of your workspace. No more squinting at compressed 1080p screen shares to read code.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">03.</div>
+                        <h3>Audience Forks Along</h3>
+                        <p>Every keystroke and AI generation is synced to our ephemeral git backend. Viewers can pull the exact repository state at any timestamp of the stream.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+            <div class="container">
+                
+                <div class="feature-block">
+                    <div class="feature-text">
+                        <h2>Prompt-to-Code Transparency</h2>
+                        <p>Watching senior developers work with LLMs is the fastest way to learn modern software engineering. We don't just show the final code; we expose the exact prompts, system context, and iterative refinements the streamer uses to coax the right output from the model.</p>
+                    </div>
+                    <div class="feature-graphic">
+                        <div class="diff-box">
+                            <div class="diff-header">app/auth/middleware.ts</div>
+                            <div class="diff-line removed">- const verify = (token) => { return true; }</div>
+                            <div class="diff-line added">+ import jwt from 'jsonwebtoken';</div>
+                            <div class="diff-line added">+ const verify = (token) => {</div>
+                            <div class="diff-line added">+   return jwt.verify(token, process.env.SECRET);</div>
+                            <div class="diff-line added">+ }</div>
+                        </div>
+                        <div style="margin-top: 1rem; border-top: 2px solid #000; padding-top: 1rem; font-family: var(--font-ui); font-size: 0.9rem; font-weight: bold;">
+                            PROMPT FIRED: "Refactor to use jsonwebtoken using the secret from env."
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-block reverse">
+                    <div class="feature-text">
+                        <h2>Instant Repository Synchronization</h2>
+                        <p>Don't just watch passively. Streamforge maintains a shadow git repository of the streamer's workspace. See an interesting bug? Click "Fork" to clone the exact state of the codebase at that specific second of the live stream and debug it locally.</p>
+                    </div>
+                    <div class="feature-graphic">
+                        <div class="git-tree">
+                            <div class="git-line"></div>
+                            <div class="git-commit">
+                                <strong>Initial Setup</strong><br>
+                                <span class="mono">00:15:23</span>
+                            </div>
+                            <div class="git-commit">
+                                <strong>Added Auth Middleware</strong><br>
+                                <span class="mono">00:42:11</span>
+                            </div>
+                            <div class="git-branch"></div>
+                            <div class="git-commit fork" style="margin-left: 2rem;">
+                                <strong>Viewer Fork Created</strong><br>
+                                <span class="mono">00:44:05</span>
+                                <div class="fork-label">git clone streamforge/id/f83a</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-block">
+                    <div class="feature-text">
+                        <h2>Multiplayer Context Streaming</h2>
+                        <p>The stream chat isn't just text. Viewers can suggest code diffs, submit alternative prompts to the streamer's queue, and view live statistics about the project's dependency tree, test coverage, and LLM token usage.</p>
+                    </div>
+                    <div class="feature-graphic">
+                        <div class="context-grid">
+                            <div class="context-stat">
+                                <h4>LLM TOKENS USED</h4>
+                                <div>45,201</div>
+                            </div>
+                            <div class="context-stat">
+                                <h4>ACTIVE FILES</h4>
+                                <div>app.tsx, api.ts</div>
+                            </div>
+                            <div class="context-stat">
+                                <h4>TEST PASS RATE</h4>
+                                <div style="color: #008800;">100% (42/42)</div>
+                            </div>
+                            <div class="context-stat">
+                                <h4>VIEWER FORKS</h4>
+                                <div>128</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="cta" class="cta-section">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Join the Forge.</h2>
+                    <p style="margin: 1rem auto; max-width: 100%;">Enter your email to request early access to the developer preview. Start streaming your AI workflows.</p>
+                    <form class="signup-form" onsubmit="event.preventDefault();">
+                        <input type="email" placeholder="developer@domain.com" required>
+                        <button type="submit">Request Access</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div>
+            STREAMFORGE &copy; 2023. ALL RIGHTS RESERVED.
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">GitHub</a>
+            <a href="#">Twitter</a>
+        </div>
+    </footer>
+
+</body>
+</html>

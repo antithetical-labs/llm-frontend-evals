@@ -3,11 +3,12 @@
 Colours come from DESIGN.md in the site repo, which is the single source of
 truth -- they are OKLCH there and sRGB here, but nothing is invented.
 
-The sequential ramp is validated, not eyeballed:
+The sequential ramp is validated, not eyeballed, and the validator is in this
+repo so the claim can be rechecked rather than taken on faith:
 
-    python scripts/validate_palette.py "$RAMP" --mode dark \\
-        --surface "#0E0A09" --ordinal
-    -> ALL CHECKS PASS (one hue, monotone L, visible gaps, light end clears surface)
+    python scripts/validate_palette.py --ramp
+    -> ALL CHECKS PASS (one hue, monotone L, visible gaps, darkest step clears
+       the surface)
 
 The dark end deliberately sits *above* the page background rather than equal to
 it. Zero-attention cells and the causal mask must not look the same: the mask is

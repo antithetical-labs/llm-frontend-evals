@@ -346,6 +346,320 @@ def _plate(cells: list[tuple[str, Path]], title: str, out: Path,
     return out
 
 
+def fig_banned_vs_not(rows: list[dict]) -> Path:
+    """Every measured pattern, before and after four of them are banned.
+
+    Answers: does banning a pattern remove it, and what happens to the ones you
+    did not name? The split by whether a pattern was named is the whole
+    argument, so that split carries the colour, and it is repeated in the row
+    label so the chart survives greyscale and colour-vision deficiency.
+    """
+    bare = [r for r in rows if r["cond"] == "bare"]
+    forb = [r for r in rows if r["cond"] == "forbid"]
+
+    # The prohibition names exactly these four. Everything else is untouched by
+    # the instruction and free to do whatever it was going to do anyway.
+    BANNED = {"gradient", "frosted glass", "pill button", "dark background"}
+
+    def pair(name):
+        if name == "dark background":
+            f = lambda pool: sum(1 for r in pool if r["bg_L"] < 0.30) / len(pool)
+            return f(bare), f(forb)
+        return rate(bare, name), rate(forb, name)
+
+    names = ["gradient", "pill button", "frosted glass", "dark background",
+             "glow shadow", "dingbat (✓ ✦)", "emoji", "eyebrow label",
+             "numbered markers"]
+    data = []
+    for n in names:
+        b, f = pair(n)
+        data.append((n, b, f, n in BANNED))
+    data.sort(key=lambda t: t[2] - t[1])
+
+    y = np.arange(len(data))
+    fig, ax = plt.subplots(figsize=(9, 4.0))
+    ax.set_facecolor(BG)
+    for i, (n, b, f, banned) in enumerate(data):
+        colour = RAMP[0] if banned else ACCENT
+        ax.plot([b, f], [i, i], "-", color=HAIR, lw=1.5, zorder=1)
+        ax.plot(b, i, "o", color=MUTED, markersize=7, zorder=2,
+                markeredgecolor=BG, markeredgewidth=1.2)
+        ax.plot(f, i, "o", color=colour, markersize=8, zorder=3,
+                markeredgecolor=BG, markeredgewidth=1.2)
+        ax.text(1.05, i, f"{(f - b) * 100:+.0f}", va="center", color=MUTED,
+                fontsize=8, **MONO)
+
+    ax.set_yticks(y)
+    ax.set_yticklabels([f"{n}  ·  BANNED" if bn else n
+                        for n, _, _, bn in data], color=TEXT, fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1.22)
+    ax.set_xticks([0, 0.5, 1])
+    ax.set_xticklabels(["0", "50", "100%"], **MONO)
+    ax.set_xlabel("share of pages carrying the pattern", color=MUTED,
+                  fontsize=8, labelpad=8)
+    ax.tick_params(colors=MUTED, labelsize=8)
+    ax.grid(True, axis="x", color=HAIR, lw=0.4)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_color(HAIR)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=MUTED),
+               plt.Rectangle((0, 0), 1, 1, color=RAMP[0]),
+               plt.Rectangle((0, 0), 1, 1, color=ACCENT)]
+    ax.legend(handles,
+              ["untouched", "after the ban, named", "after the ban, not named"],
+              loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3,
+              frameon=False, labelcolor=TEXT, fontsize=8)
+    ax.set_title("Only what you name goes to zero",
+                 color=TEXT, fontsize=12, loc="left", pad=10)
+    fig.text(0.125, -0.22,
+             "40 untouched pages, 39 forbidden  ·  change in percentage "
+             "points  ·  llm-frontend-evals", color=MUTED, fontsize=7.5,
+             **MONO)
+    return _finish(fig, OUT / "chart-banned-vs-not.png")
+
+
+def fig_clusters(rows: list[dict]) -> Path:
+    """Whether patterns arrive independently or in bundles.
+
+    Answers: is a design attractor one feature or a package? Phi over the
+    untouched pages, with each brief's own value shown beside the pooled one,
+    because the obvious objection is that any co-occurrence is really the
+    product category showing through. It is not: the within-brief values are as
+    strong or stronger.
+    """
+    bare = [r for r in rows if r["cond"] == "bare"]
+    for r in bare:
+        r["dark bg"] = r["bg_L"] < 0.30
+    feats = ["gradient", "frosted glass", "pill button", "glow shadow",
+             "dingbat (✓ ✦)", "emoji", "eyebrow label", "numbered markers",
+             "dark bg"]
+
+    def phi(pool, a, b):
+        n = len(pool)
+        n11 = sum(1 for r in pool if r[a] and r[b])
+        n10 = sum(1 for r in pool if r[a] and not r[b])
+        n01 = sum(1 for r in pool if not r[a] and r[b])
+        n00 = n - n11 - n10 - n01
+        den = ((n11 + n10) * (n01 + n00) * (n11 + n01) * (n10 + n00)) ** 0.5
+        return (n11 * n00 - n10 * n01) / den if den else float("nan")
+
+    sf = [r for r in bare if r["brief"] == "streamforge"]
+    bl = [r for r in bare if r["brief"] == "backlot"]
+    scored = sorted(((phi(bare, a, b), a, b)
+                     for i, a in enumerate(feats) for b in feats[i + 1:]),
+                    key=lambda t: -t[0])[:8]
+
+    y = np.arange(len(scored))
+    fig, ax = plt.subplots(figsize=(9, 3.6))
+    ax.set_facecolor(BG)
+    for i, (v, a, b) in enumerate(scored):
+        for pool in (sf, bl):
+            w = phi(pool, a, b)
+            if w == w:
+                ax.plot(w, i, "o", color=HAIR, markersize=6, zorder=2)
+        ax.plot(v, i, "o", color=ACCENT, markersize=9, zorder=3,
+                markeredgecolor=BG, markeredgewidth=1.3)
+        ax.text(1.02, i, f"{v:+.2f}", va="center", color=MUTED, fontsize=8,
+                **MONO)
+
+    ax.set_yticks(y)
+    ax.set_yticklabels([f"{a}  +  {b}" for _, a, b in scored],
+                       color=TEXT, fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1.16)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
+    ax.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"], **MONO)
+    ax.set_xlabel("how often the two appear on the same page  (phi, 1 = always together)",
+                  color=MUTED, fontsize=8, labelpad=8)
+    ax.tick_params(colors=MUTED, labelsize=8)
+    ax.grid(True, axis="x", color=HAIR, lw=0.4)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_color(HAIR)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=ACCENT),
+               plt.Rectangle((0, 0), 1, 1, color=HAIR)]
+    ax.legend(handles, ["all untouched pages", "within one brief"],
+              loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=2,
+              frameon=False, labelcolor=TEXT, fontsize=8)
+    ax.set_title("Patterns arrive in bundles, not one at a time",
+                 color=TEXT, fontsize=12, loc="left", pad=10)
+    fig.text(0.125, -0.30,
+             "40 untouched pages  ·  eight strongest pairs of 36  ·  "
+             "llm-frontend-evals", color=MUTED, fontsize=7.5, **MONO)
+    return _finish(fig, OUT / "chart-clusters.png")
+
+
+def fig_genre_erased(rows: list[dict]) -> Path:
+    """Whether the product category still decides the palette.
+
+    Answers: once you give any design instruction at all, does the genre
+    default survive? Each row is a condition and the two dots are the two
+    briefs, so the distance between them is the whole reading and the pair is
+    joined to make that distance the mark.
+    """
+    order = ["bare", "nudge", "forbid", "direct1", "direct"]
+    label = {"bare": "nothing said", "nudge": '"be distinctive"',
+             "forbid": "four patterns banned", "direct1": "direction",
+             "direct": "direction + grounding"}
+
+    def med(cond, brief):
+        v = sorted(r["bg_L"] for r in rows
+                   if r["cond"] == cond and r["brief"] == brief)
+        return v[len(v) // 2]
+
+    fig, ax = plt.subplots(figsize=(9, 3.2))
+    ax.set_facecolor(BG)
+    for i, cond in enumerate(order):
+        dev, back = med(cond, "streamforge"), med(cond, "backlot")
+        ax.plot([dev, back], [i, i], "-", color=HAIR, lw=1.6, zorder=1)
+        ax.plot(dev, i, "o", color=ACCENT, markersize=8, zorder=3,
+                markeredgecolor=BG, markeredgewidth=1.3)
+        ax.plot(back, i, "o", color=MUTED, markersize=8, zorder=3,
+                markeredgecolor=BG, markeredgewidth=1.3)
+        ax.text(1.04, i, f"gap {abs(dev - back):.2f}", va="center",
+                color=MUTED, fontsize=8, **MONO)
+
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([label[c] for c in order], color=TEXT, fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1.30)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
+    ax.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"], **MONO)
+    ax.set_xlabel("median background lightness   (0 = black, 1 = white)",
+                  color=MUTED, fontsize=8, labelpad=8)
+    ax.tick_params(colors=MUTED, labelsize=8)
+    ax.grid(True, axis="x", color=HAIR, lw=0.4)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_color(HAIR)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=ACCENT),
+               plt.Rectangle((0, 0), 1, 1, color=MUTED)]
+    # Below the axes: the gap labels occupy the right gutter on every row and
+    # the plot area itself has no corner free across all five.
+    ax.legend(handles, ["dev tool", "back-office tool"], loc="upper center",
+              bbox_to_anchor=(0.5, -0.22), ncol=2, frameon=False,
+              labelcolor=TEXT, fontsize=8)
+    ax.set_title("Any instruction at all erases the product category",
+                 color=TEXT, fontsize=12, loc="left", pad=10)
+    fig.text(0.125, -0.26,
+             "median of ~20 pages per brief per condition  ·  llm-frontend-evals",
+             color=MUTED, fontsize=7.5, **MONO)
+    return _finish(fig, OUT / "chart-genre-erased.png")
+
+
+def _rows_plate(rows_of_cells, title: str, out: Path,
+                cell_w: int, cell_h: int) -> Path:
+    """Several labelled rows of screenshots, for a before/after contrast."""
+    from PIL import Image, ImageDraw, ImageFont
+
+    from .sheets import FONT_DIR
+
+    pad, label_h, head = 16, 26, 44
+
+    def font(size: int, mono: bool = True):
+        name = "jetbrainsmono-400.ttf" if mono else "archivo-500.ttf"
+        try:
+            return ImageFont.truetype(str(FONT_DIR / name), size)
+        except OSError:
+            return ImageFont.load_default()
+
+    cols = max(len(r["cells"]) for r in rows_of_cells)
+    width = cols * cell_w + (cols + 1) * pad
+    height = head + sum(cell_h + label_h + pad for _ in rows_of_cells) + pad
+    canvas = Image.new("RGB", (width, height), BG)
+    draw = ImageDraw.Draw(canvas)
+    draw.text((pad, 13), title, fill=TEXT, font=font(19, mono=False))
+
+    y = head
+    for row in rows_of_cells:
+        draw.text((pad, y), row["label"], fill=MUTED, font=font(12))
+        for i, (cap, path) in enumerate(row["cells"]):
+            x = pad + i * (cell_w + pad)
+            box = (x, y + label_h, x + cell_w, y + label_h + cell_h)
+            im = Image.open(path).convert("RGB")
+            crop = im.crop((0, 0, im.width,
+                            min(im.height, int(im.width * cell_h / cell_w))))
+            canvas.paste(crop.resize((cell_w, cell_h), Image.LANCZOS), box[:2])
+            draw.rectangle(box, outline=HAIR, width=1)
+        y += cell_h + label_h + pad
+
+    OUT.mkdir(exist_ok=True)
+    canvas.quantize(colors=256, method=Image.MEDIANCUT,
+                    dither=Image.FLOYDSTEINBERG).save(out, optimize=True)
+    return out
+
+
+def fig_forbid_vs_direct() -> Path:
+    """The same four models, told what not to do and told what to aim at."""
+    from .sheets import SHOTS
+    models = ["claude", "gpt", "kimi", "gemini"]
+
+    def row(cond, label):
+        return {"label": label,
+                "cells": [(m, SHOTS / f"{m}__streamforge__{cond}__1.png")
+                          for m in models]}
+
+    return _rows_plate(
+        [row("forbid", "four patterns banned by name"),
+         row("direct", 'one sentence: "take the visual direction from acid '
+                       'design", then grounded')],
+        "Same brief, same four models, two kinds of instruction",
+        OUT / "shot-forbid-vs-direct.png", cell_w=440, cell_h=300)
+
+
+def fig_richness(rows: list[dict]) -> Path:
+    """How much colour survives each instruction.
+
+    Answers: what does each kind of instruction do to how much is actually on
+    the page, for someone deciding how to prompt. Every page is a dot rather
+    than a bar of the median, because the spread is the point: forbidding
+    collapses it and direction widens it.
+    """
+    order = ["bare", "nudge", "forbid", "direct1", "direct"]
+    label = {"bare": "nothing said", "nudge": '"be distinctive"',
+             "forbid": "four patterns banned", "direct1": "direction",
+             "direct": "direction + grounding"}
+    fig, ax = plt.subplots(figsize=(9, 3.6))
+    ax.set_facecolor(BG)
+
+    rng = np.random.default_rng(0)   # jitter only, never a data value
+    for i, cond in enumerate(order):
+        vals = [r["chromatic_elements"] for r in rows if r["cond"] == cond]
+        ax.plot(vals, i + rng.uniform(-0.16, 0.16, len(vals)), "o",
+                color=HAIR, markersize=5, zorder=1)
+        med = sorted(vals)[len(vals) // 2]
+        ax.plot([med], [i], "o", color=ACCENT, markersize=11, zorder=3,
+                markeredgecolor=BG, markeredgewidth=1.4)
+        ax.text(med, i - 0.34, f"{med}", color=TEXT, fontsize=9,
+                ha="center", **MONO)
+
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([label[c] for c in order], color=TEXT, fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlabel("coloured elements on the page", color=MUTED, fontsize=8,
+                  labelpad=8)
+    ax.tick_params(colors=MUTED, labelsize=8)
+    for lbl in ax.get_xticklabels():
+        lbl.set(**MONO)
+    ax.grid(True, axis="x", color=HAIR, lw=0.4)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_color(HAIR)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=HAIR),
+               plt.Rectangle((0, 0), 1, 1, color=ACCENT)]
+    # Upper right: the two lightest rows carry no data past ~100, so the
+    # legend sits in real empty space rather than over the bottom row's tail.
+    ax.legend(handles, ["one page", "median"], loc="upper right",
+              frameon=False, labelcolor=TEXT, fontsize=8)
+    ax.set_title("Banning patterns empties the page; direction fills it",
+                 color=TEXT, fontsize=12, loc="left", pad=10)
+    fig.text(0.125, -0.09,
+             "every page, both briefs, all four models  ·  n=39-40 per row  ·  "
+             "llm-frontend-evals", color=MUTED, fontsize=7.5, **MONO)
+    return _finish(fig, OUT / "chart-richness.png")
+
+
 def fig_exemplar() -> Path:
     """One page carrying every pattern on the measured list at once."""
     from .sheets import SHOTS
@@ -370,9 +684,11 @@ def fig_bare_vs_nudge() -> Path:
 def main() -> None:
     use_brand()
     rows = load()
-    for build in (fig_genre, fig_fingerprint, fig_tells, fig_nudge):
+    for build in (fig_genre, fig_fingerprint, fig_tells, fig_nudge,
+                  fig_richness, fig_banned_vs_not,
+                  fig_clusters):
         print("wrote", build(rows).name)
-    for shot_build in (fig_exemplar, fig_bare_vs_nudge):
+    for shot_build in (fig_exemplar, fig_bare_vs_nudge, fig_forbid_vs_direct):
         print("wrote", shot_build().name)
 
 

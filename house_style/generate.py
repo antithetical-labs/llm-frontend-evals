@@ -77,6 +77,20 @@ MAX_TOKENS = 32000
 REASONING = {"effort": "low"}
 
 
+def reasoning_for(condition: str) -> dict:
+    """Per-condition override of the pinned effort.
+
+    Only forbid-hi uses it. The low-effort forbid pages came back near-blank,
+    and two explanations fit equally well: the white documentation page is
+    genuinely the next attractor down, or a constrained model on a small
+    thinking budget takes the cheapest compliant path. Effort is the only thing
+    that differs between the two conditions, so it is the only thing the
+    comparison can be about.
+    """
+    effort = CONDITIONS[condition].get("effort")
+    return {"effort": effort} if effort else REASONING
+
+
 def stream_completion(client: httpx.Client, payload: dict, api_key: str) -> tuple[str, dict]:
     """POST with stream=true and accumulate.
 
@@ -114,26 +128,39 @@ def stream_completion(client: httpx.Client, payload: dict, api_key: str) -> tupl
 
 def generate(client: httpx.Client, model_key: str, brief: str, condition: str,
              run: int, api_key: str, attempts: int = 2) -> dict:
-    """Generate one cell, retrying a truncated stream once.
+    """Generate one cell, retrying transport failures.
 
-    A document that starts with <!doctype and never reaches </html> is a
-    transport failure, not a result -- one observed case delivered 16 KB of
-    markup and then reported 3 completion tokens, meaning the stream ended
-    early without raising. Retrying that is correct; a gap in the grid is not
-    neutral, it biases whichever model happened to drop a connection.
+    Two things count as transport rather than result, and both are retried.
 
-    Every attempt is still recorded. This retries loudly, not silently.
+    A document that starts with <!doctype and never reaches </html> is one:
+    an observed case delivered 16 KB of markup and then reported 3 completion
+    tokens, meaning the stream ended early without raising.
+
+    A dropped connection is the other. The high-effort run lost seven cells in
+    a row to RemoteProtocolError when the local link went down, and because
+    only RuntimeError was caught, each one died on first contact and billed for
+    work already done. Long requests make this likelier: at high effort a cell
+    runs 60 to 670 seconds instead of 20, so there is far more window in which
+    a link can drop.
+
+    A gap in the grid is not neutral either way. It biases whichever model
+    happened to be slowest, which is exactly the one whose behaviour is most
+    interesting. Every attempt is recorded, so this retries loudly.
     """
     last: Exception | None = None
     for attempt in range(1, attempts + 1):
         try:
             return _generate_once(client, model_key, brief, condition, run,
                                   api_key, attempt)
-        except RuntimeError as e:          # incomplete document only
+        except (RuntimeError, httpx.TransportError) as e:
             last = e
             if attempt < attempts:
+                # A dropped link rarely comes back inside a second, and the
+                # request that just died may already have billed, so there is
+                # nothing to gain by retrying instantly.
+                time.sleep(5 * attempt)
                 print(f"  retrying {model_key}/{brief}/{condition}/{run} "
-                      f"after: {e}", flush=True)
+                      f"after: {type(e).__name__}: {e}", flush=True)
     raise last if last else RuntimeError("unreachable")
 
 
@@ -155,7 +182,8 @@ def _generate_once(client: httpx.Client, model_key: str, brief: str,
     for i, turn in enumerate(turns):
         messages = messages + [{"role": "user", "content": turn}]
         payload = {"model": MODELS[model_key], "messages": messages,
-                   "max_tokens": MAX_TOKENS, "reasoning": REASONING}
+                   "max_tokens": MAX_TOKENS,
+                   "reasoning": reasoning_for(condition)}
         text, usage = stream_completion(client, payload, api_key)
         in_tok += usage.get("prompt_tokens") or 0
         out_tok += usage.get("completion_tokens") or 0
