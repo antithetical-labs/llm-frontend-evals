@@ -470,7 +470,7 @@ def fig_clusters(rows: list[dict]) -> Path:
     ax.set_xlim(0, 1.16)
     ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
     ax.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"], **MONO)
-    ax.set_xlabel("how often the two appear on the same page  (phi, 1 = always together)",
+    ax.set_xlabel("phi correlation between the two patterns  (0 = independent)",
                   color=MUTED, fontsize=8, labelpad=8)
     ax.tick_params(colors=MUTED, labelsize=8)
     ax.grid(True, axis="x", color=HAIR, lw=0.4)
@@ -482,12 +482,58 @@ def fig_clusters(rows: list[dict]) -> Path:
     ax.legend(handles, ["all untouched pages", "within one brief"],
               loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=2,
               frameon=False, labelcolor=TEXT, fontsize=8)
-    ax.set_title("Patterns arrive in bundles, not one at a time",
+    ax.set_title("Patterns are correlated, not independent",
                  color=TEXT, fontsize=12, loc="left", pad=10)
     fig.text(0.125, -0.30,
              "40 untouched pages  ·  eight strongest pairs of 36  ·  "
              "llm-frontend-evals", color=MUTED, fontsize=7.5, **MONO)
     return _finish(fig, OUT / "chart-clusters.png")
+
+
+def fig_grounding(rows: list[dict] | None = None) -> Path:
+    """What the models say the direction means, before they build anything.
+
+    Answers: does one sentence of direction land on a shared idea, or does each
+    model invent its own? Read from the grounding turn, which is prose written
+    before any markup exists, so this is the model's understanding rather than
+    its output.
+    """
+    import re
+    docs = [p.read_text().lower()
+            for p in sorted((ROOT / "grounding").glob("*direct*.md"))]
+    terms = [("rave", r"rave"), ("flyer", r"flyer"),
+             ("monospace", r"monospace|mono type"), ("toxic", r"toxic"),
+             ("Y2K", r"y2k"), ("chrome", r"chrome"), ("magenta", r"magenta"),
+             ("the nineties", r"nineties|1990s|\b90s\b"),
+             ("glitch", r"glitch"), ("brutalism", r"brutalis"),
+             ("cyber-", r"cyber"), ("warped type", r"warped|distort")]
+    counts = sorted(((sum(1 for d in docs if re.search(p, d)), n)
+                     for n, p in terms), key=lambda t: t[0])
+    y = np.arange(len(counts))
+
+    fig, ax = plt.subplots(figsize=(9, 3.6))
+    ax.set_facecolor(BG)
+    ax.barh(y, [c for c, _ in counts], height=0.6, color=ACCENT)
+    for i, (c, _) in enumerate(counts):
+        ax.text(c + 0.5, i, f"{c}", va="center", color=TEXT, fontsize=9, **MONO)
+    ax.set_yticks(y)
+    ax.set_yticklabels([n for _, n in counts], color=TEXT, fontsize=9)
+    ax.set_xlim(0, len(docs) + 3)
+    ax.set_xticks([0, 10, 20, 30, 40])
+    ax.set_xticklabels(["0", "10", "20", "30", "40"], **MONO)
+    ax.set_xlabel(f"grounding documents mentioning the term  (of {len(docs)})",
+                  color=MUTED, fontsize=8, labelpad=8)
+    ax.tick_params(colors=MUTED, labelsize=8)
+    ax.grid(True, axis="x", color=HAIR, lw=0.4)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_color(HAIR)
+    ax.set_title("Four models, one sentence, the same art history",
+                 color=TEXT, fontsize=12, loc="left", pad=10)
+    fig.text(0.125, -0.14,
+             "written before any markup exists  ·  median 717 words each  ·  "
+             "llm-frontend-evals", color=MUTED, fontsize=7.5, **MONO)
+    return _finish(fig, OUT / "chart-grounding.png")
 
 
 def _rows_plate(rows_of_cells, title: str, out: Path,
@@ -628,7 +674,7 @@ def main() -> None:
     rows = load()
     for build in (fig_genre, fig_fingerprint, fig_tells, fig_nudge,
                   fig_richness, fig_banned_vs_not,
-                  fig_clusters):
+                  fig_clusters, fig_grounding):
         print("wrote", build(rows).name)
     for shot_build in (fig_exemplar, fig_bare_vs_nudge, fig_forbid_vs_direct):
         print("wrote", shot_build().name)
