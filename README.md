@@ -36,6 +36,12 @@ uv run python -m house_style.analyse
 uv run python -m house_style.post_figures
 ```
 
+`post_figures` writes every figure twice: `figures/post/` on the blog's dark
+page colour, and `figures/post-light/` on white for republication anywhere the
+page is light. Pass `--mode dark` or `--mode light` for one set. Both palettes
+are checked rather than eyeballed, with `python scripts/validate_palette.py
+--ramp`.
+
 Regenerating the pages themselves costs money and needs an OpenRouter key in
 `.env` as `OPENROUTER_API_KEY`:
 

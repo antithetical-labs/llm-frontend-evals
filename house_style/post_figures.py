@@ -18,12 +18,18 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .style import ACCENT, BG, HAIR, MONO, MUTED, RAMP, TEXT, use_brand
+from .style import ACCENT, BG, HAIR, MONO, MUTED, PALETTES, RAMP, TEXT, use_brand
 
 ROOT = Path(__file__).resolve().parent.parent
 # Writes into the blog repo when POST_IMAGES_DIR points there, and into this
 # repo otherwise, so a clone with no blog checked out still renders every figure.
-OUT = Path(os.environ.get("POST_IMAGES_DIR", ROOT / "figures" / "post"))
+OUT_DARK = Path(os.environ.get("POST_IMAGES_DIR", ROOT / "figures" / "post"))
+# The light set never appears on the blog, which is dark only. It exists because
+# the same PNG gets republished on a white page, where a figure saved with a
+# near-black background arrives as a dark slab, so it stays in this repo.
+OUT_LIGHT = Path(os.environ.get("POST_IMAGES_LIGHT_DIR",
+                                ROOT / "figures" / "post-light"))
+OUT = OUT_DARK
 
 MODELS = ["claude", "gpt", "kimi", "gemini"]
 BRIEF_LABEL = {"streamforge": "dev tool", "backlot": "back-office tool"}
@@ -71,8 +77,24 @@ def rate(pool: list[dict], key: str) -> float:
     return sum(1 for r in pool if r[key]) / len(pool) if pool else float("nan")
 
 
+def use_theme(mode: str) -> None:
+    """Point every chart function at the `mode` palette and output directory.
+
+    The functions read the tokens as module globals rather than taking a theme
+    argument, so the switch is a rebind here. The alternative is threading one
+    parameter through sixteen call sites for a value that is constant across a
+    whole render pass.
+    """
+    global ACCENT, BG, HAIR, MUTED, RAMP, TEXT, OUT
+    p = PALETTES[mode]
+    ACCENT, BG, HAIR, MUTED, RAMP, TEXT = (
+        p["ACCENT"], p["BG"], p["HAIR"], p["MUTED"], p["RAMP"], p["TEXT"])
+    OUT = OUT_DARK if mode == "dark" else OUT_LIGHT
+    use_brand(mode)
+
+
 def _finish(fig, out: Path) -> Path:
-    OUT.mkdir(exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, facecolor=BG, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -335,7 +357,7 @@ def _plate(cells: list[tuple[str, Path]], title: str, out: Path,
         canvas.paste(crop.resize((cell_w, cell_h), Image.LANCZOS), box[:2])
         draw.rectangle(box, outline=HAIR, width=1)
 
-    OUT.mkdir(exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
     # Screenshot plates are the only figures big enough to matter: truecolour
     # they run past the 400 KB per-image budget the blog holds itself to. These
     # are flat UI captures, so an adaptive 256-colour palette is visually free
@@ -572,7 +594,7 @@ def _rows_plate(rows_of_cells, title: str, out: Path,
             draw.rectangle(box, outline=HAIR, width=1)
         y += cell_h + label_h + pad
 
-    OUT.mkdir(exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
     canvas.quantize(colors=256, method=Image.MEDIANCUT,
                     dither=Image.FLOYDSTEINBERG).save(out, optimize=True)
     return out
@@ -670,14 +692,22 @@ def fig_bare_vs_nudge() -> Path:
 
 
 def main() -> None:
-    use_brand()
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--mode", choices=["dark", "light", "both"], default="both")
+    args = ap.parse_args()
+
     rows = load()
-    for build in (fig_genre, fig_fingerprint, fig_tells, fig_nudge,
-                  fig_richness, fig_banned_vs_not,
-                  fig_clusters, fig_grounding):
-        print("wrote", build(rows).name)
-    for shot_build in (fig_exemplar, fig_bare_vs_nudge, fig_forbid_vs_direct):
-        print("wrote", shot_build().name)
+    modes = ["dark", "light"] if args.mode == "both" else [args.mode]
+    for mode in modes:
+        use_theme(mode)
+        for build in (fig_genre, fig_fingerprint, fig_tells, fig_nudge,
+                      fig_richness, fig_banned_vs_not,
+                      fig_clusters, fig_grounding):
+            print(f"wrote {mode}/{build(rows).name}")
+        for shot_build in (fig_exemplar, fig_bare_vs_nudge, fig_forbid_vs_direct):
+            print(f"wrote {mode}/{shot_build().name}")
 
 
 if __name__ == "__main__":

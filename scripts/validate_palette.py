@@ -6,7 +6,8 @@ skill, was JavaScript, was never vendored here, and has since been deleted. An
 unverifiable claim in a repo whose whole argument is "measure it" is worse than
 no claim, so the check now lives with the thing it checks.
 
-    python scripts/validate_palette.py --ramp --surface "#0E0A09"
+    python scripts/validate_palette.py --ramp dark
+    python scripts/validate_palette.py --ramp light
 
 Exits non-zero if any check fails, so it works in CI.
 """
@@ -18,16 +19,22 @@ import math
 import sys
 
 # One hue by construction, so a step's position in the ramp is its only meaning.
-RAMP = ["#6E372A", "#A3442F", "#DB5032", "#FF6E4C", "#FFA287", "#FFD2BF"]
-SURFACE = "#0E0A09"
+# Step 0 is always the one nearest its own page, so the light ramp runs downhill
+# in lightness where the dark one runs uphill.
+RAMPS = {
+    "dark": (["#6E372A", "#A3442F", "#DB5032",
+              "#FF6E4C", "#FFA287", "#FFD2BF"], "#0E0A09"),
+    "light": (["#FBAE9C", "#F87153", "#D74321",
+               "#A32D12", "#701C08", "#410C03"], "#FFFFFF"),
+}
 
 # An ordinal ramp is read by comparing neighbours, so the binding constraints
-# are that the hue never wanders, lightness only ever climbs, adjacent steps are
-# far enough apart to be told apart, and the pale end still reads as a mark
-# rather than dissolving into the page.
+# are that the hue never wanders, lightness moves one way and never doubles
+# back, adjacent steps are far enough apart to be told apart, and the step
+# closest to the page still reads as a mark rather than dissolving into it.
 MAX_HUE_DRIFT = 12.0    # degrees across the whole ramp
 MIN_STEP_DL = 0.06      # OKLCH lightness between neighbours
-MIN_SURFACE_DL = 0.10   # darkest step against the page it sits on
+MIN_SURFACE_DL = 0.10   # step 0 against the page it sits on
 
 
 def hex_to_rgb(s: str) -> tuple[float, float, float]:
@@ -69,38 +76,51 @@ def check(colours: list[str], surface: str) -> list[tuple[bool, str, str]]:
     results.append((drift <= MAX_HUE_DRIFT, "one hue",
                     f"hue spread {drift:.1f}deg, limit {MAX_HUE_DRIFT:.0f}"))
 
-    climbs = all(b > a for a, b in zip(Ls, Ls[1:]))
-    results.append((climbs, "lightness is monotone",
-                    "increasing" if climbs else f"not monotone: {[round(x,3) for x in Ls]}"))
-
+    # Direction is set by the page, not fixed: on a dark surface the ramp climbs
+    # away from it and on a light one it descends. Either is monotone; a ramp
+    # that doubles back is what makes two different values look the same.
     gaps = [b - a for a, b in zip(Ls, Ls[1:])]
-    smallest = min(gaps) if gaps else 0.0
+    monotone = all(g > 0 for g in gaps) or all(g < 0 for g in gaps)
+    results.append((monotone, "lightness is monotone",
+                    f"{'increasing' if gaps and gaps[0] > 0 else 'decreasing'}"
+                    if monotone else f"doubles back: {[round(x,3) for x in Ls]}"))
+
+    smallest = min(abs(g) for g in gaps) if gaps else 0.0
     results.append((smallest >= MIN_STEP_DL, "steps are distinguishable",
                     f"smallest gap {smallest:.3f}, floor {MIN_STEP_DL}"))
 
-    clearance = Ls[0] - sL
-    results.append((clearance >= MIN_SURFACE_DL, "darkest step clears the surface",
+    clearance = abs(Ls[0] - sL)
+    results.append((clearance >= MIN_SURFACE_DL, "step 0 clears the surface",
                     f"dL {clearance:.3f} over {surface}, floor {MIN_SURFACE_DL}"))
     return results
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("colours", nargs="*", help="hex colours, light end last")
-    ap.add_argument("--ramp", action="store_true",
-                    help="check the ramp in house_style/style.py")
-    ap.add_argument("--surface", default=SURFACE,
-                    help="page colour the ramp is drawn on")
+    ap.add_argument("colours", nargs="*", help="hex colours, step 0 first")
+    ap.add_argument("--ramp", nargs="?", const="all", choices=["all", *RAMPS],
+                    help="check a ramp from house_style/style.py")
+    ap.add_argument("--surface", help="page colour the ramp is drawn on")
     args = ap.parse_args()
 
-    colours = RAMP if args.ramp or not args.colours else args.colours
-    print(f"{len(colours)} steps on {args.surface}: {' '.join(colours)}\n")
-    results = check(colours, args.surface)
-    for ok, name, detail in results:
-        print(f"  {'PASS' if ok else 'FAIL'}  {name:32} {detail}")
+    if args.colours:
+        if args.surface is None:
+            ap.error("--surface is required with explicit colours")
+        jobs = [("given", args.colours, args.surface)]
+    else:
+        wanted = list(RAMPS) if args.ramp in (None, "all") else [args.ramp]
+        jobs = [(m, RAMPS[m][0], args.surface or RAMPS[m][1]) for m in wanted]
 
-    failed = [r for r in results if not r[0]]
-    print(f"\n{'ALL CHECKS PASS' if not failed else f'{len(failed)} CHECK(S) FAILED'}")
+    failed = 0
+    for name, colours, surface in jobs:
+        print(f"{name}: {len(colours)} steps on {surface}: {' '.join(colours)}\n")
+        results = check(colours, surface)
+        for ok, label, detail in results:
+            print(f"  {'PASS' if ok else 'FAIL'}  {label:32} {detail}")
+        failed += sum(1 for r in results if not r[0])
+        print()
+
+    print("ALL CHECKS PASS" if not failed else f"{failed} CHECK(S) FAILED")
     return 1 if failed else 0
 
 
