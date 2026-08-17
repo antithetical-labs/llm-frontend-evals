@@ -490,64 +490,6 @@ def fig_clusters(rows: list[dict]) -> Path:
     return _finish(fig, OUT / "chart-clusters.png")
 
 
-def fig_genre_erased(rows: list[dict]) -> Path:
-    """Whether the product category still decides the palette.
-
-    Answers: once you give any design instruction at all, does the genre
-    default survive? Each row is a condition and the two dots are the two
-    briefs, so the distance between them is the whole reading and the pair is
-    joined to make that distance the mark.
-    """
-    order = ["bare", "nudge", "forbid", "direct1", "direct"]
-    label = {"bare": "nothing said", "nudge": '"be distinctive"',
-             "forbid": "four patterns banned", "direct1": "direction",
-             "direct": "direction + grounding"}
-
-    def med(cond, brief):
-        v = sorted(r["bg_L"] for r in rows
-                   if r["cond"] == cond and r["brief"] == brief)
-        return v[len(v) // 2]
-
-    fig, ax = plt.subplots(figsize=(9, 3.2))
-    ax.set_facecolor(BG)
-    for i, cond in enumerate(order):
-        dev, back = med(cond, "streamforge"), med(cond, "backlot")
-        ax.plot([dev, back], [i, i], "-", color=HAIR, lw=1.6, zorder=1)
-        ax.plot(dev, i, "o", color=ACCENT, markersize=8, zorder=3,
-                markeredgecolor=BG, markeredgewidth=1.3)
-        ax.plot(back, i, "o", color=MUTED, markersize=8, zorder=3,
-                markeredgecolor=BG, markeredgewidth=1.3)
-        ax.text(1.04, i, f"gap {abs(dev - back):.2f}", va="center",
-                color=MUTED, fontsize=8, **MONO)
-
-    ax.set_yticks(range(len(order)))
-    ax.set_yticklabels([label[c] for c in order], color=TEXT, fontsize=9)
-    ax.invert_yaxis()
-    ax.set_xlim(0, 1.30)
-    ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
-    ax.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"], **MONO)
-    ax.set_xlabel("median background lightness   (0 = black, 1 = white)",
-                  color=MUTED, fontsize=8, labelpad=8)
-    ax.tick_params(colors=MUTED, labelsize=8)
-    ax.grid(True, axis="x", color=HAIR, lw=0.4)
-    ax.set_axisbelow(True)
-    for s in ax.spines.values():
-        s.set_color(HAIR)
-    handles = [plt.Rectangle((0, 0), 1, 1, color=ACCENT),
-               plt.Rectangle((0, 0), 1, 1, color=MUTED)]
-    # Below the axes: the gap labels occupy the right gutter on every row and
-    # the plot area itself has no corner free across all five.
-    ax.legend(handles, ["dev tool", "back-office tool"], loc="upper center",
-              bbox_to_anchor=(0.5, -0.22), ncol=2, frameon=False,
-              labelcolor=TEXT, fontsize=8)
-    ax.set_title("Any instruction at all erases the product category",
-                 color=TEXT, fontsize=12, loc="left", pad=10)
-    fig.text(0.125, -0.26,
-             "median of ~20 pages per brief per condition  ·  llm-frontend-evals",
-             color=MUTED, fontsize=7.5, **MONO)
-    return _finish(fig, OUT / "chart-genre-erased.png")
-
-
 def _rows_plate(rows_of_cells, title: str, out: Path,
                 cell_w: int, cell_h: int) -> Path:
     """Several labelled rows of screenshots, for a before/after contrast."""
